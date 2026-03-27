@@ -1,6 +1,7 @@
 using DataAccess;
 using DataAccessLayer.Services;
 using FptSocialNetwork.Api.Hubs;
+using FptSocialNetwork.Api.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -37,6 +38,8 @@ namespace FptSocialNetwork.Api
             builder.Services.AddScoped<IMessageService, MessageService>();
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<IUserService, UserService>();
+            builder.Services.AddScoped<IPostService, PostService>();
+            builder.Services.AddScoped<ICloudinaryUploadService, CloudinaryUploadService>();
 
             var jwtKey = builder.Configuration["Jwt:Key"] ?? "super-secret-key-change-this";
             var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "FptSocialNetwork.Api";

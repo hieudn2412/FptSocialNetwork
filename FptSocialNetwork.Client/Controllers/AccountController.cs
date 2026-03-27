@@ -26,7 +26,7 @@ namespace FptSocialNetwork.Client.Controllers
         {
             if (!string.IsNullOrWhiteSpace(HttpContext.Session.GetString("AccessToken")))
             {
-                return RedirectToAction("Index", "Conversation");
+                return RedirectToAction("Index", "Home");
             }
 
             ViewBag.GoogleClientId = _configuration["GoogleAuth:ClientId"] ?? string.Empty;
@@ -57,7 +57,7 @@ namespace FptSocialNetwork.Client.Controllers
             HttpContext.Session.SetString("AccessToken", result.Data.Token);
             HttpContext.Session.SetInt32("UserId", result.Data.User.UserId);
             HttpContext.Session.SetString("UserName", result.Data.User.FullName);
-            return RedirectToAction("Index", "Conversation");
+            return RedirectToAction("Index", "Home");
         }
 
         [HttpPost]
@@ -89,7 +89,7 @@ namespace FptSocialNetwork.Client.Controllers
             HttpContext.Session.SetString("AccessToken", result.Data.Token);
             HttpContext.Session.SetInt32("UserId", result.Data.User.UserId);
             HttpContext.Session.SetString("UserName", result.Data.User.FullName);
-            return RedirectToAction("Index", "Conversation");
+            return RedirectToAction("Index", "Home");
         }
 
         [HttpGet]
@@ -138,7 +138,7 @@ namespace FptSocialNetwork.Client.Controllers
             HttpContext.Session.SetString("AccessToken", result.Data.Token);
             HttpContext.Session.SetInt32("UserId", result.Data.User.UserId);
             HttpContext.Session.SetString("UserName", result.Data.User.FullName);
-            return RedirectToAction("Index", "Conversation");
+            return RedirectToAction("Index", "Home");
         }
 
         [HttpPost]

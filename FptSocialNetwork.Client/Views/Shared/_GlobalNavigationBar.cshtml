@@ -12,8 +12,10 @@
 
     var conversationUrl = Url.Action("Index", "Conversation") ?? "/conversations";
     var homeUrl = Url.Action("Index", "Home") ?? "/";
-    var targetHomeUrl = isAuthenticated ? conversationUrl : homeUrl;
-    var isHomeActive = currentController == "conversation" || (currentController == "home" && currentAction == "index");
+    var profileUrl = Url.Action("Profile", "Home") ?? homeUrl;
+    var targetHomeUrl = homeUrl;
+    var isHomeActive = currentController == "home" && currentAction == "index";
+    var isChatActive = currentController == "conversation";
 
     var loginUrl = Url.Action("Login", "Account") ?? "/Account/Login";
     var registerUrl = Url.Action("Register", "Account") ?? "/Account/Register";
@@ -27,7 +29,7 @@
 
         <div class="fbn-search-box">
             <i class="fa-solid fa-magnifying-glass"></i>
-            <input type="text" placeholder="Tìm kiếm trên Facebook" />
+            <input type="text" placeholder="Tìm kiếm trên FPT Social" />
         </div>
     </div>
 
@@ -35,6 +37,12 @@
         <a class="fbn-center-item @(isHomeActive ? "active" : "")" href="@targetHomeUrl" aria-label="Home">
             <i class="fa-solid fa-house"></i>
         </a>
+        @if (isAuthenticated)
+        {
+            <a class="fbn-center-item @(isChatActive ? "active" : "")" href="@conversationUrl" aria-label="Đoạn chat">
+                <i class="fa-solid fa-comment-dots"></i>
+            </a>
+        }
     </div>
 
     <div class="fbn-right">
@@ -86,9 +94,9 @@
                     <div class="name">@displayName</div>
                 </div>
 
-                <a class="fbn-see-profile-btn" href="@targetHomeUrl">
+                <a class="fbn-see-profile-btn" href="@profileUrl">
                     <i class="fa-solid fa-circle-user"></i>
-                    <span>Xem tất cả trang cá nhân</span>
+                    <span>Xem trang cá nhân</span>
                 </a>
             </div>
 
@@ -112,18 +120,6 @@
                         </div>
                         <div class="fbn-dropdown-text">
                             <div class="title">Trợ giúp và hỗ trợ</div>
-                        </div>
-                    </div>
-                    <i class="fa-solid fa-chevron-right arrow"></i>
-                </div>
-
-                <div class="fbn-dropdown-item">
-                    <div class="fbn-dropdown-item-left">
-                        <div class="fbn-dropdown-icon">
-                            <i class="fa-solid fa-moon"></i>
-                        </div>
-                        <div class="fbn-dropdown-text">
-                            <div class="title">Màn hình và trợ năng</div>
                         </div>
                     </div>
                     <i class="fa-solid fa-chevron-right arrow"></i>

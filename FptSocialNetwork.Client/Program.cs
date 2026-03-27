@@ -22,6 +22,11 @@ namespace FptSocialNetwork.Client
                 var apiBaseUrl = builder.Configuration["ApiSettings:BaseUrl"] ?? "https://localhost:7071/";
                 client.BaseAddress = new Uri(apiBaseUrl);
             });
+            builder.Services.AddHttpClient<IPostApiService, PostApiService>(client =>
+            {
+                var apiBaseUrl = builder.Configuration["ApiSettings:BaseUrl"] ?? "https://localhost:7071/";
+                client.BaseAddress = new Uri(apiBaseUrl);
+            });
             builder.Services.AddScoped<IConversationApiService, ConversationApiService>();
             builder.Services.AddScoped<IMessageApiService, MessageApiService>();
             builder.Services.AddScoped<IAuthApiService, AuthApiService>();

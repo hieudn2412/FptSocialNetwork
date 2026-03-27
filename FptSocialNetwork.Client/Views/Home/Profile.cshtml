@@ -1,29 +1,28 @@
-@using Microsoft.AspNetCore.Http
+@model FptSocialNetwork.Client.Models.HomeFeedViewModel
 @{
     ViewData["Title"] = "Trang cá nhân";
     Layout = null;
 
-    var userName = Context.Session.GetString("UserName");
-    var avatarUrl = Context.Session.GetString("UserAvatarUrl");
-    var displayName = string.IsNullOrWhiteSpace(userName) ? "Người dùng" : userName.Trim();
-    var firstLetter = displayName.Length > 0 ? displayName.Substring(0, 1).ToUpperInvariant() : "U";
-
-    var userBio = Context.Session.GetString("UserBio");
-    var userCity = Context.Session.GetString("UserCity");
-    var userSchool = Context.Session.GetString("UserSchool");
-    var followerCount = Context.Session.GetInt32("FollowerCount");
-
-    var hasProfileInfo =
-        !string.IsNullOrWhiteSpace(userBio) ||
-        !string.IsNullOrWhiteSpace(userCity) ||
-        !string.IsNullOrWhiteSpace(userSchool);
-
-    var followingUsers = new[]
+    var displayName = string.IsNullOrWhiteSpace(Model.CurrentUserName) ? "Người dùng" : Model.CurrentUserName.Trim();
+    var avatarUrl = Model.CurrentUserAvatarUrl ?? string.Empty;
+    var firstLetter = displayName.Substring(0, 1).ToUpperInvariant();
+    var followerCount = Model.FollowerCount;
+    var currentUserId = Model.CurrentUserId;
+}
+@functions {
+    private static string ToTimeAgo(DateTime createdAt)
     {
-        "Khanh Nguyen", "Hương Phạm", "Đức Hải", "Heo Con", "Hoàng Nguyễn",
-        "Hoang Anh Duong", "Duc Anh", "Nguyen Khac Ton", "Phạm Hải Nam",
-        "Quynh Anh", "Trung Kiên", "Duy Vũ", "Luc Ngo"
-    };
+        var localTime = createdAt.Kind == DateTimeKind.Unspecified
+            ? DateTime.SpecifyKind(createdAt, DateTimeKind.Utc).ToLocalTime()
+            : createdAt.ToLocalTime();
+
+        var diff = DateTime.Now - localTime;
+        if (diff.TotalMinutes < 1) return "Vừa xong";
+        if (diff.TotalMinutes < 60) return $"{(int)diff.TotalMinutes} phút";
+        if (diff.TotalHours < 24) return $"{(int)diff.TotalHours} giờ";
+        if (diff.TotalDays < 7) return $"{(int)diff.TotalDays} ngày";
+        return localTime.ToString("dd/MM/yyyy HH:mm");
+    }
 }
 <!DOCTYPE html>
 <html lang="vi">
@@ -31,709 +30,344 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"]</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
     <style>
-        :root {
-            --bg-page: #161719;
-            --bg-head: #1f2226;
-            --bg-card: #23262b;
-            --bg-soft: #343841;
-            --text-main: #ebedf0;
-            --text-muted: #b5bbc6;
-            --line: #3a3f48;
-            --brand-500: #f37021;
-            --brand-600: #de5c0e;
-            --brand-soft: rgba(243, 112, 33, 0.15);
-            --success: #31a24c;
-            --blue-soft: #2d88ff;
-        }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-
-        body {
-            font-family: "Segoe UI", Arial, Helvetica, sans-serif;
-            color: var(--text-main);
-            background: linear-gradient(180deg, #1b1d20 0, #151618 140px, var(--bg-page) 100%);
-        }
-
-        a { text-decoration: none; color: inherit; }
-
-        .topbar {
-            position: sticky;
-            top: 0;
-            z-index: 50;
-            height: 56px;
-            background: #1f2226;
-            border-bottom: 1px solid #343841;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 14px;
-        }
-
-        .topbar-left, .topbar-center, .topbar-right {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .topbar-right { min-width: 180px; justify-content: flex-end; }
-
-        .logo {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--brand-500), #ff9a3f);
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            color: #fff;
-            font-weight: 700;
-            font-size: 20px;
-            box-shadow: 0 8px 16px rgba(243, 112, 33, 0.3);
-        }
-
-        .search-box {
-            width: min(360px, 45vw);
-            height: 40px;
-            border-radius: 999px;
-            background: #31353d;
-            color: var(--text-muted);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 0 14px;
-        }
-
-        .search-box input {
-            width: 100%;
-            border: none;
-            background: transparent;
-            color: var(--text-main);
-            outline: none;
-            font-size: 15px;
-        }
-
-        .nav-icon,
-        .circle-btn,
-        .profile-btn {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            border: none;
-            background: #353a42;
-            color: var(--text-main);
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 17px;
-            transition: 0.2s;
-            cursor: pointer;
-        }
-
-        .nav-icon:hover,
-        .circle-btn:hover,
-        .profile-btn:hover {
-            background: #414650;
-        }
-
-        .nav-icon.active {
-            color: var(--brand-500);
-            background: var(--brand-soft);
-            box-shadow: inset 0 -3px 0 var(--brand-500);
-            border-radius: 10px;
-            width: 56px;
-        }
-
-        .profile-btn {
-            background: #e4e6eb;
-            color: #65676b;
-        }
-
-        .page {
-            max-width: 1120px;
-            margin: 0 auto;
-            padding: 0 16px 24px;
-        }
-
-        .cover-wrap {
-            position: relative;
-            height: 320px;
-            border-bottom-left-radius: 14px;
-            border-bottom-right-radius: 14px;
-            overflow: hidden;
-            background: linear-gradient(140deg, #3b2a1d 0%, #7b431c 30%, #4f2e1a 55%, #22262c 100%);
-            border: 1px solid #3b3f47;
-            border-top: none;
-        }
-
-        .cover-wrap img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            opacity: 0.44;
-        }
-
-        .profile-header {
-            position: relative;
-            margin-top: -56px;
-            padding: 0 16px 12px;
-            border-bottom: 1px solid var(--line);
-        }
-
-        .profile-main {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-            gap: 12px;
-        }
-
-        .identity {
-            display: flex;
-            align-items: flex-end;
-            gap: 14px;
-        }
-
-        .avatar {
-            width: 168px;
-            height: 168px;
-            border-radius: 50%;
-            border: 5px solid #24272d;
-            background: #d9dde3;
-            color: #6b7280;
-            overflow: hidden;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 84px;
-            box-shadow: 0 4px 12px rgba(0,0,0,.35);
-        }
-
-        .avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .identity-meta h1 {
-            font-size: 40px;
-            font-weight: 700;
-            line-height: 1.08;
-            margin-bottom: 6px;
-            letter-spacing: -0.5px;
-        }
-
-        .meta-line {
-            color: var(--text-muted);
-            font-size: 16px;
-            margin-bottom: 4px;
-        }
-
-        .meta-line strong { color: #fff; }
-
-        .profile-actions {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 18px;
-        }
-
-        .btn {
-            height: 40px;
-            border-radius: 10px;
-            padding: 0 14px;
-            border: none;
-            font-size: 15px;
-            font-weight: 700;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-        }
-
-        .btn.primary {
-            background: var(--brand-500);
-            color: #fff;
-        }
-
-        .btn.primary:hover { background: var(--brand-600); }
-
-        .btn.soft {
-            background: #3a404a;
-            color: #e8ebf0;
-        }
-
-        .btn.soft:hover { background: #464d58; }
-
-        .content {
-            display: grid;
-            grid-template-columns: minmax(260px, 1fr) minmax(400px, 1.4fr);
-            gap: 14px;
-            margin-top: 16px;
-            align-items: start;
-        }
-
-        .card {
-            background: var(--bg-card);
-            border: 1px solid var(--line);
-            border-radius: 14px;
-            box-shadow: 0 1px 2px rgba(0,0,0,.25);
-        }
-
-        .card h3 {
-            font-size: 31px;
-            font-weight: 700;
-            padding: 18px 16px 10px;
-        }
-
-        .intro-list {
-            padding: 0 16px 16px;
-            display: grid;
-            gap: 12px;
-            color: var(--text-main);
-            font-size: 16px;
-        }
-
-        .intro-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .intro-item i {
-            width: 22px;
-            color: var(--text-muted);
-            text-align: center;
-        }
-
-        .empty-info {
-            margin: 0 16px 16px;
-            border-radius: 10px;
-            background: #323741;
-            color: var(--text-muted);
-            padding: 14px;
-            font-size: 15px;
-        }
-
-        .connections-head {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 16px;
-            border-bottom: 1px solid var(--line);
-        }
-
-        .connections-head .title {
-            font-size: 24px;
-            font-weight: 700;
-        }
-
-        .connections-head .sub {
-            margin-top: 4px;
-            color: var(--text-muted);
-            font-size: 14px;
-        }
-
-        .connections-head a {
-            color: var(--blue-soft);
-            font-size: 14px;
-        }
-
-        .connections-list {
-            padding: 8px 8px 14px;
-            display: grid;
-            gap: 4px;
-        }
-
-        .connection-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 8px;
-            border-radius: 10px;
-        }
-
-        .connection-item:hover { background: #323741; }
-
-        .small-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: #d9dde3;
-            color: #6b7280;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            overflow: hidden;
-        }
-
-        .small-avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .online-dot {
-            position: relative;
-        }
-
-        .online-dot::after {
-            content: "";
-            position: absolute;
-            right: -1px;
-            bottom: -1px;
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: var(--success);
-            border: 2px solid var(--bg-card);
-        }
-
-        .composer {
-            padding: 14px 14px 10px;
-        }
-
-        .composer-top {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding-bottom: 10px;
-        }
-
-        .composer-input {
-            flex: 1;
-            height: 42px;
-            border-radius: 999px;
-            border: none;
-            background: #373c45;
-            color: var(--text-muted);
-            padding: 0 14px;
-            font-size: 16px;
-            outline: none;
-        }
-
-        .composer-actions {
-            border-top: 1px solid var(--line);
-            padding-top: 10px;
-            display: grid;
-            grid-template-columns: 1fr;
-        }
-
-        .composer-action {
-            height: 38px;
-            border-radius: 8px;
-            color: var(--text-muted);
-            font-weight: 600;
-            font-size: 15px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            cursor: pointer;
-        }
-
-        .composer-action:hover { background: #353b45; }
-        .composer-action .fa-image { color: #45bd62; }
-
-        .section-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 14px;
-            border-bottom: 1px solid var(--line);
-        }
-
-        .section-row .title {
-            font-size: 30px;
-            font-weight: 700;
-        }
-
-        .right-actions {
-            display: flex;
-            gap: 8px;
-        }
-
-        .pill-btn {
-            height: 36px;
-            padding: 0 12px;
-            border-radius: 10px;
-            border: none;
-            background: #3a404a;
-            color: #f1f3f5;
-            font-size: 14px;
-            font-weight: 700;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-        }
-
-        .post {
-            margin-top: 14px;
-            padding: 12px 14px;
-        }
-
-        .post-head {
-            display: flex;
-            justify-content: space-between;
-            gap: 12px;
-        }
-
-        .post-author {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .post-author strong { font-size: 17px; }
-
-        .post-author .time {
-            color: var(--text-muted);
-            font-size: 13px;
-        }
-
-        .post-content {
-            margin-top: 10px;
-            font-size: 18px;
-            line-height: 1.35;
-        }
-
-        .post-image {
-            margin-top: 12px;
-            width: 100%;
-            border-radius: 12px;
-            overflow: hidden;
-            border: 1px solid #3f4450;
-        }
-
-        .post-image img {
-            width: 100%;
-            max-height: 380px;
-            object-fit: cover;
-            display: block;
-        }
-
-        .post-stats {
-            margin-top: 10px;
-            color: var(--text-muted);
-            font-size: 14px;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .post-actions {
-            margin-top: 10px;
-            padding-top: 8px;
-            border-top: 1px solid var(--line);
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 4px;
-        }
-
-        .post-action {
-            height: 38px;
-            border-radius: 8px;
-            color: var(--text-muted);
-            font-size: 14px;
-            font-weight: 700;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            cursor: pointer;
-        }
-
-        .post-action:hover { background: #373d47; color: #fff; }
-        .post-action.like-active { color: var(--brand-500); }
-
-        @@media (max-width: 1200px) {
-            .content { grid-template-columns: 1fr; }
-            .left-column { order: 2; }
-            .right-column { order: 1; }
-        }
-
-        @@media (max-width: 860px) {
-            .topbar-center { display: none; }
-            .search-box { width: 190px; }
-            .cover-wrap { height: 210px; border-radius: 0 0 14px 14px; }
-            .profile-main { flex-direction: column; align-items: flex-start; }
-            .identity { align-items: center; }
-            .avatar { width: 128px; height: 128px; font-size: 64px; }
-            .identity-meta h1 { font-size: 32px; }
-            .profile-actions { margin-bottom: 6px; }
-            .profile-actions .btn.soft:last-child { display: none; }
-        }
+        :root { --bg:#15171a; --card:#232831; --line:#3a414e; --soft:#373d47; --text:#edf0f4; --muted:#b7bfcc; --brand:#f37021; --danger:#412427; }
+        * { box-sizing:border-box; margin:0; padding:0; }
+        body { font-family:"Manrope","Segoe UI",sans-serif; background:linear-gradient(180deg,#1c1f24,#15171a 200px); color:var(--text); }
+        a { color:inherit; text-decoration:none; }
+        .topbar { position:sticky; top:0; z-index:1000; height:56px; border-bottom:1px solid var(--line); background:#20242a; display:flex; justify-content:space-between; align-items:center; padding:0 14px; }
+        .row { display:flex; align-items:center; gap:10px; }
+        .logo { width:40px; height:40px; border-radius:50%; background:linear-gradient(135deg,var(--brand),#ff9c40); color:#fff; font-weight:800; display:flex; align-items:center; justify-content:center; }
+        .search { width:320px; height:40px; border-radius:999px; background:#353b45; display:flex; align-items:center; gap:10px; padding:0 14px; color:var(--muted); }
+        .search input { width:100%; border:none; background:transparent; color:var(--text); outline:none; }
+        .home-link,.icon { width:40px; height:40px; border-radius:50%; background:#373d48; border:none; color:var(--text); display:inline-flex; align-items:center; justify-content:center; cursor:pointer; }
+        .home-link { width:86px; height:46px; border-radius:10px; color:var(--brand); background:rgba(243,112,33,.16); position:relative; font-size:21px; }
+        .home-link::after { content:""; position:absolute; left:18px; right:18px; bottom:-5px; height:3px; border-radius:20px; background:var(--brand); }
+        .page { max-width:1120px; margin:0 auto; padding:0 16px 24px; }
+        .cover { height:300px; border:1px solid var(--line); border-top:none; border-radius:0 0 14px 14px; background:linear-gradient(140deg,#3b2a1d,#7b431c 35%,#1f242b); }
+        .head { margin-top:-52px; padding:0 16px 12px; border-bottom:1px solid var(--line); display:flex; justify-content:space-between; gap:10px; align-items:flex-end; }
+        .id { display:flex; gap:14px; align-items:flex-end; }
+        .avatar-wrap { position:relative; width:166px; height:166px; }
+        .avatar-xl { width:166px; height:166px; border-radius:50%; border:5px solid #20242a; background:#dce0e6; color:#69717d; overflow:hidden; display:flex; align-items:center; justify-content:center; font-size:80px; }
+        .avatar-xl img,.avatar img { width:100%; height:100%; object-fit:cover; }
+        .avatar-edit { position:absolute; right:8px; bottom:8px; width:38px; height:38px; border-radius:50%; border:1px solid #596173; background:#3f4654; color:#eff2f8; cursor:pointer; }
+        .id h1 { font-size:44px; font-weight:800; line-height:1.05; margin-bottom:6px; }
+        .meta { color:var(--muted); font-size:17px; margin-bottom:4px; }
+        .btn { height:40px; border:none; border-radius:10px; padding:0 14px; font-weight:800; background:#3a414d; color:var(--text); cursor:pointer; display:inline-flex; align-items:center; gap:8px; }
+        .layout { margin-top:14px; display:grid; grid-template-columns:minmax(280px,1fr) minmax(420px,1.4fr); gap:14px; align-items:start; }
+        .card { background:var(--card); border:1px solid var(--line); border-radius:14px; }
+        .title { font-size:31px; font-weight:800; padding:16px 16px 10px; }
+        .list { padding:0 16px 16px; display:grid; gap:12px; }
+        .item { display:flex; gap:10px; align-items:center; font-size:16px; }
+        .item i { width:20px; color:var(--muted); text-align:center; }
+        .empty { margin:0 16px 16px; border-radius:10px; background:#353b45; color:var(--muted); padding:12px 14px; font-size:14px; font-weight:600; }
+        .head-sm { padding:16px; border-bottom:1px solid var(--line); }
+        .head-sm strong { font-size:24px; font-weight:800; }
+        .head-sm span { color:var(--muted); font-size:14px; }
+        .people { padding:8px; display:grid; gap:3px; }
+        .person { display:flex; align-items:center; gap:10px; padding:8px; border-radius:10px; font-weight:700; }
+        .person:hover { background:#333945; }
+        .avatar { width:38px; height:38px; border-radius:50%; background:#dce0e6; color:#69717d; display:flex; align-items:center; justify-content:center; overflow:hidden; flex-shrink:0; position:relative; }
+        .avatar.online::after { content:""; width:9px; height:9px; border-radius:50%; background:#30a24d; border:2px solid var(--card); position:absolute; right:-1px; bottom:-1px; }
+        .composer { padding:14px; }
+        .composer-top { display:flex; gap:10px; align-items:center; padding-bottom:10px; border-bottom:1px solid var(--line); }
+        .composer-trigger { flex:1; height:42px; border-radius:999px; border:none; background:var(--soft); color:var(--muted); text-align:left; padding:0 14px; cursor:pointer; }
+        .composer-actions { margin-top:10px; display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+        .composer-action { border:none; border-radius:8px; height:38px; background:transparent; color:var(--muted); font-size:15px; font-weight:700; display:flex; justify-content:center; align-items:center; gap:8px; cursor:pointer; }
+        .composer-action:hover { background:#343a45; color:#fff; }
+        .composer-action .fa-image { color:#45bd62; } .composer-action .fa-paper-plane { color:#74b8ff; }
+        .post-head { padding:14px; border-bottom:1px solid var(--line); font-size:30px; font-weight:800; }
+        .post { margin-top:12px; overflow:hidden; }
+        .post-top { display:flex; justify-content:space-between; padding:12px 14px 8px; }
+        .post-author { display:flex; gap:10px; align-items:center; }
+        .post-author strong { font-size:16px; font-weight:800; }
+        .post-author p { color:var(--muted); font-size:13px; }
+        .post-content { padding:0 14px 10px; font-size:15px; line-height:1.5; white-space:pre-wrap; }
+        .post-image img { width:100%; max-height:520px; object-fit:cover; border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
+        .post-stats { padding:10px 14px; color:var(--muted); font-size:14px; display:flex; justify-content:space-between; }
+        .post-actions { margin:0 14px 10px; border-top:1px solid var(--line); padding-top:5px; display:grid; grid-template-columns:repeat(3,1fr); gap:4px; }
+        .post-action-form { margin:0; }
+        .post-action-btn { width:100%; border:none; background:transparent; height:36px; border-radius:8px; color:var(--muted); font-size:14px; font-weight:700; display:flex; align-items:center; justify-content:center; gap:8px; cursor:pointer; }
+        .post-action-btn:hover { background:#343a45; color:#fff; }
+        .post-action-btn.active { color:var(--brand); }
+        .follow-form { margin:0; }
+        .follow-btn { height:32px; border-radius:8px; border:1px solid var(--line); background:#323844; color:var(--text); padding:0 12px; font-size:13px; font-weight:700; cursor:pointer; font-family:inherit; }
+        .follow-btn:hover { border-color:#4f5765; }
+        .follow-btn.following { color:var(--brand); border-color:rgba(243,112,33,.44); }
+        .comment-list { margin:0 14px 10px; display:grid; gap:8px; }
+        .comment-item { background:#2d333e; border-radius:10px; padding:8px 10px; }
+        .comment-meta { display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:4px; color:var(--muted); font-size:12px; }
+        .comment-content { color:var(--text); font-size:14px; line-height:1.4; white-space:pre-wrap; }
+        .comment-form { margin:0 14px 12px; display:grid; grid-template-columns:1fr auto; gap:8px; }
+        .comment-input { height:38px; border-radius:10px; border:1px solid var(--line); background:#323844; color:var(--text); padding:0 12px; outline:none; font-size:14px; }
+        .comment-submit { height:38px; border:none; border-radius:10px; padding:0 14px; background:#3a414d; color:#fff; font-weight:700; cursor:pointer; }
+        .error { padding:10px 12px; border:1px solid #8c2f2f; background:var(--danger); color:#ffd4d4; border-radius:12px; margin-bottom:12px; }
+        .center { padding:24px 14px; text-align:center; color:var(--muted); font-weight:700; }
+        .modal { position:fixed; inset:0; background:rgba(8,10,14,.72); display:flex; align-items:center; justify-content:center; z-index:3000; padding:12px; }
+        .modal[hidden] { display:none; }
+        .modal-card { width:min(560px,100%); background:#252a33; border:1px solid #414856; border-radius:16px; overflow:hidden; font-family:"Manrope","Segoe UI",sans-serif; }
+        .modal-head { height:62px; border-bottom:1px solid var(--line); display:flex; align-items:center; justify-content:center; position:relative; font-size:26px; font-weight:700; letter-spacing:.2px; }
+        .close { position:absolute; right:14px; top:12px; width:38px; height:38px; border-radius:50%; border:none; background:#3b424e; color:#e7ebf2; cursor:pointer; }
+        .modal-body { padding:14px; }
+        .author { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+        .author strong { font-size:15px; }
+        .textarea { width:100%; min-height:130px; border:none; outline:none; resize:vertical; border-radius:12px; background:#323844; color:var(--text); padding:12px; font-size:18px; font-family:inherit; }
+        .preview { margin-top:10px; border-radius:12px; border:1px solid var(--line); overflow:hidden; }
+        .preview img { width:100%; max-height:280px; object-fit:cover; display:block; }
+        .tools { margin-top:12px; border:1px solid var(--line); border-radius:12px; padding:10px; display:flex; justify-content:space-between; align-items:center; }
+        .tools span { font-weight:700; }
+        .tool-btn { border:none; background:transparent; color:var(--muted); font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:8px; }
+        .tool-btn .fa-image { color:#45bd62; }
+        .field { margin-bottom:12px; }
+        .field label { display:block; margin-bottom:6px; color:var(--muted); font-size:14px; font-weight:700; }
+        .field input,.field textarea { width:100%; border:1px solid var(--line); border-radius:10px; background:#323844; color:var(--text); padding:10px 12px; font-size:14px; font-family:inherit; outline:none; }
+        .field textarea { min-height:86px; resize:vertical; }
+        .profile-modal .modal-head { font-size:24px; font-weight:700; }
+        .profile-modal .field label { font-size:13px; letter-spacing:.2px; }
+        .profile-modal .field input,.profile-modal .field textarea { font-size:15px; }
+        .submit { width:100%; height:42px; border:none; border-radius:10px; margin-top:12px; background:var(--brand); color:#fff; font-size:16px; font-weight:800; cursor:pointer; }
+        @@media (max-width:1100px) { .layout { grid-template-columns:1fr; } }
+        @@media (max-width:860px) { .topbar-center{display:none;} .search{width:190px;} .cover{height:210px;} .head{margin-top:-38px; flex-direction:column; align-items:flex-start;} .id{align-items:center;} .avatar-wrap,.avatar-xl{width:126px;height:126px;} .avatar-xl{font-size:60px;} .id h1{font-size:34px;} .modal-head{font-size:26px;} }
     </style>
 </head>
 <body>
     <header class="topbar">
-        <div class="topbar-left">
+        <div class="row">
             <a class="logo" href="@Url.Action("Index", "Home")">F</a>
-            <div class="search-box">
-                <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="text" placeholder="Tìm kiếm trên FPT Social" />
-            </div>
+            <div class="search"><i class="fa-solid fa-magnifying-glass"></i><input type="text" placeholder="Tìm kiếm trên FPT Social" /></div>
         </div>
-
-        <div class="topbar-center">
-            <a class="nav-icon active" href="@Url.Action("Index", "Home")" aria-label="Trang chủ">
-                <i class="fa-solid fa-house"></i>
-            </a>
-            <div class="nav-icon"><i class="fa-solid fa-user-group"></i></div>
-            <div class="nav-icon"><i class="fa-solid fa-tv"></i></div>
-        </div>
-
-        <div class="topbar-right">
-            <a class="circle-btn" href="@Url.Action("Index", "Conversation")" aria-label="Tin nhắn">
-                <i class="fa-solid fa-comment-dots"></i>
-            </a>
-            <button class="circle-btn" type="button" aria-label="Thông báo">
-                <i class="fa-solid fa-bell"></i>
-            </button>
-            <a class="profile-btn" href="@Url.Action("Profile", "Home")" aria-label="Trang cá nhân">
-                <i class="fa-solid fa-user"></i>
-            </a>
-        </div>
+        <div class="row"><a class="home-link" href="@Url.Action("Index", "Home")"><i class="fa-solid fa-house"></i></a></div>
+        <div class="row"><a class="icon" href="@Url.Action("Index", "Conversation")"><i class="fa-solid fa-comment-dots"></i></a><button class="icon" type="button"><i class="fa-solid fa-bell"></i></button><a class="icon" href="@Url.Action("Profile", "Home")"><i class="fa-solid fa-user"></i></a></div>
     </header>
 
     <div class="page">
-        <section class="cover-wrap">
-            <img src="https://images.unsplash.com/photo-1482192597420-4817fdd66e8e?q=80&w=1800&auto=format&fit=crop" alt="cover">
-        </section>
-
-        <section class="profile-header">
-            <div class="profile-main">
-                <div class="identity">
-                    <div class="avatar">
-                        @if (!string.IsNullOrWhiteSpace(avatarUrl))
-                        {
-                            <img src="@avatarUrl" alt="avatar" />
-                        }
-                        else
-                        {
-                            <span>@firstLetter</span>
-                        }
-                    </div>
-                    <div class="identity-meta">
-                        <h1>@displayName</h1>
-                        <div class="meta-line">
-                            <strong>@(followerCount ?? followingUsers.Length)</strong> người theo dõi
-                        </div>
-                        <div class="meta-line">Hồ sơ cá nhân</div>
-                    </div>
+        <section class="cover"></section>
+        <section class="head">
+            <div class="id">
+                <div class="avatar-wrap">
+                    <span class="avatar-xl">
+                        @if (!string.IsNullOrWhiteSpace(avatarUrl)) { <img src="@avatarUrl" alt="avatar" /> } else { <span>@firstLetter</span> }
+                    </span>
+                    <button type="button" class="avatar-edit" data-open-avatar-picker><i class="fa-solid fa-camera"></i></button>
                 </div>
-
-                <div class="profile-actions">
-                    <button class="btn primary"><i class="fa-solid fa-plus"></i>Thêm vào tin</button>
-                    <button class="btn soft"><i class="fa-solid fa-pen"></i>Chỉnh sửa trang cá nhân</button>
-                    <button class="btn soft"><i class="fa-solid fa-chevron-down"></i></button>
+                <div>
+                    <h1>@displayName</h1>
+                    <div class="meta">@followerCount người theo dõi</div>
+                    <div class="meta">Hồ sơ cá nhân</div>
                 </div>
             </div>
+            <div><button class="btn" type="button" data-open-profile-modal><i class="fa-solid fa-pen"></i>Chỉnh sửa trang cá nhân</button></div>
         </section>
 
-        <main class="content">
-            <aside class="left-column">
+        <main class="layout">
+            <aside>
+                @if (!string.IsNullOrWhiteSpace(Model.ProfileError)) { <div class="error">@Model.ProfileError</div> }
                 <section class="card">
-                    <h3>Thông tin cá nhân</h3>
-
-                    @if (hasProfileInfo)
+                    <div class="title">Thông tin cá nhân</div>
+                    @if (!string.IsNullOrWhiteSpace(Model.Bio) || !string.IsNullOrWhiteSpace(Model.City) || !string.IsNullOrWhiteSpace(Model.School))
                     {
-                        <div class="intro-list">
-                            @if (!string.IsNullOrWhiteSpace(userBio))
-                            {
-                                <div class="intro-item"><i class="fa-regular fa-note-sticky"></i><span>@userBio</span></div>
-                            }
-                            @if (!string.IsNullOrWhiteSpace(userCity))
-                            {
-                                <div class="intro-item"><i class="fa-solid fa-location-dot"></i><span>Sống tại <strong>@userCity</strong></span></div>
-                            }
-                            @if (!string.IsNullOrWhiteSpace(userSchool))
-                            {
-                                <div class="intro-item"><i class="fa-solid fa-graduation-cap"></i><span>Học tại <strong>@userSchool</strong></span></div>
-                            }
+                        <div class="list">
+                            @if (!string.IsNullOrWhiteSpace(Model.Bio)) { <div class="item"><i class="fa-regular fa-note-sticky"></i><span>@Model.Bio</span></div> }
+                            @if (!string.IsNullOrWhiteSpace(Model.City)) { <div class="item"><i class="fa-solid fa-location-dot"></i><span>Sống tại <strong>@Model.City</strong></span></div> }
+                            @if (!string.IsNullOrWhiteSpace(Model.School)) { <div class="item"><i class="fa-solid fa-graduation-cap"></i><span>Học tại <strong>@Model.School</strong></span></div> }
                         </div>
                     }
-                    else
-                    {
-                        <div class="empty-info">Chưa có thông tin cá nhân. Bạn có thể cập nhật trong phần chỉnh sửa trang cá nhân.</div>
-                    }
+                    else { <div class="empty">Chưa có thông tin cá nhân để hiển thị.</div> }
                 </section>
 
                 <section class="card" style="margin-top:14px;">
-                    <div class="connections-head">
-                        <div>
-                            <div class="title">Người theo dõi</div>
-                            <div class="sub">@(followerCount ?? followingUsers.Length) người</div>
-                        </div>
-                        <a href="#">Xem tất cả</a>
-                    </div>
-                    <div class="connections-list">
-                        <div class="connection-item">
-                            <span class="small-avatar">
-                                <img src="https://images.unsplash.com/photo-1527980965255-d3b416303d12?q=80&w=300&auto=format&fit=crop" alt="avatar" />
-                            </span>
-                            <strong>FPT AI</strong>
-                        </div>
-                        @foreach (var item in followingUsers)
+                    <div class="head-sm"><strong>Người theo dõi</strong><br /><span>@followerCount người</span></div>
+                    <div class="people">
+                        @if (Model.FollowingUsers.Count == 0) { <div class="center">Chưa có dữ liệu người theo dõi.</div> }
+                        else
                         {
-                            <div class="connection-item">
-                                <span class="small-avatar online-dot"><i class="fa-solid fa-user"></i></span>
-                                <strong>@item</strong>
-                            </div>
+                            @foreach (var user in Model.FollowingUsers)
+                            {
+                                var personInitial = string.IsNullOrWhiteSpace(user.DisplayName) ? "U" : user.DisplayName.Substring(0, 1).ToUpperInvariant();
+                                <div class="person">
+                                    <span class="avatar online">@if (!string.IsNullOrWhiteSpace(user.AvatarUrl)) { <img src="@user.AvatarUrl" alt="avatar" /> } else { <span>@personInitial</span> }</span>
+                                    <span>@user.DisplayName</span>
+                                </div>
+                            }
                         }
                     </div>
                 </section>
             </aside>
 
-            <section class="right-column">
+            <section>
+                @if (!string.IsNullOrWhiteSpace(Model.PostError)) { <div class="error">@Model.PostError</div> }
                 <section class="card composer">
                     <div class="composer-top">
-                        <div class="small-avatar"><i class="fa-solid fa-user"></i></div>
-                        <input class="composer-input" type="text" placeholder="Bạn đang nghĩ gì?" />
+                        <span class="avatar">@if (!string.IsNullOrWhiteSpace(avatarUrl)) { <img src="@avatarUrl" alt="avatar" /> } else { <span>@firstLetter</span> }</span>
+                        <button type="button" class="composer-trigger" data-open-post-modal>@Model.ComposerPlaceholder</button>
                     </div>
                     <div class="composer-actions">
-                        <div class="composer-action"><i class="fa-solid fa-image"></i>Ảnh/video</div>
+                        <button type="button" class="composer-action" data-open-post-modal><i class="fa-solid fa-image"></i>Ảnh/video</button>
+                        <button type="button" class="composer-action" data-open-post-modal><i class="fa-solid fa-paper-plane"></i>Đăng bài</button>
                     </div>
                 </section>
 
-                <section class="card" style="margin-top:14px;">
-                    <div class="section-row">
-                        <div class="title">Bài viết</div>
-                        <div class="right-actions">
-                            <button class="pill-btn"><i class="fa-solid fa-filter"></i>Bộ lọc</button>
-                            <button class="pill-btn"><i class="fa-solid fa-gear"></i>Quản lý bài viết</button>
-                        </div>
-                    </div>
-                </section>
-
-                <article class="card post">
-                    <div class="post-head">
-                        <div class="post-author">
-                            <div class="small-avatar"><i class="fa-solid fa-user"></i></div>
-                            <div>
-                                <strong>Long Phạm &gt; @displayName</strong>
-                                <div class="time">17 tháng 1 · <i class="fa-solid fa-earth-asia"></i></div>
+                <section class="card" style="margin-top:12px;"><div class="post-head">Bài viết</div></section>
+                @if (Model.Posts.Count == 0) { <div class="card center" style="margin-top:12px;">Bạn chưa có bài viết nào.</div> }
+                else
+                {
+                    @foreach (var post in Model.Posts)
+                    {
+                        var authorName = string.IsNullOrWhiteSpace(post.AuthorName) ? displayName : post.AuthorName;
+                        var authorInitial = authorName.Substring(0, 1).ToUpperInvariant();
+                        <article class="card post">
+                            <div class="post-top">
+                                <div class="post-author">
+                                    <span class="avatar">@if (!string.IsNullOrWhiteSpace(post.AuthorAvatarUrl)) { <img src="@post.AuthorAvatarUrl" alt="avatar" /> } else { <span>@authorInitial</span> }</span>
+                                    <div><strong>@authorName</strong><p>@ToTimeAgo(post.CreatedAt) · <i class="fa-solid fa-earth-asia"></i></p></div>
+                                </div>
+                                <div style="display:flex; align-items:center; gap:8px;">
+                                    @if (currentUserId > 0 && post.UserId != currentUserId)
+                                    {
+                                        <form class="follow-form" asp-controller="Home" asp-action="ToggleFollow" method="post">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="targetUserId" value="@post.UserId" />
+                                            <input type="hidden" name="source" value="profile" />
+                                            <button class="follow-btn @(post.IsAuthorFollowedByCurrentUser ? "following" : string.Empty)" type="submit">
+                                                @(post.IsAuthorFollowedByCurrentUser ? "Bỏ theo dõi" : "Theo dõi")
+                                            </button>
+                                        </form>
+                                    }
+                                    <button class="icon" type="button"><i class="fa-solid fa-ellipsis"></i></button>
+                                </div>
                             </div>
-                        </div>
-                        <button class="btn soft"><i class="fa-solid fa-ellipsis"></i></button>
-                    </div>
+                            @if (!string.IsNullOrWhiteSpace(post.Content)) { <div class="post-content">@post.Content</div> }
+                            @if (!string.IsNullOrWhiteSpace(post.MediaUrl)) { <div class="post-image"><img src="@post.MediaUrl" alt="post image" /></div> }
+                            <div class="post-stats"><span>@post.LikeCount lượt thích</span><span>@post.CommentCount bình luận</span></div>
+                            <div class="post-actions">
+                                <form class="post-action-form" asp-controller="Home" asp-action="ToggleReaction" method="post">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="postId" value="@post.Id" />
+                                    <input type="hidden" name="source" value="profile" />
+                                    <button class="post-action-btn @(post.IsLikedByCurrentUser ? "active" : string.Empty)" type="submit"><i class="fa-regular fa-thumbs-up"></i>Thích</button>
+                                </form>
+                                <button class="post-action-btn" type="button" data-focus-comment="comment-@post.Id"><i class="fa-regular fa-comment"></i>Bình luận</button>
+                                <form class="post-action-form" asp-controller="Home" asp-action="SharePost" method="post">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="postId" value="@post.Id" />
+                                    <input type="hidden" name="source" value="profile" />
+                                    <button class="post-action-btn" type="submit"><i class="fa-regular fa-paper-plane"></i>Chia sẻ</button>
+                                </form>
+                            </div>
 
-                    <div class="post-content">Happy Birthday, @displayName! 🎁🥳🎈</div>
+                            @if (post.RecentComments.Count > 0)
+                            {
+                                <div class="comment-list">
+                                    @foreach (var comment in post.RecentComments.OrderBy(c => c.CreatedAt))
+                                    {
+                                        <div class="comment-item">
+                                            <div class="comment-meta"><strong>@comment.AuthorName</strong><span>@ToTimeAgo(comment.CreatedAt)</span></div>
+                                            <div class="comment-content">@comment.Content</div>
+                                        </div>
+                                    }
+                                </div>
+                            }
 
-                    <div class="post-stats">
-                        <span>❤️😄 Bạn và 1 người khác</span>
-                        <span>1 bình luận</span>
-                    </div>
-
-                    <div class="post-actions">
-                        <div class="post-action like-active"><i class="fa-solid fa-heart"></i>Yêu thích</div>
-                        <div class="post-action"><i class="fa-regular fa-comment"></i>Bình luận</div>
-                        <div class="post-action"><i class="fa-regular fa-paper-plane"></i>Chia sẻ</div>
-                    </div>
-                </article>
+                            <form class="comment-form" asp-controller="Home" asp-action="AddComment" method="post">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="postId" value="@post.Id" />
+                                <input type="hidden" name="source" value="profile" />
+                                <input id="comment-@post.Id" class="comment-input" type="text" name="content" maxlength="500" placeholder="Viết bình luận..." />
+                                <button class="comment-submit" type="submit">Gửi</button>
+                            </form>
+                        </article>
+                    }
+                }
             </section>
         </main>
     </div>
+
+    <form id="avatar-form" asp-controller="Home" asp-action="UpdateAvatar" method="post" enctype="multipart/form-data" hidden>
+        @Html.AntiForgeryToken()
+        <input id="avatar-file-input" type="file" name="AvatarImage" accept="image/*" />
+    </form>
+
+    <div class="modal" id="post-modal" hidden>
+        <div class="modal-card">
+            <div class="modal-head">Tạo bài viết<button class="close" type="button" data-close-post-modal><i class="fa-solid fa-xmark"></i></button></div>
+            <form class="modal-body" asp-controller="Home" asp-action="CreatePost" method="post" enctype="multipart/form-data">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="Source" value="profile" />
+                <div class="author"><span class="avatar">@if (!string.IsNullOrWhiteSpace(avatarUrl)) { <img src="@avatarUrl" alt="avatar" /> } else { <span>@firstLetter</span> }</span><strong>@displayName</strong></div>
+                <textarea class="textarea" name="Content" maxlength="2000" placeholder="Bạn đang nghĩ gì?" autofocus></textarea>
+                <div class="preview" id="post-preview" hidden><img id="post-preview-image" alt="preview" /></div>
+                <div class="tools"><span>Thêm vào bài viết của bạn</span><label class="tool-btn" for="post-image-file"><i class="fa-solid fa-image"></i>Ảnh/video</label></div>
+                <input id="post-image-file" type="file" name="Image" accept="image/*" hidden />
+                <button class="submit" type="submit">Đăng</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal profile-modal" id="profile-modal" hidden>
+        <div class="modal-card">
+            <div class="modal-head">Chỉnh sửa trang cá nhân<button class="close" type="button" data-close-profile-modal><i class="fa-solid fa-xmark"></i></button></div>
+            <form class="modal-body" asp-controller="Home" asp-action="UpdateProfile" method="post">
+                @Html.AntiForgeryToken()
+                <div class="field"><label for="name">Họ và tên</label><input id="name" type="text" name="FullName" value="@displayName" maxlength="100" required /></div>
+                <div class="field"><label for="bio">Tiểu sử</label><textarea id="bio" name="Bio" maxlength="300">@Model.Bio</textarea></div>
+                <div class="field"><label for="city">Thành phố</label><input id="city" type="text" name="City" value="@Model.City" maxlength="100" /></div>
+                <div class="field"><label for="school">Trường học</label><input id="school" type="text" name="School" value="@Model.School" maxlength="150" /></div>
+                <button class="submit" type="submit">Lưu thay đổi</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        (() => {
+            const postModal = document.getElementById("post-modal");
+            const profileModal = document.getElementById("profile-modal");
+            const openPost = document.querySelectorAll("[data-open-post-modal]");
+            const closePost = document.querySelector("[data-close-post-modal]");
+            const openProfile = document.querySelector("[data-open-profile-modal]");
+            const closeProfile = document.querySelector("[data-close-profile-modal]");
+            const imageInput = document.getElementById("post-image-file");
+            const preview = document.getElementById("post-preview");
+            const previewImage = document.getElementById("post-preview-image");
+            const avatarBtn = document.querySelector("[data-open-avatar-picker]");
+            const avatarInput = document.getElementById("avatar-file-input");
+            const avatarForm = document.getElementById("avatar-form");
+            const commentFocusButtons = document.querySelectorAll("[data-focus-comment]");
+
+            const openModal = (modal) => { if (!modal) return; modal.hidden = false; document.body.style.overflow = "hidden"; };
+            const closeModal = (modal) => { if (!modal) return; modal.hidden = true; if (postModal.hidden && profileModal.hidden) document.body.style.overflow = ""; };
+
+            openPost.forEach(btn => btn.addEventListener("click", () => openModal(postModal)));
+            closePost?.addEventListener("click", () => closeModal(postModal));
+            openProfile?.addEventListener("click", () => openModal(profileModal));
+            closeProfile?.addEventListener("click", () => closeModal(profileModal));
+
+            [postModal, profileModal].forEach(modal => modal?.addEventListener("click", (event) => { if (event.target === modal) closeModal(modal); }));
+            document.addEventListener("keydown", (event) => { if (event.key === "Escape") { closeModal(postModal); closeModal(profileModal); } });
+
+            imageInput?.addEventListener("change", () => {
+                const file = imageInput.files && imageInput.files[0];
+                if (!file) { preview.hidden = true; previewImage.removeAttribute("src"); return; }
+                const reader = new FileReader();
+                reader.onload = (e) => { previewImage.src = String(e.target?.result || ""); preview.hidden = false; };
+                reader.readAsDataURL(file);
+            });
+
+            avatarBtn?.addEventListener("click", () => avatarInput?.click());
+            avatarInput?.addEventListener("change", () => { const file = avatarInput.files && avatarInput.files[0]; if (file) avatarForm?.submit(); });
+
+            commentFocusButtons.forEach((button) => {
+                button.addEventListener("click", () => {
+                    const targetId = button.getAttribute("data-focus-comment");
+                    if (!targetId) return;
+                    const targetInput = document.getElementById(targetId);
+                    targetInput?.focus();
+                });
+            });
+        })();
+    </script>
 </body>
 </html>

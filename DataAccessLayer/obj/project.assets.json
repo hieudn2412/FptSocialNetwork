@@ -4613,23 +4613,23 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\admin\\.nuget\\packages\\": {},
+    "C:\\Users\\tuann\\.nuget\\packages\\": {},
     "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\FA26\\PRN232\\FptSocialNetwork\\DataAccessLayer\\DataAccessLayer.csproj",
+      "projectUniqueName": "D:\\CSharp\\PRN232\\FptSocialNetwork\\DataAccessLayer\\DataAccessLayer.csproj",
       "projectName": "DataAccessLayer",
-      "projectPath": "D:\\FA26\\PRN232\\FptSocialNetwork\\DataAccessLayer\\DataAccessLayer.csproj",
-      "packagesPath": "C:\\Users\\admin\\.nuget\\packages\\",
-      "outputPath": "D:\\FA26\\PRN232\\FptSocialNetwork\\DataAccessLayer\\obj\\",
+      "projectPath": "D:\\CSharp\\PRN232\\FptSocialNetwork\\DataAccessLayer\\DataAccessLayer.csproj",
+      "packagesPath": "C:\\Users\\tuann\\.nuget\\packages\\",
+      "outputPath": "D:\\CSharp\\PRN232\\FptSocialNetwork\\DataAccessLayer\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
       ],
       "configFilePaths": [
-        "C:\\Users\\admin\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\tuann\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
@@ -4644,8 +4644,8 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "projectReferences": {
-            "D:\\FA26\\PRN232\\FptSocialNetwork\\BusinessObject\\BusinessObjects.csproj": {
-              "projectPath": "D:\\FA26\\PRN232\\FptSocialNetwork\\BusinessObject\\BusinessObjects.csproj"
+            "D:\\CSharp\\PRN232\\FptSocialNetwork\\BusinessObject\\BusinessObjects.csproj": {
+              "projectPath": "D:\\CSharp\\PRN232\\FptSocialNetwork\\BusinessObject\\BusinessObjects.csproj"
             }
           }
         }
@@ -4715,7 +4715,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.309/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.307/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

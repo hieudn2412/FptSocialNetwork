@@ -22,6 +22,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewBag.Title</title>
 
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
     <link rel="stylesheet" href="~/css/global-navbar.css" asp-append-version="true" />
@@ -31,7 +34,7 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: Arial, Helvetica, sans-serif;
+            font-family: "Manrope", "Segoe UI", Arial, Helvetica, sans-serif;
         }
 
         html, body {
@@ -67,6 +70,63 @@
         .chat-area,
         .right-panel {
             background: #fff;
+        }
+
+        body[data-theme="dark"] {
+            background: #15171a;
+            color: #edf0f4;
+        }
+
+        body[data-theme="dark"] .sidebar,
+        body[data-theme="dark"] .chat-area,
+        body[data-theme="dark"] .right-panel {
+            background: #232831;
+            border-color: #3a414e !important;
+            color: #edf0f4;
+        }
+
+        body[data-theme="dark"] .sidebar *,
+        body[data-theme="dark"] .chat-area *,
+        body[data-theme="dark"] .right-panel * {
+            border-color: #3a414e;
+        }
+
+        body[data-theme="dark"] .search-box,
+        body[data-theme="dark"] .create-group-search-box,
+        body[data-theme="dark"] .message-input-wrap,
+        body[data-theme="dark"] .message-input,
+        body[data-theme="dark"] .create-group-name,
+        body[data-theme="dark"] .generic-modal-card,
+        body[data-theme="dark"] .create-group-card {
+            background: #323844 !important;
+            color: #edf0f4 !important;
+            border-color: #3a414e !important;
+        }
+
+        body[data-theme="dark"] input,
+        body[data-theme="dark"] textarea,
+        body[data-theme="dark"] button,
+        body[data-theme="dark"] .conversation-preview,
+        body[data-theme="dark"] .conversation-name,
+        body[data-theme="dark"] .sidebar-header h1,
+        body[data-theme="dark"] .chat-header-center h2,
+        body[data-theme="dark"] .chat-header-center p {
+            color: #edf0f4 !important;
+        }
+
+        body[data-theme="dark"] .conversation-list-item:hover,
+        body[data-theme="dark"] .conversation-list-item.active,
+        body[data-theme="dark"] .tab.active,
+        body[data-theme="dark"] .icon-btn,
+        body[data-theme="dark"] .message-action-btn {
+            background: #353c48 !important;
+            color: #edf0f4 !important;
+        }
+
+        body[data-theme="dark"] .chat-bubble.other,
+        body[data-theme="dark"] .pinned-message-bubble {
+            background: #343b48 !important;
+            color: #edf0f4 !important;
         }
 
         /* LEFT SIDEBAR */
@@ -2341,6 +2401,7 @@
             </div>
         </div>
     </div>
+    <script src="~/js/theme.js" asp-append-version="true"></script>
     <script src="~/js/global-navbar.js" asp-append-version="true"></script>
     <script src="https://cdn.jsdelivr.net/npm/%40microsoft/signalr@8.0.7/dist/browser/signalr.min.js"></script>
     <script>
