@@ -1,0 +1,164 @@
+@using Microsoft.AspNetCore.Http
+@{
+    var accessToken = Context.Session.GetString("AccessToken");
+    var isAuthenticated = !string.IsNullOrWhiteSpace(accessToken);
+    var userName = Context.Session.GetString("UserName");
+    var avatarUrl = Context.Session.GetString("UserAvatarUrl");
+    var displayName = string.IsNullOrWhiteSpace(userName) ? "Người dùng" : userName.Trim();
+    var firstLetter = displayName.Length > 0 ? displayName.Substring(0, 1).ToUpperInvariant() : "U";
+
+    var currentController = (ViewContext.RouteData.Values["controller"]?.ToString() ?? string.Empty).Trim().ToLowerInvariant();
+    var currentAction = (ViewContext.RouteData.Values["action"]?.ToString() ?? string.Empty).Trim().ToLowerInvariant();
+
+    var conversationUrl = Url.Action("Index", "Conversation") ?? "/conversations";
+    var homeUrl = Url.Action("Index", "Home") ?? "/";
+    var targetHomeUrl = isAuthenticated ? conversationUrl : homeUrl;
+    var isHomeActive = currentController == "conversation" || (currentController == "home" && currentAction == "index");
+
+    var loginUrl = Url.Action("Login", "Account") ?? "/Account/Login";
+    var registerUrl = Url.Action("Register", "Account") ?? "/Account/Register";
+}
+
+<header class="fb-global-nav">
+    <div class="fbn-left">
+        <a class="fbn-logo" href="@targetHomeUrl" aria-label="Trang chủ">
+            <i class="fa-brands fa-facebook-f"></i>
+        </a>
+
+        <div class="fbn-search-box">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" placeholder="Tìm kiếm trên Facebook" />
+        </div>
+    </div>
+
+    <div class="fbn-center">
+        <a class="fbn-center-item @(isHomeActive ? "active" : "")" href="@targetHomeUrl" aria-label="Home">
+            <i class="fa-solid fa-house"></i>
+        </a>
+    </div>
+
+    <div class="fbn-right">
+        @if (isAuthenticated)
+        {
+            <button class="fbn-action-btn" type="button" aria-label="Thông báo">
+                <i class="fa-solid fa-bell"></i>
+            </button>
+
+            <button class="fbn-profile-btn"
+                    id="fbnProfileToggle"
+                    type="button"
+                    aria-haspopup="true"
+                    aria-expanded="false"
+                    aria-label="Mở menu hồ sơ">
+                @if (!string.IsNullOrWhiteSpace(avatarUrl))
+                {
+                    <img src="@avatarUrl" alt="Avatar" />
+                }
+                else
+                {
+                    <span class="fbn-avatar-fallback">@firstLetter</span>
+                }
+                <span class="fbn-caret-badge">
+                    <i class="fa-solid fa-chevron-down"></i>
+                </span>
+            </button>
+        }
+        else
+        {
+            <a class="fbn-auth-btn" href="@loginUrl">Đăng nhập</a>
+            <a class="fbn-auth-btn primary" href="@registerUrl">Đăng ký</a>
+        }
+    </div>
+
+    @if (isAuthenticated)
+    {
+        <div class="fbn-profile-dropdown" id="fbnProfileDropdown">
+            <div class="fbn-dropdown-card">
+                <div class="fbn-dropdown-user">
+                    @if (!string.IsNullOrWhiteSpace(avatarUrl))
+                    {
+                        <img class="avatar" src="@avatarUrl" alt="Avatar" />
+                    }
+                    else
+                    {
+                        <span class="avatar avatar-fallback">@firstLetter</span>
+                    }
+                    <div class="name">@displayName</div>
+                </div>
+
+                <a class="fbn-see-profile-btn" href="@targetHomeUrl">
+                    <i class="fa-solid fa-circle-user"></i>
+                    <span>Xem tất cả trang cá nhân</span>
+                </a>
+            </div>
+
+            <div class="fbn-dropdown-menu">
+                <div class="fbn-dropdown-item">
+                    <div class="fbn-dropdown-item-left">
+                        <div class="fbn-dropdown-icon">
+                            <i class="fa-solid fa-gear"></i>
+                        </div>
+                        <div class="fbn-dropdown-text">
+                            <div class="title">Cài đặt và quyền riêng tư</div>
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-chevron-right arrow"></i>
+                </div>
+
+                <div class="fbn-dropdown-item">
+                    <div class="fbn-dropdown-item-left">
+                        <div class="fbn-dropdown-icon">
+                            <i class="fa-solid fa-circle-question"></i>
+                        </div>
+                        <div class="fbn-dropdown-text">
+                            <div class="title">Trợ giúp và hỗ trợ</div>
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-chevron-right arrow"></i>
+                </div>
+
+                <div class="fbn-dropdown-item">
+                    <div class="fbn-dropdown-item-left">
+                        <div class="fbn-dropdown-icon">
+                            <i class="fa-solid fa-moon"></i>
+                        </div>
+                        <div class="fbn-dropdown-text">
+                            <div class="title">Màn hình và trợ năng</div>
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-chevron-right arrow"></i>
+                </div>
+
+                <div class="fbn-dropdown-item">
+                    <div class="fbn-dropdown-item-left">
+                        <div class="fbn-dropdown-icon">
+                            <i class="fa-solid fa-comment-dots"></i>
+                        </div>
+                        <div class="fbn-dropdown-text">
+                            <div class="title">Đóng góp ý kiến</div>
+                            <div class="sub">CTRL B</div>
+                        </div>
+                    </div>
+                </div>
+
+                <form asp-controller="Account" asp-action="Logout" method="post" class="fbn-dropdown-form">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="fbn-dropdown-item logout">
+                        <div class="fbn-dropdown-item-left">
+                            <div class="fbn-dropdown-icon">
+                                <i class="fa-solid fa-right-from-bracket"></i>
+                            </div>
+                            <div class="fbn-dropdown-text">
+                                <div class="title">Đăng xuất</div>
+                            </div>
+                        </div>
+                    </button>
+                </form>
+            </div>
+
+            <div class="fbn-dropdown-footer">
+                Quyền riêng tư · Điều khoản · Quảng cáo · Lựa chọn quảng cáo · Cookie · Xem thêm
+            </div>
+        </div>
+    }
+</header>

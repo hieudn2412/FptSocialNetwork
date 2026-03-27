@@ -24,6 +24,7 @@
 
     <link rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+    <link rel="stylesheet" href="~/css/global-navbar.css" asp-append-version="true" />
 
     <style>
         * {
@@ -46,7 +47,7 @@
         .app {
             display: grid;
             grid-template-columns: 420px 1fr 420px;
-            height: 100vh;
+            height: calc(100vh - var(--fb-nav-height, 76px));
             width: 100%;
             transition: grid-template-columns 0.2s ease;
         }
@@ -74,7 +75,7 @@
             display: flex;
             flex-direction: column;
             padding: 16px 10px 0;
-            height: 100vh;
+            height: 100%;
             overflow: hidden;
         }
 
@@ -392,6 +393,112 @@
             background: #e7f0fb;
         }
 
+        .conversation-list-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 10px;
+            border-radius: 12px;
+            margin-bottom: 2px;
+        }
+
+        .conversation-list-item:hover {
+            background: #f2f2f2;
+        }
+
+        .conversation-list-item.active {
+            background: #e7f0fb;
+        }
+
+        .conversation-item-link {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .conversation-trailing {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+            min-height: 28px;
+        }
+
+        .conversation-actions {
+            position: relative;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.16s ease;
+        }
+
+        .conversation-list-item:hover .conversation-actions,
+        .conversation-list-item.menu-open .conversation-actions {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .conversation-more-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: none;
+            background: #ffffff;
+            color: #65676b;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+        }
+
+        .conversation-more-btn:hover {
+            background: #e4e6eb;
+            color: #1c1e21;
+        }
+
+        .conversation-more-menu {
+            position: absolute;
+            top: calc(100% + 6px);
+            right: 0;
+            min-width: 176px;
+            background: #fff;
+            border-radius: 12px;
+            padding: 6px;
+            box-shadow: 0 10px 28px rgba(0, 0, 0, 0.18);
+            border: 1px solid #e4e6eb;
+            display: none;
+            z-index: 120;
+        }
+
+        .conversation-more-menu.open {
+            display: block;
+        }
+
+        .conversation-menu-item {
+            width: 100%;
+            border: none;
+            border-radius: 8px;
+            background: transparent;
+            text-align: left;
+            padding: 10px 12px;
+            font-size: 15px;
+            font-weight: 600;
+            color: #050505;
+            cursor: pointer;
+        }
+
+        .conversation-menu-item:hover {
+            background: #f0f2f5;
+        }
+
+        .conversation-menu-item.danger {
+            color: #d93025;
+        }
+
         .avatar-wrap {
             position: relative;
             width: 56px;
@@ -474,7 +581,7 @@
         .chat-area {
             display: flex;
             flex-direction: column;
-            height: 100vh;
+            height: 100%;
             overflow: hidden;
         }
 
@@ -1262,12 +1369,10 @@
         }
 
         .pinned-modal-card {
-            width: 1100px;
-            max-width: calc(100vw - 24px);
-            height: 1185px;
-            max-height: calc(100vh - 12px);
+            width: min(760px, 92vw);
+            max-height: 82vh;
             background: #fff;
-            border-radius: 22px;
+            border-radius: 16px;
             overflow: hidden;
             box-shadow: 0 8px 28px rgba(0, 0, 0, 0.16);
             display: flex;
@@ -1276,7 +1381,7 @@
 
         .pinned-modal-header {
             position: relative;
-            height: 118px;
+            height: 82px;
             border-bottom: 1px solid #d9d9d9;
             display: flex;
             align-items: center;
@@ -1286,7 +1391,7 @@
         }
 
         .pinned-modal-title {
-            font-size: 20px;
+            font-size: 17px;
             font-weight: 700;
             color: #111;
             line-height: 1.2;
@@ -1294,10 +1399,10 @@
 
         .pinned-modal-close {
             position: absolute;
-            top: 24px;
-            right: 30px;
-            width: 72px;
-            height: 72px;
+            top: 18px;
+            right: 18px;
+            width: 44px;
+            height: 44px;
             border-radius: 50%;
             border: none;
             background: #e4e6eb;
@@ -1310,7 +1415,7 @@
             position: absolute;
             top: 50%;
             left: 50%;
-            width: 34px;
+            width: 22px;
             height: 3px;
             background: #606770;
             border-radius: 3px;
@@ -1328,7 +1433,7 @@
             flex: 1;
             overflow-y: auto;
             background: #fff;
-            padding: 52px 66px 40px;
+            padding: 20px 20px 18px;
         }
 
         .generic-card {
@@ -1343,11 +1448,12 @@
         }
 
         .generic-card.compact {
-            width: min(760px, 96vw);
+            width: min(560px, 92vw);
+            max-height: 84vh;
         }
 
         .generic-header {
-            height: 108px;
+            height: 82px;
             border-bottom: 1px solid #e4e6eb;
             display: flex;
             align-items: center;
@@ -1356,33 +1462,33 @@
         }
 
         .generic-header h3 {
-            font-size: 56px;
+            font-size: 17px;
             font-weight: 700;
             color: #1c1e21;
         }
 
         .generic-close {
             position: absolute;
-            right: 16px;
-            top: 14px;
-            width: 48px;
-            height: 48px;
+            right: 14px;
+            top: 18px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
             border: none;
             background: #e4e6eb;
             color: #61656a;
-            font-size: 22px;
+            font-size: 17px;
             cursor: pointer;
         }
 
         .generic-body {
-            min-height: 340px;
-            padding: 18px 24px 22px;
+            min-height: 220px;
+            padding: 16px 18px 18px;
             overflow-y: auto;
         }
 
         .pinned-empty-state {
-            height: 520px;
+            min-height: 260px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -1393,23 +1499,23 @@
         }
 
         .pinned-empty-state i {
-            font-size: 64px;
+            font-size: 32px;
             color: #bcc0c4;
         }
 
         .pinned-empty-state strong {
-            font-size: 34px;
+            font-size: 17px;
             color: #4e5358;
         }
 
         .pinned-empty-state p {
-            font-size: 18px;
+            font-size: 15px;
         }
 
         .pinned-message-list {
             display: flex;
             flex-direction: column;
-            gap: 28px;
+            gap: 14px;
         }
 
         .pinned-message-item {
@@ -1425,19 +1531,19 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding-left: 96px;
-            padding-right: 16px;
-            margin-bottom: 10px;
+            padding-left: 56px;
+            padding-right: 8px;
+            margin-bottom: 6px;
         }
 
         .pinned-message-sender {
-            font-size: 15px;
+            font-size: 13px;
             color: #6b6f76;
             font-weight: 400;
         }
 
         .pinned-message-date {
-            font-size: 15px;
+            font-size: 13px;
             color: #6b6f76;
             font-weight: 400;
         }
@@ -1445,38 +1551,38 @@
         .pinned-message-row {
             display: flex;
             align-items: flex-end;
-            gap: 18px;
+            gap: 10px;
         }
 
         .pinned-message-avatar {
-            width: 58px;
-            height: 58px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
             object-fit: cover;
             background: #d8dadf;
             flex-shrink: 0;
-            margin-bottom: 4px;
+            margin-bottom: 2px;
         }
 
         .pinned-message-bubble-wrap {
-            max-width: 650px;
+            max-width: 100%;
             width: 100%;
         }
 
         .pinned-message-bubble {
             background: #f0f1f3;
-            border-radius: 34px;
-            padding: 20px 24px 24px;
-            min-height: 210px;
+            border-radius: 18px;
+            padding: 12px 14px;
+            min-height: 0;
             display: flex;
             flex-direction: column;
             justify-content: flex-start;
-            gap: 12px;
+            gap: 8px;
         }
 
         .pinned-message-link {
             font-size: 15px;
-            line-height: 1.28;
+            line-height: 1.35;
             font-weight: 700;
             color: #111;
             text-decoration: underline;
@@ -1495,33 +1601,33 @@
             font-size: 15px;
             line-height: 1.4;
             color: #111;
-            font-weight: 600;
+            font-weight: 500;
             word-break: break-word;
         }
 
         .pinned-message-hint {
-            font-size: 12px;
+            font-size: 13px;
             color: #8b9098;
-            margin-top: 18px;
-            padding-left: 96px;
+            margin-top: 8px;
+            padding-left: 56px;
         }
 
         .rename-description {
-            font-size: 20px;
+            font-size: 15px;
             color: #1c1e21;
-            margin-bottom: 16px;
+            margin-bottom: 10px;
         }
 
         .rename-input-wrap {
-            border: 2px solid #c7cbd1;
-            border-radius: 18px;
-            padding: 12px 16px;
+            border: 1px solid #c7cbd1;
+            border-radius: 12px;
+            padding: 10px 12px;
         }
 
         .rename-input-label {
-            font-size: 18px;
+            font-size: 13px;
             color: #6f7378;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
             display: block;
         }
 
@@ -1536,14 +1642,14 @@
             border: none;
             outline: none;
             width: 100%;
-            font-size: 46px;
+            font-size: 17px;
             font-weight: 500;
             color: #1c1e21;
             background: transparent;
         }
 
         .rename-count {
-            font-size: 16px;
+            font-size: 13px;
             color: #6f7378;
             flex-shrink: 0;
         }
@@ -1553,32 +1659,108 @@
             justify-content: flex-end;
             align-items: center;
             gap: 12px;
-            margin-top: 18px;
+            margin-top: 12px;
         }
 
         .text-btn {
             border: none;
             background: transparent;
             color: #2a64c7;
-            font-size: 22px;
+            font-size: 17px;
             cursor: pointer;
-            padding: 8px 10px;
+            padding: 6px 8px;
         }
 
         .solid-btn {
             border: none;
-            border-radius: 14px;
+            border-radius: 10px;
             background: #1877f2;
             color: #fff;
-            font-size: 22px;
+            font-size: 17px;
             font-weight: 700;
-            padding: 10px 24px;
+            padding: 8px 18px;
             cursor: pointer;
         }
 
         .solid-btn[disabled] {
             background: #d4d8de;
             color: #a4a9af;
+            cursor: not-allowed;
+        }
+
+        .delete-confirm-card {
+            width: min(420px, 92vw);
+            max-height: 84vh;
+            background: #fff;
+            border-radius: 14px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.22);
+        }
+
+        .delete-confirm-header {
+            height: 64px;
+            border-bottom: 1px solid #e4e6eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            padding: 0 56px 0 16px;
+        }
+
+        .delete-confirm-header h3 {
+            font-size: 17px;
+            font-weight: 700;
+            color: #1c1e21;
+        }
+
+        .delete-confirm-close {
+            position: absolute;
+            right: 12px;
+            top: 12px;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: none;
+            background: #e4e6eb;
+            color: #61656a;
+            font-size: 17px;
+            cursor: pointer;
+        }
+
+        .delete-confirm-body {
+            padding: 16px;
+        }
+
+        .delete-confirm-body p {
+            font-size: 15px;
+            color: #1c1e21;
+            line-height: 1.5;
+            margin: 0;
+        }
+
+        .delete-confirm-actions {
+            margin-top: 16px;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .danger-btn {
+            border: none;
+            border-radius: 10px;
+            background: #d93025;
+            color: #fff;
+            font-size: 15px;
+            font-weight: 700;
+            padding: 8px 16px;
+            cursor: pointer;
+        }
+
+        .danger-btn[disabled] {
+            background: #ef9a95;
             cursor: not-allowed;
         }
 
@@ -1663,19 +1845,19 @@
             }
 
             .pinned-modal-close {
-                width: 52px;
-                height: 52px;
+                width: 40px;
+                height: 40px;
                 right: 16px;
-                top: 18px;
+                top: 14px;
             }
 
             .pinned-modal-close::before,
             .pinned-modal-close::after {
-                width: 24px;
+                width: 20px;
             }
 
             .pinned-modal-body {
-                padding: 24px 18px;
+                padding: 16px 14px;
             }
 
             .pinned-message-meta {
@@ -1689,8 +1871,8 @@
             }
 
             .pinned-message-avatar {
-                width: 44px;
-                height: 44px;
+                width: 34px;
+                height: 34px;
             }
 
             .pinned-message-bubble-wrap {
@@ -1699,8 +1881,8 @@
 
             .pinned-message-bubble {
                 min-height: auto;
-                padding: 18px;
-                border-radius: 24px;
+                padding: 10px 12px;
+                border-radius: 14px;
             }
 
             .pinned-message-hint {
@@ -1710,6 +1892,7 @@
     </style>
 </head>
 <body>
+    @await Html.PartialAsync("_GlobalNavigationBar")
     <div class="app" id="appLayout">
         <!-- LEFT -->
         <aside class="sidebar">
@@ -1765,21 +1948,41 @@
                     var previewText = string.IsNullOrWhiteSpace(conversation.LastMessage)
                         ? "(Chưa có tin nhắn)"
                         : $"{previewPrefix}{conversation.LastMessage}";
-                    <a class="conversation-item @(isActive ? "active" : "")"
-                       href="@Url.Action("Index", "Conversation", new { conversationId = conversation.Id, tab = Model.Tab })"
-                       style="text-decoration:none;color:inherit;">
-                        <div class="avatar-wrap">
-                        <img class="avatar" src="@(string.IsNullOrWhiteSpace(conversation.AvatarUrl) ? "https://via.placeholder.com/56" : conversation.AvatarUrl)" alt="avatar" />
+                    <div class="conversation-list-item @(isActive ? "active" : "")" data-conversation-id="@conversation.Id">
+                        <a class="conversation-item-link"
+                           href="@Url.Action("Index", "Conversation", new { conversationId = conversation.Id, tab = Model.Tab })">
+                            <div class="avatar-wrap">
+                                <img class="avatar" src="@(string.IsNullOrWhiteSpace(conversation.AvatarUrl) ? "https://via.placeholder.com/56" : conversation.AvatarUrl)" alt="avatar" />
+                            </div>
+                            <div class="conversation-content">
+                                <div class="conversation-name">@conversation.Name</div>
+                                <div class="conversation-preview @(isUnread ? "unread" : "")">@previewText</div>
+                            </div>
+                        </a>
+                        <div class="conversation-trailing">
+                            @if (isUnread)
+                            {
+                                <div class="unread-badge">@conversation.UnreadCount</div>
+                            }
+                            <div class="conversation-actions">
+                                <button type="button"
+                                        class="conversation-more-btn"
+                                        data-action="toggle-conversation-menu"
+                                        data-conversation-id="@conversation.Id"
+                                        aria-label="Tùy chọn đoạn chat">
+                                    <i class="fa-solid fa-ellipsis"></i>
+                                </button>
+                                <div class="conversation-more-menu" data-conversation-menu="@conversation.Id">
+                                    <button type="button"
+                                            class="conversation-menu-item danger"
+                                            data-action="delete-conversation"
+                                            data-conversation-id="@conversation.Id">
+                                        Xóa đoạn chat
+                                    </button>
+                                </div>
+                            </div>
                         </div>
-                        <div class="conversation-content">
-                            <div class="conversation-name">@conversation.Name</div>
-                            <div class="conversation-preview @(isUnread ? "unread" : "")">@previewText</div>
-                        </div>
-                        @if (isUnread)
-                        {
-                            <div class="unread-badge">@conversation.UnreadCount</div>
-                        }
-                    </a>
+                    </div>
                 }
             </div>
         </aside>
@@ -1791,10 +1994,7 @@
                     <img class="avatar" id="chatHeaderAvatar" src="@(string.IsNullOrWhiteSpace(selectedConversationAvatar) ? "https://via.placeholder.com/40" : selectedConversationAvatar)" alt="avatar" />
                     <div class="chat-user-info">
                         <h2 id="chatHeaderName">@selectedConversationName</h2>
-                        @if (isGroupConversation)
-                        {
-                            <p>@selectedMembers.Count thành viên</p>
-                        }
+                        <p id="chatHeaderSubtitle" style="@(isGroupConversation ? "" : "display:none;")">@(selectedMembers.Count) thành viên</p>
                     </div>
                 </div>
                 <div class="chat-actions">
@@ -1893,7 +2093,7 @@
         <aside class="right-panel">
             <div id="rightInfoPanel">
                 <div class="profile-box">
-                    <div class="profile-stack @(hasCustomGroupAvatar ? "single" : "")" id="rightProfileStack">
+                    <div class="profile-stack @((!isGroupConversation || hasCustomGroupAvatar) ? "single" : "")" id="rightProfileStack">
                         <img class="avatar main" id="rightProfileAvatar" src="@(string.IsNullOrWhiteSpace(selectedConversationAvatar) ? "https://via.placeholder.com/64" : selectedConversationAvatar)" alt="avatar" />
                         <img class="avatar sub" id="rightProfileSubAvatar" src="https://via.placeholder.com/54" alt="avatar" />
                     </div>
@@ -1925,35 +2125,31 @@
                         </div>
                     </div>
 
-                    @if (isGroupConversation)
-                    {
-                        <div class="accordion-item">
-                            <div class="accordion-header" data-action="toggle-accordion" data-target="chatCustomizeBody">
-                                <span>Tùy chỉnh đoạn chat</span>
-                                <i class="fa-solid fa-chevron-down" id="chatCustomizeChevron"></i>
-                            </div>
-                            <div class="accordion-body" id="chatCustomizeBody" style="display:none;">
-                                <button type="button" class="file-link" id="openRenameConversationButton" style="border:none;background:transparent;width:100%;text-align:left;">
-                                    <span class="file-icon"><i class="fa-solid fa-pen"></i></span>
-                                    <span>Đổi tên đoạn chat</span>
-                                </button>
-                                <button type="button" class="file-link" id="changeConversationImageButton" style="border:none;background:transparent;width:100%;text-align:left;">
-                                    <span class="file-icon"><i class="fa-regular fa-image"></i></span>
-                                    <span>Thay đổi ảnh</span>
-                                </button>
-                                <input type="file" id="conversationImageInput" accept="image/*" style="display:none;" />
-                            </div>
+                    <div class="accordion-item" id="chatCustomizeItem" style="@(isGroupConversation ? "" : "display:none;")">
+                        <div class="accordion-header" data-action="toggle-accordion" data-target="chatCustomizeBody">
+                            <span>Tùy chỉnh đoạn chat</span>
+                            <i class="fa-solid fa-chevron-down" id="chatCustomizeChevron"></i>
                         </div>
-                    }
+                        <div class="accordion-body" id="chatCustomizeBody" style="display:none;">
+                            <button type="button" class="file-link" id="openRenameConversationButton" style="border:none;background:transparent;width:100%;text-align:left;">
+                                <span class="file-icon"><i class="fa-solid fa-pen"></i></span>
+                                <span>Đổi tên đoạn chat</span>
+                            </button>
+                            <button type="button" class="file-link" id="changeConversationImageButton" style="border:none;background:transparent;width:100%;text-align:left;">
+                                <span class="file-icon"><i class="fa-regular fa-image"></i></span>
+                                <span>Thay đổi ảnh</span>
+                            </button>
+                            <input type="file" id="conversationImageInput" accept="image/*" style="display:none;" />
+                        </div>
+                    </div>
 
-                    @if (isGroupConversation)
-                    {
-                        <div class="accordion-item">
-                            <div class="accordion-header" data-action="toggle-accordion" data-target="chatMembersBody">
-                                <span>Thành viên trong đoạn chat</span>
-                                <i class="fa-solid fa-chevron-down" id="chatMembersChevron"></i>
-                            </div>
-                            <div class="accordion-body" id="chatMembersBody" style="display:none;">
+                    <div class="accordion-item" id="chatMembersItem" style="@(isGroupConversation ? "" : "display:none;")">
+                        <div class="accordion-header" data-action="toggle-accordion" data-target="chatMembersBody">
+                            <span>Thành viên trong đoạn chat</span>
+                            <i class="fa-solid fa-chevron-down" id="chatMembersChevron"></i>
+                        </div>
+                        <div class="accordion-body" id="chatMembersBody" style="display:none;">
+                            <div id="chatMembersList">
                                 @if (selectedMembers.Count == 0)
                                 {
                                     <div class="file-link"><span>Chưa có thành viên</span></div>
@@ -1976,13 +2172,13 @@
                                         </div>
                                     }
                                 }
-                                <button type="button" class="file-link" id="openAddMemberButton" style="border:none;background:transparent;width:100%;text-align:left;">
-                                    <span class="file-icon"><i class="fa-solid fa-user-plus"></i></span>
-                                    <span>Thêm người</span>
-                                </button>
                             </div>
+                            <button type="button" class="file-link" id="openAddMemberButton" style="border:none;background:transparent;width:100%;text-align:left;">
+                                <span class="file-icon"><i class="fa-solid fa-user-plus"></i></span>
+                                <span>Thêm người</span>
+                            </button>
                         </div>
-                    }
+                    </div>
 
                     <div class="accordion-item">
                         <div class="accordion-header">
@@ -2127,6 +2323,25 @@
             </div>
         </div>
     </div>
+
+    <div class="generic-modal" id="deleteConversationConfirmModal" aria-hidden="true">
+        <div class="delete-confirm-card">
+            <div class="delete-confirm-header">
+                <h3>Xóa đoạn chat</h3>
+                <button type="button" class="delete-confirm-close" id="closeDeleteConversationConfirmButton" aria-label="Đóng">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="delete-confirm-body">
+                <p>Bạn có chắc muốn xóa đoạn chat này ở cả 2 phía? Hành động này không thể hoàn tác.</p>
+                <div class="delete-confirm-actions">
+                    <button type="button" class="text-btn" id="cancelDeleteConversationConfirmButton">Hủy</button>
+                    <button type="button" class="danger-btn" id="confirmDeleteConversationButton">Xóa đoạn chat</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="~/js/global-navbar.js" asp-append-version="true"></script>
     <script src="https://cdn.jsdelivr.net/npm/%40microsoft/signalr@8.0.7/dist/browser/signalr.min.js"></script>
     <script>
         (function () {
@@ -2151,11 +2366,15 @@
             var rightPanel = document.querySelector(".right-panel");
             var toggleRightPanelButton = document.getElementById("toggleRightPanelButton");
             var chatHeaderName = document.getElementById("chatHeaderName");
+            var chatHeaderSubtitle = document.getElementById("chatHeaderSubtitle");
             var chatHeaderAvatar = document.getElementById("chatHeaderAvatar");
             var rightProfileName = document.getElementById("rightProfileName");
             var rightProfileAvatar = document.getElementById("rightProfileAvatar");
             var rightProfileStack = document.getElementById("rightProfileStack");
             var rightProfileSubAvatar = document.getElementById("rightProfileSubAvatar");
+            var chatCustomizeItem = document.getElementById("chatCustomizeItem");
+            var chatMembersItem = document.getElementById("chatMembersItem");
+            var chatMembersList = document.getElementById("chatMembersList");
             var openPinnedMessagesButton = document.getElementById("openPinnedMessagesButton");
             var pinnedMessagesModal = document.getElementById("pinnedMessagesModal");
             var closePinnedMessagesModalButton = document.getElementById("closePinnedMessagesModalButton");
@@ -2177,6 +2396,10 @@
             var selectedAddMembers = document.getElementById("selectedAddMembers");
             var addMemberResults = document.getElementById("addMemberResults");
             var submitAddMemberButton = document.getElementById("submitAddMemberButton");
+            var deleteConversationConfirmModal = document.getElementById("deleteConversationConfirmModal");
+            var closeDeleteConversationConfirmButton = document.getElementById("closeDeleteConversationConfirmButton");
+            var cancelDeleteConversationConfirmButton = document.getElementById("cancelDeleteConversationConfirmButton");
+            var confirmDeleteConversationButton = document.getElementById("confirmDeleteConversationButton");
             var openCreateGroupButton = document.getElementById("openCreateGroupButton");
             var createGroupModal = document.getElementById("createGroupModal");
             var closeCreateGroupModalButton = document.getElementById("closeCreateGroupModalButton");
@@ -2189,12 +2412,14 @@
             var conversationId = Number((panel && panel.dataset.conversationId) || 0);
             var currentUserId = Number((panel && panel.dataset.currentUserId) || 0);
             var isGroupConversation = @Html.Raw(JsonSerializer.Serialize(isGroupConversation));
+            var currentConversationMembers = @Html.Raw(JsonSerializer.Serialize(selectedMembers));
             var currentTab = @Html.Raw(JsonSerializer.Serialize(activeTab));
             var realtimeToken = @Html.Raw(JsonSerializer.Serialize(Model.RealtimeToken ?? string.Empty));
             var chatHubUrl = @Html.Raw(JsonSerializer.Serialize(Model.ChatHubUrl ?? string.Empty));
             var sendForm = document.getElementById("sendMessageForm");
             var sendButton = document.getElementById("sendButton");
             var messageInput = document.getElementById("messageInput");
+            var conversationIdInput = sendForm ? sendForm.querySelector('input[name="conversationId"]') : null;
             var replyToInput = document.getElementById("replyToMessageIdInput");
             var attachmentInput = document.getElementById("attachmentInput");
             var pickFilesButton = document.getElementById("pickFilesButton");
@@ -2227,6 +2452,9 @@
             var currentConversationName = @Html.Raw(JsonSerializer.Serialize(selectedConversationName));
             var currentConversationAvatar = @Html.Raw(JsonSerializer.Serialize(string.IsNullOrWhiteSpace(selectedConversationAvatar) ? "https://via.placeholder.com/64" : selectedConversationAvatar));
             var currentConversationHasCustomAvatar = @Html.Raw(JsonSerializer.Serialize(hasCustomGroupAvatar));
+            var isDeletingConversation = false;
+            var pendingDeleteConversationId = 0;
+            var isSwitchingConversation = false;
 
             function scrollToBottom() {
                 if (!panel) return;
@@ -2492,9 +2720,79 @@
 
             function syncRightProfileAvatarMode() {
                 if (!rightProfileStack || !rightProfileSubAvatar) return;
-                var shouldSingleAvatar = Boolean(isGroupConversation) && Boolean(currentConversationHasCustomAvatar);
+                var shouldSingleAvatar = !Boolean(isGroupConversation) || Boolean(currentConversationHasCustomAvatar);
                 rightProfileStack.classList.toggle("single", shouldSingleAvatar);
                 rightProfileSubAvatar.style.display = shouldSingleAvatar ? "none" : "";
+            }
+
+            function normalizeMember(rawMember) {
+                if (!rawMember) return null;
+
+                var userId = Number(rawMember.userId || rawMember.UserId || 0);
+                if (!userId) return null;
+                return {
+                    userId: userId,
+                    fullName: String(rawMember.fullName || rawMember.FullName || "").trim(),
+                    avatarUrl: String(rawMember.avatarUrl || rawMember.AvatarUrl || "").trim()
+                };
+            }
+
+            function normalizeMemberList(rawMembers) {
+                if (!Array.isArray(rawMembers)) return [];
+                return rawMembers.map(function (member) {
+                    return normalizeMember(member);
+                }).filter(function (member) {
+                    return Boolean(member);
+                });
+            }
+
+            function renderConversationMembers() {
+                if (!chatMembersList) return;
+                if (!isGroupConversation) {
+                    chatMembersList.innerHTML = "";
+                    return;
+                }
+
+                if (!Array.isArray(currentConversationMembers) || currentConversationMembers.length === 0) {
+                    chatMembersList.innerHTML = '<div class="file-link"><span>Chưa có thành viên</span></div>';
+                    return;
+                }
+
+                var html = "";
+                currentConversationMembers.forEach(function (member) {
+                    var avatar = member.avatarUrl || "https://via.placeholder.com/44";
+                    html += '<div class="member-row">';
+                    html += '<div class="member-meta">';
+                    html += '<img src="' + escapeHtml(avatar) + '" class="member-avatar" alt="avatar" />';
+                    html += '<div class="member-text"><strong>' + escapeHtml(member.fullName || "") + '</strong><span>Thành viên</span></div>';
+                    html += '</div>';
+                    html += '<button type="button" class="member-more-btn" title="Tùy chọn"><i class="fa-solid fa-ellipsis"></i></button>';
+                    html += "</div>";
+                });
+
+                chatMembersList.innerHTML = html;
+            }
+
+            function setGroupConversationUI(isGroup) {
+                if (chatHeaderSubtitle) {
+                    chatHeaderSubtitle.style.display = isGroup ? "" : "none";
+                    chatHeaderSubtitle.textContent = isGroup ? (String(currentConversationMembers.length) + " thành viên") : "";
+                }
+
+                if (chatCustomizeItem) {
+                    chatCustomizeItem.style.display = isGroup ? "" : "none";
+                }
+                if (chatMembersItem) {
+                    chatMembersItem.style.display = isGroup ? "" : "none";
+                }
+
+                if (!isGroup) {
+                    selectedAddMemberMap = {};
+                    renderSelectedAddMembers();
+                    updateAddMemberSubmitState();
+                }
+
+                renderConversationMembers();
             }
 
             function setConversationDisplay(name, avatarUrl) {
@@ -2522,6 +2820,18 @@
                     rightProfileAvatar.src = normalizedAvatar;
                 }
                 syncRightProfileAvatarMode();
+            }
+
+            function applyConversationDetail(detail) {
+                if (!detail) return;
+
+                var conversationType = String(detail.type || detail.Type || "").toLowerCase();
+                isGroupConversation = conversationType === "group";
+                currentConversationMembers = normalizeMemberList(detail.members || detail.Members || []);
+                currentConversationHasCustomAvatar = isGroupConversation && String(detail.avatarUrl || detail.AvatarUrl || "").indexOf("via.placeholder.com") === -1;
+
+                setConversationDisplay(detail.name || detail.Name || "", detail.avatarUrl || detail.AvatarUrl || "");
+                setGroupConversationUI(isGroupConversation);
             }
 
             function setModalOpen(modal, isOpen) {
@@ -2847,10 +3157,12 @@
                 }
 
                 var existingMemberIds = {};
-                @foreach (var member in selectedMembers)
-                {
-                    <text>existingMemberIds["@(member.UserId)"] = true;</text>
-                }
+                currentConversationMembers.forEach(function (member) {
+                    if (!member) return;
+                    var normalizedId = Number(member.userId || 0);
+                    if (!normalizedId) return;
+                    existingMemberIds[String(normalizedId)] = true;
+                });
 
                 var html = "";
                 users.forEach(function (user) {
@@ -3353,6 +3665,300 @@
                 return "/conversations?" + params.toString();
             }
 
+            function buildConversationListRootHref() {
+                var params = new URLSearchParams();
+                if (currentTab) {
+                    params.set("tab", currentTab);
+                }
+
+                var query = params.toString();
+                return query ? ("/conversations?" + query) : "/conversations";
+            }
+
+            function buildConversationListItemHtml(conversation) {
+                var id = Number(conversation.id || 0);
+                var isActive = id === conversationId;
+                var hasUnread = Boolean(conversation.hasUnread) && !isActive;
+                var lastSenderId = conversation.lastSenderId === null || conversation.lastSenderId === undefined
+                    ? null
+                    : Number(conversation.lastSenderId);
+
+                var prefix = "";
+                if (lastSenderId !== null) {
+                    prefix = lastSenderId === currentUserId
+                        ? "Bạn: "
+                        : ((conversation.lastSenderName || "") + ": ");
+                }
+
+                var lastMessage = (conversation.lastMessage || "").trim();
+                var preview = lastMessage ? (prefix + lastMessage) : "(Chưa có tin nhắn)";
+                var avatar = conversation.avatarUrl || "https://via.placeholder.com/56";
+                var unreadBadge = hasUnread
+                    ? '<div class="unread-badge">' + Number(conversation.unreadCount || 0) + "</div>"
+                    : "";
+
+                var html = '<div class="conversation-list-item ' + (isActive ? "active" : "") + '" data-conversation-id="' + id + '">';
+                html += '<a class="conversation-item-link" href="' + escapeHtml(buildConversationHref(id)) + '">';
+                html += '<div class="avatar-wrap">';
+                html += '<img class="avatar" src="' + escapeHtml(avatar) + '" alt="avatar" />';
+                html += "</div>";
+                html += '<div class="conversation-content">';
+                html += '<div class="conversation-name">' + escapeHtml(conversation.name || "") + "</div>";
+                html += '<div class="conversation-preview ' + (hasUnread ? "unread" : "") + '">';
+                html += escapeHtml(preview);
+                html += "</div></div>";
+                html += "</a>";
+                html += '<div class="conversation-trailing">';
+                html += unreadBadge;
+                html += '<div class="conversation-actions">';
+                html += '<button type="button" class="conversation-more-btn" data-action="toggle-conversation-menu" data-conversation-id="' + id + '" aria-label="Tùy chọn đoạn chat">';
+                html += '<i class="fa-solid fa-ellipsis"></i>';
+                html += "</button>";
+                html += '<div class="conversation-more-menu" data-conversation-menu="' + id + '">';
+                html += '<button type="button" class="conversation-menu-item danger" data-action="delete-conversation" data-conversation-id="' + id + '">Xóa đoạn chat</button>';
+                html += "</div>";
+                html += "</div>";
+                html += "</div>";
+                html += "</div>";
+                return html;
+            }
+
+            function closeConversationMenus() {
+                if (!conversationList) return;
+
+                var openedMenus = conversationList.querySelectorAll(".conversation-more-menu.open");
+                openedMenus.forEach(function (menu) {
+                    menu.classList.remove("open");
+                });
+
+                var openedItems = conversationList.querySelectorAll(".conversation-list-item.menu-open");
+                openedItems.forEach(function (item) {
+                    item.classList.remove("menu-open");
+                });
+            }
+
+            function toggleConversationMenu(button) {
+                if (!button) return;
+                var container = button.closest(".conversation-list-item");
+                if (!container) return;
+                var menu = container.querySelector(".conversation-more-menu");
+                if (!menu) return;
+
+                var shouldOpen = !menu.classList.contains("open");
+                closeConversationMenus();
+                if (!shouldOpen) {
+                    return;
+                }
+
+                menu.classList.add("open");
+                container.classList.add("menu-open");
+            }
+
+            function closeDeleteConversationConfirm() {
+                pendingDeleteConversationId = 0;
+                if (confirmDeleteConversationButton) {
+                    confirmDeleteConversationButton.disabled = false;
+                }
+                setModalOpen(deleteConversationConfirmModal, false);
+            }
+
+            function openDeleteConversationConfirm(targetConversationId) {
+                var id = Number(targetConversationId || 0);
+                if (!id || isDeletingConversation) return;
+                closeConversationMenus();
+                pendingDeleteConversationId = id;
+                if (confirmDeleteConversationButton) {
+                    confirmDeleteConversationButton.disabled = false;
+                }
+                setModalOpen(deleteConversationConfirmModal, true);
+            }
+
+            async function deleteConversationForEveryone(targetConversationId) {
+                var id = Number(targetConversationId || 0);
+                if (!id || isDeletingConversation) return;
+
+                isDeletingConversation = true;
+                if (confirmDeleteConversationButton) {
+                    confirmDeleteConversationButton.disabled = true;
+                }
+                try {
+                    var response = await postWithToken("/conversations/delete-conversation-json", {
+                        conversationId: String(id)
+                    });
+
+                    if (response.status === 401) {
+                        window.location.href = "/Account/Login";
+                        return;
+                    }
+
+                    if (!response.ok) {
+                        var errorText = "Không thể xóa đoạn chat.";
+                        try {
+                            var payload = await response.json();
+                            if (payload && payload.error) {
+                                errorText = String(payload.error);
+                            }
+                        } catch {
+                            // Keep default error message.
+                        }
+
+                        window.alert(errorText);
+                        return;
+                    }
+
+                    closeConversationMenus();
+                    closeDeleteConversationConfirm();
+
+                    if (id === conversationId) {
+                        window.location.href = buildConversationListRootHref();
+                        return;
+                    }
+
+                    await refreshConversationList();
+                } catch {
+                    window.alert("Không thể xóa đoạn chat.");
+                } finally {
+                    isDeletingConversation = false;
+                    if (confirmDeleteConversationButton) {
+                        confirmDeleteConversationButton.disabled = false;
+                    }
+                }
+            }
+
+            function setActiveConversationInList(targetConversationId) {
+                if (!conversationList) return;
+
+                var targetId = Number(targetConversationId || 0);
+                var items = conversationList.querySelectorAll(".conversation-list-item");
+                items.forEach(function (item) {
+                    var itemId = Number(item.getAttribute("data-conversation-id") || 0);
+                    item.classList.toggle("active", itemId === targetId);
+                });
+            }
+
+            async function fetchConversationDetail(targetConversationId) {
+                var response = await fetch("/conversations/detail-json?conversationId=" + encodeURIComponent(String(targetConversationId)), {
+                    method: "GET",
+                    headers: {
+                        "X-Requested-With": "XMLHttpRequest"
+                    },
+                    cache: "no-store"
+                });
+
+                if (response.status === 401) {
+                    window.location.href = "/Account/Login";
+                    return null;
+                }
+
+                if (!response.ok) {
+                    throw new Error(await readResponseError(response, "Không thể tải đoạn chat."));
+                }
+
+                return await response.json();
+            }
+
+            async function switchConversation(targetConversationId, shouldPushHistory) {
+                var nextConversationId = Number(targetConversationId || 0);
+                if (!nextConversationId || nextConversationId === conversationId || isSwitchingConversation) {
+                    return;
+                }
+
+                var previousConversationId = conversationId;
+                isSwitchingConversation = true;
+
+                try {
+                    if (connection && connection.state === signalR.HubConnectionState.Connected && previousConversationId) {
+                        try {
+                            await connection.invoke("LeaveConversation", previousConversationId);
+                        } catch {
+                            // Ignore leave errors while switching.
+                        }
+                    }
+
+                    conversationId = nextConversationId;
+                    if (panel) {
+                        panel.dataset.conversationId = String(nextConversationId);
+                    }
+                    if (conversationIdInput) {
+                        conversationIdInput.value = String(nextConversationId);
+                    }
+                    if (sendButton) {
+                        sendButton.disabled = false;
+                    }
+
+                    setActiveConversationInList(nextConversationId);
+                    closeAllMessageMenus();
+                    closeConversationMenus();
+                    setReplyMessage(null);
+                    setEditMessage(null, false);
+                    typingUsers = {};
+                    renderTypingIndicator();
+
+                    loadedPage = 1;
+                    hasMorePages = true;
+                    isLoadingOlder = false;
+                    latestPageSnapshot = "";
+                    allMessages = [];
+                    renderMessages(allMessages);
+
+                    var detail = await fetchConversationDetail(nextConversationId);
+                    if (!detail) {
+                        return;
+                    }
+
+                    applyConversationDetail(detail);
+                    loadPinnedMessagesFromStorage();
+
+                    if (connection && connection.state === signalR.HubConnectionState.Connected) {
+                        try {
+                            await connection.invoke("JoinConversation", nextConversationId);
+                        } catch {
+                            // Ignore join errors; polling/reload path will recover.
+                        }
+                    }
+
+                    await loadLatestMessages(true, true);
+                    scheduleConversationListRefresh(30);
+
+                    if (rightSearchPanel && rightSearchPanel.style.display !== "none") {
+                        searchConversationMessages(messageSearchInput ? messageSearchInput.value : "");
+                    }
+
+                    if (shouldPushHistory) {
+                        history.pushState({ conversationId: nextConversationId }, "", buildConversationHref(nextConversationId));
+                    }
+                } catch (error) {
+                    if (error && error.message) {
+                        window.alert(error.message);
+                    }
+
+                    conversationId = previousConversationId;
+                    if (panel) {
+                        panel.dataset.conversationId = String(previousConversationId || 0);
+                    }
+                    if (conversationIdInput) {
+                        conversationIdInput.value = String(previousConversationId || 0);
+                    }
+                    setActiveConversationInList(previousConversationId);
+
+                    if (previousConversationId && connection && connection.state === signalR.HubConnectionState.Connected) {
+                        try {
+                            await connection.invoke("JoinConversation", previousConversationId);
+                        } catch {
+                            // Ignore rejoin failure.
+                        }
+                    }
+
+                    if (previousConversationId) {
+                        window.location.href = buildConversationHref(previousConversationId);
+                    } else {
+                        window.location.href = buildConversationListRootHref();
+                    }
+                } finally {
+                    isSwitchingConversation = false;
+                }
+            }
+
             function renderConversationList(conversations) {
                 if (!conversationList) return;
 
@@ -3363,40 +3969,7 @@
 
                 var html = "";
                 conversations.forEach(function (conversation) {
-                    var id = Number(conversation.id || 0);
-                    var isActive = id === conversationId;
-                    var hasUnread = Boolean(conversation.hasUnread) && !isActive;
-                    var lastSenderId = conversation.lastSenderId === null || conversation.lastSenderId === undefined
-                        ? null
-                        : Number(conversation.lastSenderId);
-
-                    var prefix = "";
-                    if (lastSenderId !== null) {
-                        prefix = lastSenderId === currentUserId
-                            ? "Bạn: "
-                            : ((conversation.lastSenderName || "") + ": ");
-                    }
-
-                    var lastMessage = (conversation.lastMessage || "").trim();
-                    var preview = lastMessage ? (prefix + lastMessage) : "(Chưa có tin nhắn)";
-                    var avatar = conversation.avatarUrl || "https://via.placeholder.com/56";
-                    var unreadBadge = hasUnread
-                        ? '<div class="unread-badge">' + Number(conversation.unreadCount || 0) + "</div>"
-                        : "";
-
-                    html += '<a class="conversation-item ' + (isActive ? "active" : "") + '"';
-                    html += ' href="' + escapeHtml(buildConversationHref(id)) + '"';
-                    html += ' style="text-decoration:none;color:inherit;">';
-                    html += '<div class="avatar-wrap">';
-                    html += '<img class="avatar" src="' + escapeHtml(avatar) + '" alt="avatar" />';
-                    html += "</div>";
-                    html += '<div class="conversation-content">';
-                    html += '<div class="conversation-name">' + escapeHtml(conversation.name || "") + "</div>";
-                    html += '<div class="conversation-preview ' + (hasUnread ? "unread" : "") + '">';
-                    html += escapeHtml(preview);
-                    html += "</div></div>";
-                    html += unreadBadge;
-                    html += "</a>";
+                    html += buildConversationListItemHtml(conversation);
                 });
 
                 conversationList.innerHTML = html;
@@ -3659,6 +4232,8 @@
                     return;
                 }
 
+                var requestConversationId = conversationId;
+
                 var trimmed = (keyword || "").trim();
                 if (!trimmed) {
                     messageSearchResults.innerHTML = '<div class="message-search-empty">Nhập nội dung để tìm lịch sử tin nhắn.</div>';
@@ -3670,7 +4245,7 @@
                 messageSearchResults.innerHTML = '<div class="message-search-empty">Đang tìm kiếm...</div>';
                 try {
                     var response = await fetch(
-                        "/conversations/search-messages-json?conversationId=" + conversationId + "&q=" + encodeURIComponent(trimmed) + "&page=1&pageSize=40",
+                        "/conversations/search-messages-json?conversationId=" + requestConversationId + "&q=" + encodeURIComponent(trimmed) + "&page=1&pageSize=40",
                         {
                             method: "GET",
                             headers: {
@@ -3686,7 +4261,7 @@
 
                     if (!response.ok) return;
                     var payload = await response.json();
-                    if (requestId !== messageSearchRequestSequence) return;
+                    if (requestId !== messageSearchRequestSequence || requestConversationId !== conversationId) return;
                     var items = Array.isArray(payload)
                         ? payload
                         : (Array.isArray(payload.items) ? payload.items : []);
@@ -3818,9 +4393,10 @@
 
             async function loadLatestMessages(forceScroll, forceRender) {
                 if (!panel || !conversationId) return;
+                var requestConversationId = conversationId;
                 try {
                     var response = await fetch(
-                        "/conversations/messages-json?conversationId=" + conversationId + "&page=1&pageSize=" + pageSize + "&markRead=true",
+                        "/conversations/messages-json?conversationId=" + requestConversationId + "&page=1&pageSize=" + pageSize + "&markRead=true",
                         {
                             method: "GET",
                             headers: {
@@ -3836,6 +4412,7 @@
 
                     if (!response.ok) return;
                     var latestMessages = await response.json();
+                    if (requestConversationId !== conversationId) return;
                     var newSnapshot = computeLatestPageSnapshot(latestMessages);
                     if (!forceRender && !forceScroll && latestPageSnapshot === newSnapshot) {
                         return;
@@ -3861,6 +4438,7 @@
 
             async function loadOlderMessages() {
                 if (!panel || !conversationId || !hasMorePages || isLoadingOlder) return false;
+                var requestConversationId = conversationId;
 
                 isLoadingOlder = true;
                 var nextPage = loadedPage + 1;
@@ -3870,7 +4448,7 @@
 
                 try {
                     var response = await fetch(
-                        "/conversations/messages-json?conversationId=" + conversationId + "&page=" + nextPage + "&pageSize=" + pageSize + "&markRead=false",
+                        "/conversations/messages-json?conversationId=" + requestConversationId + "&page=" + nextPage + "&pageSize=" + pageSize + "&markRead=false",
                         {
                             method: "GET",
                             headers: {
@@ -3886,6 +4464,7 @@
 
                     if (!response.ok) return;
                     var olderMessages = await response.json();
+                    if (requestConversationId !== conversationId) return false;
                     if (!Array.isArray(olderMessages) || olderMessages.length === 0) {
                         hasMorePages = false;
                         return false;
@@ -3966,6 +4545,23 @@
                 connection.on("ConversationUpdated", function (payload) {
                     if (!payload) return;
                     scheduleConversationListRefresh(40);
+                });
+
+                connection.on("ConversationDeleted", function (payload) {
+                    if (!payload) return;
+
+                    var deletedConversationId = Number(payload.conversationId || 0);
+                    if (!deletedConversationId) return;
+                    if (pendingDeleteConversationId === deletedConversationId) {
+                        closeDeleteConversationConfirm();
+                    }
+
+                    closeConversationMenus();
+                    scheduleConversationListRefresh(20);
+
+                    if (deletedConversationId === conversationId) {
+                        window.location.href = buildConversationListRootHref();
+                    }
                 });
 
                 connection.onreconnecting(function () {
@@ -4160,24 +4756,89 @@
                 });
             }
 
+            if (conversationList) {
+                conversationList.addEventListener("click", function (event) {
+                    var itemLink = event.target.closest(".conversation-item-link");
+                    if (itemLink && conversationList.contains(itemLink)) {
+                        if (event.defaultPrevented) return;
+                        if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+                            return;
+                        }
+
+                        var item = itemLink.closest(".conversation-list-item");
+                        var targetConversationId = Number(item && item.getAttribute("data-conversation-id") || 0);
+                        if (targetConversationId > 0) {
+                            event.preventDefault();
+                        }
+                        if (targetConversationId > 0 && targetConversationId !== conversationId) {
+                            switchConversation(targetConversationId, true);
+                        }
+                        return;
+                    }
+
+                    var trigger = event.target.closest("[data-action]");
+                    if (!trigger) return;
+
+                    var action = trigger.getAttribute("data-action");
+                    if (action === "toggle-conversation-menu") {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        toggleConversationMenu(trigger);
+                        return;
+                    }
+
+                    if (action === "delete-conversation") {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        var targetConversationId = Number(trigger.getAttribute("data-conversation-id") || 0);
+                        if (!targetConversationId) return;
+                        openDeleteConversationConfirm(targetConversationId);
+                    }
+                });
+
+                conversationList.addEventListener("scroll", function () {
+                    closeConversationMenus();
+                });
+            }
+
             document.addEventListener("click", function (event) {
-                if (!panel) return;
-                if (event.target.closest(".message-more-wrap")) return;
-                closeAllMessageMenus();
+                if (!event.target.closest(".message-more-wrap")) {
+                    closeAllMessageMenus();
+                }
+
+                if (!event.target.closest(".conversation-actions")) {
+                    closeConversationMenus();
+                }
             });
 
             if (shouldScroll) {
                 scrollToBottom();
             }
 
+            currentConversationMembers = normalizeMemberList(currentConversationMembers);
             loadPinnedMessagesFromStorage();
             setConversationDisplay(currentConversationName, currentConversationAvatar);
+            setGroupConversationUI(isGroupConversation);
+            setActiveConversationInList(conversationId);
+            if (conversationIdInput) {
+                conversationIdInput.value = String(conversationId || 0);
+            }
             updateCreateGroupSubmitState();
             updateAddMemberSubmitState();
             setRightPanelVisible(true);
             initRealtime();
             loadLatestMessages(shouldScroll, true);
             toggleMessageSearchPanel(false);
+
+            window.addEventListener("popstate", function () {
+                var params = new URLSearchParams(window.location.search || "");
+                var urlConversationId = Number(params.get("conversationId") || 0);
+                if (!urlConversationId || urlConversationId === conversationId) {
+                    return;
+                }
+
+                switchConversation(urlConversationId, false);
+            });
 
             if (sendForm && messageInput && sendButton && conversationId > 0) {
                 sendForm.addEventListener("submit", async function (event) {
@@ -4531,6 +5192,34 @@
                 });
             }
 
+            if (closeDeleteConversationConfirmButton) {
+                closeDeleteConversationConfirmButton.addEventListener("click", function () {
+                    closeDeleteConversationConfirm();
+                });
+            }
+
+            if (cancelDeleteConversationConfirmButton) {
+                cancelDeleteConversationConfirmButton.addEventListener("click", function () {
+                    closeDeleteConversationConfirm();
+                });
+            }
+
+            if (confirmDeleteConversationButton) {
+                confirmDeleteConversationButton.addEventListener("click", function () {
+                    var targetConversationId = Number(pendingDeleteConversationId || 0);
+                    if (!targetConversationId) return;
+                    deleteConversationForEveryone(targetConversationId);
+                });
+            }
+
+            if (deleteConversationConfirmModal) {
+                deleteConversationConfirmModal.addEventListener("click", function (event) {
+                    if (event.target === deleteConversationConfirmModal) {
+                        closeDeleteConversationConfirm();
+                    }
+                });
+            }
+
             if (openCreateGroupButton) {
                 openCreateGroupButton.addEventListener("click", function () {
                     openCreateGroupModal();
@@ -4617,6 +5306,10 @@
 
             document.addEventListener("keydown", function (event) {
                 if (event.key !== "Escape") return;
+                if (deleteConversationConfirmModal && deleteConversationConfirmModal.classList.contains("open")) {
+                    closeDeleteConversationConfirm();
+                    return;
+                }
                 if (createGroupModal && createGroupModal.classList.contains("open")) {
                     closeCreateGroupModal();
                     return;

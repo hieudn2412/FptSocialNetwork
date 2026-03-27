@@ -11,5 +11,6 @@ namespace FptSocialNetwork.Client.Services
         Task<ApiResponse<ConversationDetailDto>> UpdateConversationSettingsAsync(int conversationId, string? name, string? avatarUrl);
         Task<ApiResponse<ConversationDetailDto>> AddMembersAsync(int conversationId, List<int> memberUserIds);
         Task<ApiResponse<object>> MarkConversationAsReadAsync(int conversationId);
+        Task<ApiResponse<object>> DeleteConversationAsync(int conversationId);
     }
 }

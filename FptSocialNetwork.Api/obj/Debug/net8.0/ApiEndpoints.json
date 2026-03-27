@@ -162,6 +162,22 @@
   },
   {
     "ContainingType": "FptSocialNetwork.Api.Controllers.ConversationsController",
+    "Method": "DeleteConversation",
+    "RelativePath": "api/Conversations/{conversationId}/delete",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "conversationId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "FptSocialNetwork.Api.Controllers.ConversationsController",
     "Method": "AddMembers",
     "RelativePath": "api/Conversations/{conversationId}/members",
     "HttpMethod": "POST",
@@ -496,26 +512,5 @@
         "StatusCode": 200
       }
     ]
-  },
-  {
-    "ContainingType": "FptSocialNetwork.Api.Controllers.WeatherForecastController",
-    "Method": "Get",
-    "RelativePath": "WeatherForecast",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [],
-    "ReturnTypes": [
-      {
-        "Type": "System.Collections.Generic.IEnumerable\u00601[[FptSocialNetwork.Api.WeatherForecast, FptSocialNetwork.Api, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
-        "MediaTypes": [
-          "text/plain",
-          "application/json",
-          "text/json"
-        ],
-        "StatusCode": 200
-      }
-    ],
-    "EndpointName": "GetWeatherForecast"
   }
 ]

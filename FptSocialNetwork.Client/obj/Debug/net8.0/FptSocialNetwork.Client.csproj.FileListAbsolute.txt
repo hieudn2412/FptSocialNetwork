@@ -135,3 +135,16 @@ D:\FA26\PRN232\FptSocialNetwork\_verify\client_pinned_modal\FptSocialNetwork.Cli
 D:\FA26\PRN232\FptSocialNetwork\_verify\client_pinned_modal\FptSocialNetwork.Client.runtimeconfig.json
 D:\FA26\PRN232\FptSocialNetwork\_verify\client_pinned_modal\FptSocialNetwork.Client.dll
 D:\FA26\PRN232\FptSocialNetwork\_verify\client_pinned_modal\FptSocialNetwork.Client.pdb
+D:\FA26\PRN232\FptSocialNetwork\FptSocialNetwork.Client\obj\Debug\net8.0\FptSocialNetwork.Client.sourcelink.json
+D:\FA26\PRN232\FptSocialNetwork\_verify\client_modal_resize\appsettings.Development.json
+D:\FA26\PRN232\FptSocialNetwork\_verify\client_modal_resize\appsettings.json
+D:\FA26\PRN232\FptSocialNetwork\_verify\client_modal_resize\_verify\obj\FptSocialNetwork.Client.csproj.nuget.dgspec.json
+D:\FA26\PRN232\FptSocialNetwork\_verify\client_modal_resize\_verify\obj\project.assets.json
+D:\FA26\PRN232\FptSocialNetwork\_verify\client_modal_resize\FptSocialNetwork.Client.staticwebassets.runtime.json
+D:\FA26\PRN232\FptSocialNetwork\_verify\client_modal_resize\FptSocialNetwork.Client.staticwebassets.endpoints.json
+D:\FA26\PRN232\FptSocialNetwork\_verify\client_modal_resize\FptSocialNetwork.Client.exe
+D:\FA26\PRN232\FptSocialNetwork\_verify\client_modal_resize\FptSocialNetwork.Client.deps.json
+D:\FA26\PRN232\FptSocialNetwork\_verify\client_modal_resize\FptSocialNetwork.Client.runtimeconfig.json
+D:\FA26\PRN232\FptSocialNetwork\_verify\client_modal_resize\FptSocialNetwork.Client.dll
+D:\FA26\PRN232\FptSocialNetwork\_verify\client_modal_resize\FptSocialNetwork.Client.pdb
+D:\FA26\PRN232\FptSocialNetwork\FptSocialNetwork.Client\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt

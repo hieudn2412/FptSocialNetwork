@@ -30,3 +30,7 @@ D:\FA26\PRN232\FptSocialNetwork\_verify\api_pinned_modal\BusinessObjects.pdb
 D:\FA26\PRN232\FptSocialNetwork\_verify\client_pinned_modal\BusinessObjects.deps.json
 D:\FA26\PRN232\FptSocialNetwork\_verify\client_pinned_modal\BusinessObjects.dll
 D:\FA26\PRN232\FptSocialNetwork\_verify\client_pinned_modal\BusinessObjects.pdb
+D:\FA26\PRN232\FptSocialNetwork\_verify\client_modal_resize\BusinessObjects.deps.json
+D:\FA26\PRN232\FptSocialNetwork\_verify\client_modal_resize\BusinessObjects.dll
+D:\FA26\PRN232\FptSocialNetwork\_verify\client_modal_resize\BusinessObjects.pdb
+D:\FA26\PRN232\FptSocialNetwork\BusinessObject\obj\Debug\net8.0\BusinessObjects.sourcelink.json

@@ -351,6 +351,36 @@ namespace FptSocialNetwork.Client.Controllers
             return Ok(result.Data ?? new List<MessageDto>());
         }
 
+        [HttpGet("detail-json")]
+        public async Task<IActionResult> GetConversationDetailJson(int conversationId)
+        {
+            var sessionUserId = HttpContext.Session.GetInt32("UserId");
+            var token = HttpContext.Session.GetString("AccessToken");
+            if (sessionUserId is null || string.IsNullOrWhiteSpace(token))
+            {
+                return Unauthorized(new { error = "Unauthorized." });
+            }
+
+            if (conversationId <= 0)
+            {
+                return BadRequest(new { error = "ConversationId is invalid." });
+            }
+
+            var result = await _conversationApiService.GetConversationDetailAsync(conversationId);
+            if (!result.IsSuccess || result.Data is null)
+            {
+                if (IsUnauthorized(result.StatusCode))
+                {
+                    HttpContext.Session.Clear();
+                    return Unauthorized(new { error = "Unauthorized." });
+                }
+
+                return BadRequest(new { error = result.ErrorMessage ?? "Cannot load conversation detail." });
+            }
+
+            return Ok(result.Data);
+        }
+
         [HttpGet("list-json")]
         public async Task<IActionResult> GetConversationListJson(string? tab = null, string? q = null)
         {
@@ -643,6 +673,37 @@ namespace FptSocialNetwork.Client.Controllers
                 conversationId = result.Data.Id,
                 memberCount = result.Data.Members.Count
             });
+        }
+
+        [HttpPost("delete-conversation-json")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConversationJson(int conversationId)
+        {
+            var sessionUserId = HttpContext.Session.GetInt32("UserId");
+            var token = HttpContext.Session.GetString("AccessToken");
+            if (sessionUserId is null || string.IsNullOrWhiteSpace(token))
+            {
+                return Unauthorized(new { error = "Unauthorized." });
+            }
+
+            if (conversationId <= 0)
+            {
+                return BadRequest(new { error = "ConversationId is invalid." });
+            }
+
+            var result = await _conversationApiService.DeleteConversationAsync(conversationId);
+            if (!result.IsSuccess)
+            {
+                if (IsUnauthorized(result.StatusCode))
+                {
+                    HttpContext.Session.Clear();
+                    return Unauthorized(new { error = "Unauthorized." });
+                }
+
+                return BadRequest(new { error = result.ErrorMessage ?? "Cannot delete conversation." });
+            }
+
+            return NoContent();
         }
 
         private string BuildChatHubUrl()

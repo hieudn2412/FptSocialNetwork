@@ -186,3 +186,4 @@ D:\FA26\PRN232\FptSocialNetwork\_verify\api_pinned_modal\FptSocialNetwork.Api.de
 D:\FA26\PRN232\FptSocialNetwork\_verify\api_pinned_modal\FptSocialNetwork.Api.runtimeconfig.json
 D:\FA26\PRN232\FptSocialNetwork\_verify\api_pinned_modal\FptSocialNetwork.Api.dll
 D:\FA26\PRN232\FptSocialNetwork\_verify\api_pinned_modal\FptSocialNetwork.Api.pdb
+D:\FA26\PRN232\FptSocialNetwork\FptSocialNetwork.Api\obj\Debug\net8.0\FptSocialNetwork.Api.sourcelink.json

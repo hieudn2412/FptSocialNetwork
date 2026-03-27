@@ -77,5 +77,10 @@ namespace FptSocialNetwork.Client.Services
         {
             return await _apiClient.PostAsync<object>($"api/conversations/{conversationId}/read");
         }
+
+        public async Task<ApiResponse<object>> DeleteConversationAsync(int conversationId)
+        {
+            return await _apiClient.PostAsync<object>($"api/conversations/{conversationId}/delete");
+        }
     }
 }

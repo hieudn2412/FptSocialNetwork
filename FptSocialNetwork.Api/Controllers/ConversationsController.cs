@@ -187,6 +187,37 @@ namespace FptSocialNetwork.Api.Controllers
             }
         }
 
+        [HttpPost("{conversationId:int}/delete")]
+        public async Task<IActionResult> DeleteConversation(int conversationId)
+        {
+            var userIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue(ClaimTypes.Name);
+            if (!int.TryParse(userIdValue, out var userId))
+            {
+                return Unauthorized();
+            }
+
+            var memberUserIds = await _dbContext.ConversationMembers
+                .Where(cm => cm.ConversationId == conversationId)
+                .Select(cm => cm.UserId)
+                .Distinct()
+                .ToListAsync();
+
+            try
+            {
+                await _conversationService.DeleteConversationAsync(conversationId, userId);
+                await BroadcastConversationDeletedAsync(conversationId, memberUserIds);
+                return NoContent();
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Forbid();
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         private async Task BroadcastConversationUpdatedAsync(int conversationId)
         {
             var memberUserIds = await _dbContext.ConversationMembers
@@ -207,6 +238,23 @@ namespace FptSocialNetwork.Api.Controllers
             await _hubContext.Clients
                 .Groups(targetGroups)
                 .SendAsync("ConversationUpdated", new { conversationId });
+        }
+
+        private async Task BroadcastConversationDeletedAsync(int conversationId, List<int> memberUserIds)
+        {
+            if (memberUserIds.Count == 0)
+            {
+                return;
+            }
+
+            var targetGroups = memberUserIds
+                .Select(ChatHub.GetUserGroup)
+                .Distinct()
+                .ToList();
+
+            await _hubContext.Clients
+                .Groups(targetGroups)
+                .SendAsync("ConversationDeleted", new { conversationId });
         }
     }
 }

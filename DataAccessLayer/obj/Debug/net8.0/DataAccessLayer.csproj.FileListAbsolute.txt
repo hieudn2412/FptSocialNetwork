@@ -43,3 +43,8 @@ D:\FA26\PRN232\FptSocialNetwork\_verify\client_pinned_modal\DataAccessLayer.deps
 D:\FA26\PRN232\FptSocialNetwork\_verify\client_pinned_modal\DataAccessLayer.runtimeconfig.json
 D:\FA26\PRN232\FptSocialNetwork\_verify\client_pinned_modal\DataAccessLayer.dll
 D:\FA26\PRN232\FptSocialNetwork\_verify\client_pinned_modal\DataAccessLayer.pdb
+D:\FA26\PRN232\FptSocialNetwork\_verify\client_modal_resize\DataAccessLayer.deps.json
+D:\FA26\PRN232\FptSocialNetwork\_verify\client_modal_resize\DataAccessLayer.runtimeconfig.json
+D:\FA26\PRN232\FptSocialNetwork\_verify\client_modal_resize\DataAccessLayer.dll
+D:\FA26\PRN232\FptSocialNetwork\_verify\client_modal_resize\DataAccessLayer.pdb
+D:\FA26\PRN232\FptSocialNetwork\DataAccessLayer\obj\Debug\net8.0\DataAccessLayer.sourcelink.json

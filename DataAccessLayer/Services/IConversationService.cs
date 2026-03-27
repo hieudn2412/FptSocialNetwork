@@ -11,5 +11,6 @@ namespace DataAccessLayer.Services
         Task<ConversationDetailDto> UpdateConversationSettingsAsync(int conversationId, int userId, string? name, string? avatarUrl);
         Task<ConversationDetailDto> AddMembersAsync(int conversationId, int userId, List<int> memberUserIds);
         Task<DateTime> MarkConversationAsReadAsync(int conversationId, int userId);
+        Task DeleteConversationAsync(int conversationId, int userId);
     }
 }

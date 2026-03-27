@@ -76,7 +76,7 @@
               "RelativeDocumentMoniker": "FptSocialNetwork.Client\\Views\\Conversation\\Index.cshtml",
               "ToolTip": "D:\\FA26\\PRN232\\FptSocialNetwork\\FptSocialNetwork.Client\\Views\\Conversation\\Index.cshtml",
               "RelativeToolTip": "FptSocialNetwork.Client\\Views\\Conversation\\Index.cshtml",
-              "ViewState": "AgIAAPgKAAAAAAAAAAASwAAAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAANIUAAAAAAAAAAASwOEUAABIAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
               "WhenOpened": "2026-03-27T09:50:57.864Z",
               "EditorCaption": ""
@@ -91,8 +91,7 @@
               "RelativeToolTip": "FptSocialNetwork.Client\\appsettings.json",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2026-03-27T08:33:47.043Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-27T08:33:47.043Z"
             },
             {
               "$type": "Document",
@@ -104,8 +103,7 @@
               "RelativeToolTip": "FptSocialNetwork.Api\\appsettings.json",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABcAAABdAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2026-03-27T08:33:42.235Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-27T08:33:42.235Z"
             },
             {
               "$type": "Document",
@@ -117,8 +115,7 @@
               "RelativeToolTip": "FptSocialNetwork.Client\\Services\\MessageApiService.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-27T08:05:18.036Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-27T08:05:18.036Z"
             },
             {
               "$type": "Document",
@@ -130,8 +127,7 @@
               "RelativeToolTip": "FptSocialNetwork.Client\\Services\\IMessageApiService.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-27T08:05:15.73Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-27T08:05:15.73Z"
             },
             {
               "$type": "Document",
@@ -143,8 +139,7 @@
               "RelativeToolTip": "DataAccessLayer\\Services\\AuthService.cs",
               "ViewState": "AgIAAEUAAAAAAAAAAAAgwD4AAAAdAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-27T07:39:31.996Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-27T07:39:31.996Z"
             },
             {
               "$type": "Document",
@@ -156,8 +151,7 @@
               "RelativeToolTip": "DataAccessLayer\\Services\\IAuthService.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-27T07:39:28.259Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-27T07:39:28.259Z"
             },
             {
               "$type": "Document",
@@ -169,8 +163,7 @@
               "RelativeToolTip": "FptSocialNetwork.Api\\Controllers\\ConversationsController.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAAfAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-27T07:08:13.826Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-27T07:08:13.826Z"
             },
             {
               "$type": "Document",
@@ -182,8 +175,7 @@
               "RelativeToolTip": "FptSocialNetwork.Api\\Properties\\launchSettings.json",
               "ViewState": "AgIAAAMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2026-03-27T07:07:19.263Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-27T07:07:19.263Z"
             },
             {
               "$type": "Document",
@@ -195,8 +187,7 @@
               "RelativeToolTip": "FptSocialNetwork.Client\\Controllers\\ConversationController.cs",
               "ViewState": "AgIAADUAAAAAAAAAAAAYwMwAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-27T07:06:26.017Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-27T07:06:26.017Z"
             },
             {
               "$type": "Document",
@@ -208,8 +199,7 @@
               "RelativeToolTip": "DataAccessLayer\\Services\\Models\\ConversationModels.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAACIAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-27T07:02:38.546Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-27T07:02:38.546Z"
             },
             {
               "$type": "Document",
@@ -221,8 +211,7 @@
               "RelativeToolTip": "DataAccessLayer\\Repositories\\IGenericRepository.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAMAAAAFAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-27T06:53:40.738Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-27T06:53:40.738Z"
             },
             {
               "$type": "Document",
@@ -234,8 +223,7 @@
               "RelativeToolTip": "FptSocialNetwork.Client\\Program.cs",
               "ViewState": "AgIAADAAAAAAAAAAAAAQwAIAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-27T06:27:04.549Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-27T06:27:04.549Z"
             }
           ]
         },

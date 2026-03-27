@@ -357,5 +357,32 @@ namespace DataAccessLayer.Services
             await _context.SaveChangesAsync();
             return readAt;
         }
+
+        public async Task DeleteConversationAsync(int conversationId, int userId)
+        {
+            var membership = await _context.ConversationMembers
+                .AsNoTracking()
+                .FirstOrDefaultAsync(cm => cm.ConversationId == conversationId && cm.UserId == userId);
+            if (membership is null)
+            {
+                throw new UnauthorizedAccessException("You are not a member of this conversation.");
+            }
+
+            var conversation = await _context.Conversations
+                .FirstOrDefaultAsync(c => c.Id == conversationId);
+            if (conversation is null)
+            {
+                throw new InvalidOperationException("Conversation not found.");
+            }
+
+            // Break self-reply references in the same conversation before deleting to avoid FK conflicts.
+            await _context.Messages
+                .Where(m => m.ConversationId == conversationId && m.ReplyToMessageId != null)
+                .ExecuteUpdateAsync(setters => setters
+                    .SetProperty(m => m.ReplyToMessageId, m => (long?)null));
+
+            _context.Conversations.Remove(conversation);
+            await _context.SaveChangesAsync();
+        }
     }
 }
