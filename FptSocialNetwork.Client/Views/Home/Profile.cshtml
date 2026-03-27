@@ -1,0 +1,739 @@
+@using Microsoft.AspNetCore.Http
+@{
+    ViewData["Title"] = "Trang cá nhân";
+    Layout = null;
+
+    var userName = Context.Session.GetString("UserName");
+    var avatarUrl = Context.Session.GetString("UserAvatarUrl");
+    var displayName = string.IsNullOrWhiteSpace(userName) ? "Người dùng" : userName.Trim();
+    var firstLetter = displayName.Length > 0 ? displayName.Substring(0, 1).ToUpperInvariant() : "U";
+
+    var userBio = Context.Session.GetString("UserBio");
+    var userCity = Context.Session.GetString("UserCity");
+    var userSchool = Context.Session.GetString("UserSchool");
+    var followerCount = Context.Session.GetInt32("FollowerCount");
+
+    var hasProfileInfo =
+        !string.IsNullOrWhiteSpace(userBio) ||
+        !string.IsNullOrWhiteSpace(userCity) ||
+        !string.IsNullOrWhiteSpace(userSchool);
+
+    var followingUsers = new[]
+    {
+        "Khanh Nguyen", "Hương Phạm", "Đức Hải", "Heo Con", "Hoàng Nguyễn",
+        "Hoang Anh Duong", "Duc Anh", "Nguyen Khac Ton", "Phạm Hải Nam",
+        "Quynh Anh", "Trung Kiên", "Duy Vũ", "Luc Ngo"
+    };
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+    <style>
+        :root {
+            --bg-page: #161719;
+            --bg-head: #1f2226;
+            --bg-card: #23262b;
+            --bg-soft: #343841;
+            --text-main: #ebedf0;
+            --text-muted: #b5bbc6;
+            --line: #3a3f48;
+            --brand-500: #f37021;
+            --brand-600: #de5c0e;
+            --brand-soft: rgba(243, 112, 33, 0.15);
+            --success: #31a24c;
+            --blue-soft: #2d88ff;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: "Segoe UI", Arial, Helvetica, sans-serif;
+            color: var(--text-main);
+            background: linear-gradient(180deg, #1b1d20 0, #151618 140px, var(--bg-page) 100%);
+        }
+
+        a { text-decoration: none; color: inherit; }
+
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            height: 56px;
+            background: #1f2226;
+            border-bottom: 1px solid #343841;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 14px;
+        }
+
+        .topbar-left, .topbar-center, .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .topbar-right { min-width: 180px; justify-content: flex-end; }
+
+        .logo {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--brand-500), #ff9a3f);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: 700;
+            font-size: 20px;
+            box-shadow: 0 8px 16px rgba(243, 112, 33, 0.3);
+        }
+
+        .search-box {
+            width: min(360px, 45vw);
+            height: 40px;
+            border-radius: 999px;
+            background: #31353d;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0 14px;
+        }
+
+        .search-box input {
+            width: 100%;
+            border: none;
+            background: transparent;
+            color: var(--text-main);
+            outline: none;
+            font-size: 15px;
+        }
+
+        .nav-icon,
+        .circle-btn,
+        .profile-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            background: #353a42;
+            color: var(--text-main);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 17px;
+            transition: 0.2s;
+            cursor: pointer;
+        }
+
+        .nav-icon:hover,
+        .circle-btn:hover,
+        .profile-btn:hover {
+            background: #414650;
+        }
+
+        .nav-icon.active {
+            color: var(--brand-500);
+            background: var(--brand-soft);
+            box-shadow: inset 0 -3px 0 var(--brand-500);
+            border-radius: 10px;
+            width: 56px;
+        }
+
+        .profile-btn {
+            background: #e4e6eb;
+            color: #65676b;
+        }
+
+        .page {
+            max-width: 1120px;
+            margin: 0 auto;
+            padding: 0 16px 24px;
+        }
+
+        .cover-wrap {
+            position: relative;
+            height: 320px;
+            border-bottom-left-radius: 14px;
+            border-bottom-right-radius: 14px;
+            overflow: hidden;
+            background: linear-gradient(140deg, #3b2a1d 0%, #7b431c 30%, #4f2e1a 55%, #22262c 100%);
+            border: 1px solid #3b3f47;
+            border-top: none;
+        }
+
+        .cover-wrap img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.44;
+        }
+
+        .profile-header {
+            position: relative;
+            margin-top: -56px;
+            padding: 0 16px 12px;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .profile-main {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            gap: 12px;
+        }
+
+        .identity {
+            display: flex;
+            align-items: flex-end;
+            gap: 14px;
+        }
+
+        .avatar {
+            width: 168px;
+            height: 168px;
+            border-radius: 50%;
+            border: 5px solid #24272d;
+            background: #d9dde3;
+            color: #6b7280;
+            overflow: hidden;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 84px;
+            box-shadow: 0 4px 12px rgba(0,0,0,.35);
+        }
+
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .identity-meta h1 {
+            font-size: 40px;
+            font-weight: 700;
+            line-height: 1.08;
+            margin-bottom: 6px;
+            letter-spacing: -0.5px;
+        }
+
+        .meta-line {
+            color: var(--text-muted);
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+
+        .meta-line strong { color: #fff; }
+
+        .profile-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 18px;
+        }
+
+        .btn {
+            height: 40px;
+            border-radius: 10px;
+            padding: 0 14px;
+            border: none;
+            font-size: 15px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .btn.primary {
+            background: var(--brand-500);
+            color: #fff;
+        }
+
+        .btn.primary:hover { background: var(--brand-600); }
+
+        .btn.soft {
+            background: #3a404a;
+            color: #e8ebf0;
+        }
+
+        .btn.soft:hover { background: #464d58; }
+
+        .content {
+            display: grid;
+            grid-template-columns: minmax(260px, 1fr) minmax(400px, 1.4fr);
+            gap: 14px;
+            margin-top: 16px;
+            align-items: start;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            box-shadow: 0 1px 2px rgba(0,0,0,.25);
+        }
+
+        .card h3 {
+            font-size: 31px;
+            font-weight: 700;
+            padding: 18px 16px 10px;
+        }
+
+        .intro-list {
+            padding: 0 16px 16px;
+            display: grid;
+            gap: 12px;
+            color: var(--text-main);
+            font-size: 16px;
+        }
+
+        .intro-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .intro-item i {
+            width: 22px;
+            color: var(--text-muted);
+            text-align: center;
+        }
+
+        .empty-info {
+            margin: 0 16px 16px;
+            border-radius: 10px;
+            background: #323741;
+            color: var(--text-muted);
+            padding: 14px;
+            font-size: 15px;
+        }
+
+        .connections-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .connections-head .title {
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .connections-head .sub {
+            margin-top: 4px;
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .connections-head a {
+            color: var(--blue-soft);
+            font-size: 14px;
+        }
+
+        .connections-list {
+            padding: 8px 8px 14px;
+            display: grid;
+            gap: 4px;
+        }
+
+        .connection-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px;
+            border-radius: 10px;
+        }
+
+        .connection-item:hover { background: #323741; }
+
+        .small-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #d9dde3;
+            color: #6b7280;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            overflow: hidden;
+        }
+
+        .small-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .online-dot {
+            position: relative;
+        }
+
+        .online-dot::after {
+            content: "";
+            position: absolute;
+            right: -1px;
+            bottom: -1px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--success);
+            border: 2px solid var(--bg-card);
+        }
+
+        .composer {
+            padding: 14px 14px 10px;
+        }
+
+        .composer-top {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-bottom: 10px;
+        }
+
+        .composer-input {
+            flex: 1;
+            height: 42px;
+            border-radius: 999px;
+            border: none;
+            background: #373c45;
+            color: var(--text-muted);
+            padding: 0 14px;
+            font-size: 16px;
+            outline: none;
+        }
+
+        .composer-actions {
+            border-top: 1px solid var(--line);
+            padding-top: 10px;
+            display: grid;
+            grid-template-columns: 1fr;
+        }
+
+        .composer-action {
+            height: 38px;
+            border-radius: 8px;
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 15px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .composer-action:hover { background: #353b45; }
+        .composer-action .fa-image { color: #45bd62; }
+
+        .section-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .section-row .title {
+            font-size: 30px;
+            font-weight: 700;
+        }
+
+        .right-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .pill-btn {
+            height: 36px;
+            padding: 0 12px;
+            border-radius: 10px;
+            border: none;
+            background: #3a404a;
+            color: #f1f3f5;
+            font-size: 14px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .post {
+            margin-top: 14px;
+            padding: 12px 14px;
+        }
+
+        .post-head {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .post-author {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .post-author strong { font-size: 17px; }
+
+        .post-author .time {
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+
+        .post-content {
+            margin-top: 10px;
+            font-size: 18px;
+            line-height: 1.35;
+        }
+
+        .post-image {
+            margin-top: 12px;
+            width: 100%;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #3f4450;
+        }
+
+        .post-image img {
+            width: 100%;
+            max-height: 380px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .post-stats {
+            margin-top: 10px;
+            color: var(--text-muted);
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .post-actions {
+            margin-top: 10px;
+            padding-top: 8px;
+            border-top: 1px solid var(--line);
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 4px;
+        }
+
+        .post-action {
+            height: 38px;
+            border-radius: 8px;
+            color: var(--text-muted);
+            font-size: 14px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .post-action:hover { background: #373d47; color: #fff; }
+        .post-action.like-active { color: var(--brand-500); }
+
+        @@media (max-width: 1200px) {
+            .content { grid-template-columns: 1fr; }
+            .left-column { order: 2; }
+            .right-column { order: 1; }
+        }
+
+        @@media (max-width: 860px) {
+            .topbar-center { display: none; }
+            .search-box { width: 190px; }
+            .cover-wrap { height: 210px; border-radius: 0 0 14px 14px; }
+            .profile-main { flex-direction: column; align-items: flex-start; }
+            .identity { align-items: center; }
+            .avatar { width: 128px; height: 128px; font-size: 64px; }
+            .identity-meta h1 { font-size: 32px; }
+            .profile-actions { margin-bottom: 6px; }
+            .profile-actions .btn.soft:last-child { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <header class="topbar">
+        <div class="topbar-left">
+            <a class="logo" href="@Url.Action("Index", "Home")">F</a>
+            <div class="search-box">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" placeholder="Tìm kiếm trên FPT Social" />
+            </div>
+        </div>
+
+        <div class="topbar-center">
+            <a class="nav-icon active" href="@Url.Action("Index", "Home")" aria-label="Trang chủ">
+                <i class="fa-solid fa-house"></i>
+            </a>
+            <div class="nav-icon"><i class="fa-solid fa-user-group"></i></div>
+            <div class="nav-icon"><i class="fa-solid fa-tv"></i></div>
+        </div>
+
+        <div class="topbar-right">
+            <a class="circle-btn" href="@Url.Action("Index", "Conversation")" aria-label="Tin nhắn">
+                <i class="fa-solid fa-comment-dots"></i>
+            </a>
+            <button class="circle-btn" type="button" aria-label="Thông báo">
+                <i class="fa-solid fa-bell"></i>
+            </button>
+            <a class="profile-btn" href="@Url.Action("Profile", "Home")" aria-label="Trang cá nhân">
+                <i class="fa-solid fa-user"></i>
+            </a>
+        </div>
+    </header>
+
+    <div class="page">
+        <section class="cover-wrap">
+            <img src="https://images.unsplash.com/photo-1482192597420-4817fdd66e8e?q=80&w=1800&auto=format&fit=crop" alt="cover">
+        </section>
+
+        <section class="profile-header">
+            <div class="profile-main">
+                <div class="identity">
+                    <div class="avatar">
+                        @if (!string.IsNullOrWhiteSpace(avatarUrl))
+                        {
+                            <img src="@avatarUrl" alt="avatar" />
+                        }
+                        else
+                        {
+                            <span>@firstLetter</span>
+                        }
+                    </div>
+                    <div class="identity-meta">
+                        <h1>@displayName</h1>
+                        <div class="meta-line">
+                            <strong>@(followerCount ?? followingUsers.Length)</strong> người theo dõi
+                        </div>
+                        <div class="meta-line">Hồ sơ cá nhân</div>
+                    </div>
+                </div>
+
+                <div class="profile-actions">
+                    <button class="btn primary"><i class="fa-solid fa-plus"></i>Thêm vào tin</button>
+                    <button class="btn soft"><i class="fa-solid fa-pen"></i>Chỉnh sửa trang cá nhân</button>
+                    <button class="btn soft"><i class="fa-solid fa-chevron-down"></i></button>
+                </div>
+            </div>
+        </section>
+
+        <main class="content">
+            <aside class="left-column">
+                <section class="card">
+                    <h3>Thông tin cá nhân</h3>
+
+                    @if (hasProfileInfo)
+                    {
+                        <div class="intro-list">
+                            @if (!string.IsNullOrWhiteSpace(userBio))
+                            {
+                                <div class="intro-item"><i class="fa-regular fa-note-sticky"></i><span>@userBio</span></div>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(userCity))
+                            {
+                                <div class="intro-item"><i class="fa-solid fa-location-dot"></i><span>Sống tại <strong>@userCity</strong></span></div>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(userSchool))
+                            {
+                                <div class="intro-item"><i class="fa-solid fa-graduation-cap"></i><span>Học tại <strong>@userSchool</strong></span></div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="empty-info">Chưa có thông tin cá nhân. Bạn có thể cập nhật trong phần chỉnh sửa trang cá nhân.</div>
+                    }
+                </section>
+
+                <section class="card" style="margin-top:14px;">
+                    <div class="connections-head">
+                        <div>
+                            <div class="title">Người theo dõi</div>
+                            <div class="sub">@(followerCount ?? followingUsers.Length) người</div>
+                        </div>
+                        <a href="#">Xem tất cả</a>
+                    </div>
+                    <div class="connections-list">
+                        <div class="connection-item">
+                            <span class="small-avatar">
+                                <img src="https://images.unsplash.com/photo-1527980965255-d3b416303d12?q=80&w=300&auto=format&fit=crop" alt="avatar" />
+                            </span>
+                            <strong>FPT AI</strong>
+                        </div>
+                        @foreach (var item in followingUsers)
+                        {
+                            <div class="connection-item">
+                                <span class="small-avatar online-dot"><i class="fa-solid fa-user"></i></span>
+                                <strong>@item</strong>
+                            </div>
+                        }
+                    </div>
+                </section>
+            </aside>
+
+            <section class="right-column">
+                <section class="card composer">
+                    <div class="composer-top">
+                        <div class="small-avatar"><i class="fa-solid fa-user"></i></div>
+                        <input class="composer-input" type="text" placeholder="Bạn đang nghĩ gì?" />
+                    </div>
+                    <div class="composer-actions">
+                        <div class="composer-action"><i class="fa-solid fa-image"></i>Ảnh/video</div>
+                    </div>
+                </section>
+
+                <section class="card" style="margin-top:14px;">
+                    <div class="section-row">
+                        <div class="title">Bài viết</div>
+                        <div class="right-actions">
+                            <button class="pill-btn"><i class="fa-solid fa-filter"></i>Bộ lọc</button>
+                            <button class="pill-btn"><i class="fa-solid fa-gear"></i>Quản lý bài viết</button>
+                        </div>
+                    </div>
+                </section>
+
+                <article class="card post">
+                    <div class="post-head">
+                        <div class="post-author">
+                            <div class="small-avatar"><i class="fa-solid fa-user"></i></div>
+                            <div>
+                                <strong>Long Phạm &gt; @displayName</strong>
+                                <div class="time">17 tháng 1 · <i class="fa-solid fa-earth-asia"></i></div>
+                            </div>
+                        </div>
+                        <button class="btn soft"><i class="fa-solid fa-ellipsis"></i></button>
+                    </div>
+
+                    <div class="post-content">Happy Birthday, @displayName! 🎁🥳🎈</div>
+
+                    <div class="post-stats">
+                        <span>❤️😄 Bạn và 1 người khác</span>
+                        <span>1 bình luận</span>
+                    </div>
+
+                    <div class="post-actions">
+                        <div class="post-action like-active"><i class="fa-solid fa-heart"></i>Yêu thích</div>
+                        <div class="post-action"><i class="fa-regular fa-comment"></i>Bình luận</div>
+                        <div class="post-action"><i class="fa-regular fa-paper-plane"></i>Chia sẻ</div>
+                    </div>
+                </article>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

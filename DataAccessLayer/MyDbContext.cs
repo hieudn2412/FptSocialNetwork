@@ -30,6 +30,13 @@ namespace DataAccess
         public DbSet<MessageAttachment> MessageAttachments { get; set; }
         public DbSet<MessageReaction> MessageReactions { get; set; }
         public DbSet<MessageHidden> MessageHiddens { get; set; }
+        public DbSet<UserRole> UserRoles { get; set; }
+        public DbSet<UserProfile> UserProfiles { get; set; }
+        public DbSet<PostStatus> PostStatuses { get; set; }
+        public DbSet<Post> Posts { get; set; }
+        public DbSet<Comment> Comments { get; set; }
+        public DbSet<Like> Likes { get; set; }
+        public DbSet<Follow> Follows { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -71,6 +78,94 @@ namespace DataAccess
 
             modelBuilder.Entity<MessageHidden>()
                 .HasIndex(h => new { h.MessageId, h.UserId })
+                .IsUnique();
+
+            modelBuilder.Entity<User>()
+                .HasOne(u => u.UserRole)
+                .WithMany(r => r.Users)
+                .HasForeignKey(u => u.UserRoleId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<UserProfile>()
+                .HasKey(p => p.UserId);
+
+            modelBuilder.Entity<UserProfile>()
+                .HasOne(p => p.User)
+                .WithOne(u => u.UserProfile)
+                .HasForeignKey<UserProfile>(p => p.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Post>()
+                .HasOne(p => p.User)
+                .WithMany(u => u.Posts)
+                .HasForeignKey(p => p.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Post>()
+                .HasOne(p => p.PostStatus)
+                .WithMany(s => s.Posts)
+                .HasForeignKey(p => p.PostStatusId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Comment>()
+                .HasOne(c => c.Post)
+                .WithMany(p => p.Comments)
+                .HasForeignKey(c => c.PostId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Comment>()
+                .HasOne(c => c.User)
+                .WithMany(u => u.Comments)
+                .HasForeignKey(c => c.UserId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<Comment>()
+                .HasOne(c => c.ParentComment)
+                .WithMany(c => c.Replies)
+                .HasForeignKey(c => c.ParentCommentId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Like>()
+                .HasOne(l => l.Post)
+                .WithMany(p => p.Likes)
+                .HasForeignKey(l => l.PostId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Like>()
+                .HasOne(l => l.User)
+                .WithMany(u => u.Likes)
+                .HasForeignKey(l => l.UserId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<Like>()
+                .HasIndex(l => new { l.PostId, l.UserId })
+                .IsUnique();
+
+            modelBuilder.Entity<Follow>()
+                .HasOne(f => f.Follower)
+                .WithMany(u => u.FollowingRelations)
+                .HasForeignKey(f => f.FollowerId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<Follow>()
+                .HasOne(f => f.Following)
+                .WithMany(u => u.FollowerRelations)
+                .HasForeignKey(f => f.FollowingId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<Follow>()
+                .HasIndex(f => new { f.FollowerId, f.FollowingId })
+                .IsUnique();
+
+            modelBuilder.Entity<Follow>()
+                .ToTable(t => t.HasCheckConstraint("CK_Follows_Follower_NotSelf", "[FollowerId] <> [FollowingId]"));
+
+            modelBuilder.Entity<UserRole>()
+                .HasIndex(r => r.Name)
+                .IsUnique();
+
+            modelBuilder.Entity<PostStatus>()
+                .HasIndex(s => s.Name)
                 .IsUnique();
         }
     }

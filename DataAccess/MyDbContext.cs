@@ -22,5 +22,14 @@ namespace DataAccess
         public DbSet<ConversationMember> ConversationMembers { get; set; }
         public DbSet<Message> Messages { get; set; }
         public DbSet<MessageAttachment> MessageAttachments { get; set; }
+        public DbSet<MessageReaction> MessageReactions { get; set; }
+        public DbSet<MessageHidden> MessageHiddens { get; set; }
+        public DbSet<UserRole> UserRoles { get; set; }
+        public DbSet<UserProfile> UserProfiles { get; set; }
+        public DbSet<PostStatus> PostStatuses { get; set; }
+        public DbSet<Post> Posts { get; set; }
+        public DbSet<Comment> Comments { get; set; }
+        public DbSet<Like> Likes { get; set; }
+        public DbSet<Follow> Follows { get; set; }
     }
 }
