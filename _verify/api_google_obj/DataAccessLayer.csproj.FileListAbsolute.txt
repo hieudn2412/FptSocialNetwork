@@ -1,0 +1,15 @@
+D:\FA26\PRN232\FptSocialNetwork\_verify\api_google\DataAccessLayer.deps.json
+D:\FA26\PRN232\FptSocialNetwork\_verify\api_google\DataAccessLayer.runtimeconfig.json
+D:\FA26\PRN232\FptSocialNetwork\_verify\api_google\DataAccessLayer.dll
+D:\FA26\PRN232\FptSocialNetwork\_verify\api_google\DataAccessLayer.pdb
+D:\FA26\PRN232\FptSocialNetwork\_verify\api_google_obj\DataAccessLayer.csproj.AssemblyReference.cache
+D:\FA26\PRN232\FptSocialNetwork\_verify\api_google_obj\DataAccessLayer.GeneratedMSBuildEditorConfig.editorconfig
+D:\FA26\PRN232\FptSocialNetwork\_verify\api_google_obj\DataAccessLayer.AssemblyInfoInputs.cache
+D:\FA26\PRN232\FptSocialNetwork\_verify\api_google_obj\DataAccessLayer.AssemblyInfo.cs
+D:\FA26\PRN232\FptSocialNetwork\_verify\api_google_obj\DataAccessLayer.csproj.CoreCompileInputs.cache
+D:\FA26\PRN232\FptSocialNetwork\_verify\api_google_obj\DataAcce.E67BD773.Up2Date
+D:\FA26\PRN232\FptSocialNetwork\_verify\api_google_obj\DataAccessLayer.dll
+D:\FA26\PRN232\FptSocialNetwork\_verify\api_google_obj\refint\DataAccessLayer.dll
+D:\FA26\PRN232\FptSocialNetwork\_verify\api_google_obj\DataAccessLayer.pdb
+D:\FA26\PRN232\FptSocialNetwork\_verify\api_google_obj\DataAccessLayer.genruntimeconfig.cache
+D:\FA26\PRN232\FptSocialNetwork\_verify\api_google_obj\ref\DataAccessLayer.dll

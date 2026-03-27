@@ -1,0 +1,15 @@
+D:\FA26\PRN232\FptSocialNetwork\_verify\client2\DataAccessLayer.deps.json
+D:\FA26\PRN232\FptSocialNetwork\_verify\client2\DataAccessLayer.runtimeconfig.json
+D:\FA26\PRN232\FptSocialNetwork\_verify\client2\DataAccessLayer.dll
+D:\FA26\PRN232\FptSocialNetwork\_verify\client2\DataAccessLayer.pdb
+D:\FA26\PRN232\FptSocialNetwork\_verify\client2_obj\DataAccessLayer.csproj.AssemblyReference.cache
+D:\FA26\PRN232\FptSocialNetwork\_verify\client2_obj\DataAccessLayer.GeneratedMSBuildEditorConfig.editorconfig
+D:\FA26\PRN232\FptSocialNetwork\_verify\client2_obj\DataAccessLayer.AssemblyInfoInputs.cache
+D:\FA26\PRN232\FptSocialNetwork\_verify\client2_obj\DataAccessLayer.AssemblyInfo.cs
+D:\FA26\PRN232\FptSocialNetwork\_verify\client2_obj\DataAccessLayer.csproj.CoreCompileInputs.cache
+D:\FA26\PRN232\FptSocialNetwork\_verify\client2_obj\DataAcce.E67BD773.Up2Date
+D:\FA26\PRN232\FptSocialNetwork\_verify\client2_obj\DataAccessLayer.dll
+D:\FA26\PRN232\FptSocialNetwork\_verify\client2_obj\refint\DataAccessLayer.dll
+D:\FA26\PRN232\FptSocialNetwork\_verify\client2_obj\DataAccessLayer.pdb
+D:\FA26\PRN232\FptSocialNetwork\_verify\client2_obj\DataAccessLayer.genruntimeconfig.cache
+D:\FA26\PRN232\FptSocialNetwork\_verify\client2_obj\ref\DataAccessLayer.dll

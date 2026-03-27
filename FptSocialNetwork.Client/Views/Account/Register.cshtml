@@ -1,0 +1,44 @@
+@model FptSocialNetwork.Client.Models.RegisterViewModel
+@{
+    ViewData["Title"] = "Register";
+}
+
+<div style="max-width:420px;margin:60px auto;padding:24px;border:1px solid #ddd;border-radius:8px;">
+    <h2 style="margin-bottom:16px;">Đăng ký</h2>
+    @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+    {
+        <div style="color:#c62828;margin-bottom:12px;">@Model.ErrorMessage</div>
+    }
+    <form method="post" enctype="multipart/form-data">
+        @Html.AntiForgeryToken()
+        <div style="margin-bottom:12px;">
+            <label>Full Name</label>
+            <input asp-for="FullName" style="width:100%;padding:8px;" />
+            <span asp-validation-for="FullName" style="color:#c62828;"></span>
+        </div>
+        <div style="margin-bottom:12px;">
+            <label>Email</label>
+            <input asp-for="Email" style="width:100%;padding:8px;" />
+            <span asp-validation-for="Email" style="color:#c62828;"></span>
+        </div>
+        <div style="margin-bottom:12px;">
+            <label>Password</label>
+            <input asp-for="Password" style="width:100%;padding:8px;" />
+            <span asp-validation-for="Password" style="color:#c62828;"></span>
+        </div>
+        <div style="margin-bottom:12px;">
+            <label>Confirm Password</label>
+            <input asp-for="ConfirmPassword" style="width:100%;padding:8px;" />
+            <span asp-validation-for="ConfirmPassword" style="color:#c62828;"></span>
+        </div>
+        <div style="margin-bottom:12px;">
+            <label>Avatar (tùy chọn)</label>
+            <input asp-for="AvatarImage" type="file" accept="image/*" style="width:100%;padding:8px;" />
+            <span asp-validation-for="AvatarImage" style="color:#c62828;"></span>
+        </div>
+        <button type="submit" style="padding:8px 12px;">Đăng ký</button>
+    </form>
+    <p style="margin-top:12px;">Đã có tài khoản? <a asp-controller="Account" asp-action="Login">Đăng nhập</a></p>
+</div>
+
+<partial name="_ValidationScriptsPartial" />

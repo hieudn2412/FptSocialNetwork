@@ -1,0 +1,11 @@
+D:\FA26\PRN232\FptSocialNetwork\_verify\client3\BusinessObjects.deps.json
+D:\FA26\PRN232\FptSocialNetwork\_verify\client3\BusinessObjects.dll
+D:\FA26\PRN232\FptSocialNetwork\_verify\client3\BusinessObjects.pdb
+D:\FA26\PRN232\FptSocialNetwork\_verify\client3_obj\BusinessObjects.GeneratedMSBuildEditorConfig.editorconfig
+D:\FA26\PRN232\FptSocialNetwork\_verify\client3_obj\BusinessObjects.AssemblyInfoInputs.cache
+D:\FA26\PRN232\FptSocialNetwork\_verify\client3_obj\BusinessObjects.AssemblyInfo.cs
+D:\FA26\PRN232\FptSocialNetwork\_verify\client3_obj\BusinessObjects.csproj.CoreCompileInputs.cache
+D:\FA26\PRN232\FptSocialNetwork\_verify\client3_obj\BusinessObjects.dll
+D:\FA26\PRN232\FptSocialNetwork\_verify\client3_obj\refint\BusinessObjects.dll
+D:\FA26\PRN232\FptSocialNetwork\_verify\client3_obj\BusinessObjects.pdb
+D:\FA26\PRN232\FptSocialNetwork\_verify\client3_obj\ref\BusinessObjects.dll

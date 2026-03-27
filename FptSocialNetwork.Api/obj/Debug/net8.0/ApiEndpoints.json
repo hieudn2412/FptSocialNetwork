@@ -1,0 +1,521 @@
+[
+  {
+    "ContainingType": "FptSocialNetwork.Api.Controllers.AuthController",
+    "Method": "GoogleLogin",
+    "RelativePath": "api/Auth/google",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "DataAccessLayer.Services.Models.GoogleLoginRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "DataAccessLayer.Services.Models.AuthResponse",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "FptSocialNetwork.Api.Controllers.AuthController",
+    "Method": "Login",
+    "RelativePath": "api/Auth/login",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "DataAccessLayer.Services.Models.LoginRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "DataAccessLayer.Services.Models.AuthResponse",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "FptSocialNetwork.Api.Controllers.AuthController",
+    "Method": "Register",
+    "RelativePath": "api/Auth/register",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "DataAccessLayer.Services.Models.RegisterRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "DataAccessLayer.Services.Models.AuthResponse",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "FptSocialNetwork.Api.Controllers.ConversationsController",
+    "Method": "GetConversations",
+    "RelativePath": "api/Conversations",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "tab",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "q",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.List\u00601[[DataAccessLayer.Services.Models.ConversationListItemDto, DataAccessLayer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "FptSocialNetwork.Api.Controllers.ConversationsController",
+    "Method": "CreateConversation",
+    "RelativePath": "api/Conversations",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "DataAccessLayer.Services.Models.CreateConversationRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "DataAccessLayer.Services.Models.ConversationDetailDto",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "FptSocialNetwork.Api.Controllers.ConversationsController",
+    "Method": "GetConversationDetail",
+    "RelativePath": "api/Conversations/{conversationId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "conversationId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "DataAccessLayer.Services.Models.ConversationDetailDto",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "FptSocialNetwork.Api.Controllers.ConversationsController",
+    "Method": "AddMembers",
+    "RelativePath": "api/Conversations/{conversationId}/members",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "conversationId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "request",
+        "Type": "DataAccessLayer.Services.Models.AddConversationMembersRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "DataAccessLayer.Services.Models.ConversationDetailDto",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "FptSocialNetwork.Api.Controllers.ConversationsController",
+    "Method": "MarkAsRead",
+    "RelativePath": "api/Conversations/{conversationId}/read",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "conversationId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "FptSocialNetwork.Api.Controllers.ConversationsController",
+    "Method": "UpdateConversationSettings",
+    "RelativePath": "api/Conversations/{conversationId}/settings",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "conversationId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "request",
+        "Type": "DataAccessLayer.Services.Models.UpdateConversationSettingsRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "DataAccessLayer.Services.Models.ConversationDetailDto",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "FptSocialNetwork.Api.Controllers.ConversationsController",
+    "Method": "GetOrCreateDirectConversation",
+    "RelativePath": "api/Conversations/direct/{targetUserId}",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "targetUserId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "DataAccessLayer.Services.Models.ConversationDetailDto",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "FptSocialNetwork.Api.Controllers.MessagesController",
+    "Method": "GetMessages",
+    "RelativePath": "api/Messages",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "conversationId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "page",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "pageSize",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.List\u00601[[DataAccessLayer.Services.Models.MessageDto, DataAccessLayer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "FptSocialNetwork.Api.Controllers.MessagesController",
+    "Method": "SendMessage",
+    "RelativePath": "api/Messages",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "DataAccessLayer.Services.Models.SendMessageRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "DataAccessLayer.Services.Models.MessageDto",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "FptSocialNetwork.Api.Controllers.MessagesController",
+    "Method": "EditMessage",
+    "RelativePath": "api/Messages/{messageId}/edit",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "messageId",
+        "Type": "System.Int64",
+        "IsRequired": true
+      },
+      {
+        "Name": "request",
+        "Type": "DataAccessLayer.Services.Models.MessageEditRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "DataAccessLayer.Services.Models.MessageDto",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "FptSocialNetwork.Api.Controllers.MessagesController",
+    "Method": "DeleteForMe",
+    "RelativePath": "api/Messages/{messageId}/hide",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "messageId",
+        "Type": "System.Int64",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "FptSocialNetwork.Api.Controllers.MessagesController",
+    "Method": "ToggleReaction",
+    "RelativePath": "api/Messages/{messageId}/reactions",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "messageId",
+        "Type": "System.Int64",
+        "IsRequired": true
+      },
+      {
+        "Name": "request",
+        "Type": "DataAccessLayer.Services.Models.MessageReactionRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "DataAccessLayer.Services.Models.MessageDto",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "FptSocialNetwork.Api.Controllers.MessagesController",
+    "Method": "Unsend",
+    "RelativePath": "api/Messages/{messageId}/unsend",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "messageId",
+        "Type": "System.Int64",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "DataAccessLayer.Services.Models.MessageDto",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "FptSocialNetwork.Api.Controllers.MessagesController",
+    "Method": "SearchMessages",
+    "RelativePath": "api/Messages/search",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "conversationId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "q",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "page",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "pageSize",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "DataAccessLayer.Services.Models.MessageSearchResultDto",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "FptSocialNetwork.Api.Controllers.UsersController",
+    "Method": "Search",
+    "RelativePath": "api/Users/search",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "q",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.List\u00601[[DataAccessLayer.Services.Models.UserSearchItemDto, DataAccessLayer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "FptSocialNetwork.Api.Controllers.WeatherForecastController",
+    "Method": "Get",
+    "RelativePath": "WeatherForecast",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.IEnumerable\u00601[[FptSocialNetwork.Api.WeatherForecast, FptSocialNetwork.Api, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ],
+    "EndpointName": "GetWeatherForecast"
+  }
+]

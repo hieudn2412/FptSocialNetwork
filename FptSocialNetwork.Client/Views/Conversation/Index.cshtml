@@ -1,0 +1,4675 @@
+@model FptSocialNetwork.Client.Models.ConversationPageViewModel
+@using System.Text.Json
+
+@{
+    Layout = null;
+    ViewBag.Title = "Messenger UI Clone";
+    var currentUserId = Model.CurrentUserId;
+    var selectedConversation = Model.SelectedConversation;
+    var selectedConversationName = selectedConversation?.Name ?? "Chưa chọn đoạn chat";
+    var selectedConversationAvatar = selectedConversation?.AvatarUrl;
+    var selectedMembers = selectedConversation?.Members ?? new List<DataAccessLayer.Services.Models.ConversationMemberDto>();
+    var isGroupConversation = string.Equals(selectedConversation?.Type, "group", StringComparison.OrdinalIgnoreCase);
+    var hasCustomGroupAvatar = isGroupConversation && !string.IsNullOrWhiteSpace(selectedConversationAvatar);
+    var activeTab = (Model.Tab ?? "all").Trim().ToLowerInvariant();
+    var lastMessageId = Model.Messages.LastOrDefault()?.Id ?? 0;
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewBag.Title</title>
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        html, body {
+            height: 100%;
+        }
+
+        body {
+            background: #f0f2f5;
+            overflow: hidden;
+            color: #050505;
+        }
+
+        .app {
+            display: grid;
+            grid-template-columns: 420px 1fr 420px;
+            height: 100vh;
+            width: 100%;
+            transition: grid-template-columns 0.2s ease;
+        }
+
+        .app.right-panel-collapsed {
+            grid-template-columns: 420px 1fr 0;
+        }
+
+        .app.right-panel-collapsed .right-panel {
+            width: 0;
+            padding: 0;
+            border-left: none;
+            overflow: hidden;
+        }
+
+        .sidebar,
+        .chat-area,
+        .right-panel {
+            background: #fff;
+        }
+
+        /* LEFT SIDEBAR */
+        .sidebar {
+            border-right: 1px solid #e4e6eb;
+            display: flex;
+            flex-direction: column;
+            padding: 16px 10px 0;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 8px 12px;
+            flex-shrink: 0;
+        }
+
+        .sidebar-header h1 {
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .icon-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e4e6eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: #050505;
+            border: none;
+            cursor: pointer;
+        }
+
+        .create-group-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.28);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 30;
+            padding: 20px;
+        }
+
+        .create-group-modal.open {
+            display: flex;
+        }
+
+        .create-group-card {
+            width: min(520px, 96vw);
+            max-height: 86vh;
+            background: #fff;
+            border-radius: 16px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 24px 48px rgba(0, 0, 0, 0.2);
+        }
+
+        .create-group-header {
+            height: 64px;
+            border-bottom: 1px solid #e4e6eb;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+        }
+
+        .create-group-header h3 {
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        .create-group-body {
+            padding: 14px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            min-height: 0;
+        }
+
+        .create-group-search-box {
+            border-radius: 999px;
+            background: #f0f2f5;
+            padding: 12px 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #65676b;
+        }
+
+        .create-group-search-box input {
+            border: none;
+            background: transparent;
+            width: 100%;
+            outline: none;
+            font-size: 15px;
+            color: #1c1e21;
+        }
+
+        .create-group-name {
+            border: 1px solid #d9dde3;
+            border-radius: 12px;
+            padding: 10px 12px;
+            font-size: 15px;
+            outline: none;
+        }
+
+        .create-group-name:focus {
+            border-color: #1877f2;
+        }
+
+        .selected-member-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            min-height: 30px;
+        }
+
+        .selected-member-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #e7f3ff;
+            color: #1c1e21;
+            border-radius: 999px;
+            padding: 6px 10px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .selected-member-chip button {
+            border: none;
+            background: transparent;
+            color: #51677a;
+            cursor: pointer;
+            padding: 0;
+            font-size: 13px;
+            line-height: 1;
+        }
+
+        .create-group-results {
+            border-top: 1px solid #e4e6eb;
+            padding-top: 10px;
+            overflow-y: auto;
+            min-height: 180px;
+            max-height: 320px;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .create-group-user-item {
+            border: none;
+            background: transparent;
+            width: 100%;
+            text-align: left;
+            border-radius: 12px;
+            padding: 10px 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+        }
+
+        .create-group-user-item:hover {
+            background: #f2f3f5;
+        }
+
+        .create-group-user-meta {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 0;
+        }
+
+        .create-group-user-meta img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            background: #d8dadf;
+        }
+
+        .create-group-user-text {
+            min-width: 0;
+        }
+
+        .create-group-user-text strong {
+            display: block;
+            font-size: 15px;
+            color: #1c1e21;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .create-group-user-text span {
+            display: block;
+            margin-top: 2px;
+            font-size: 13px;
+            color: #65676b;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .create-group-user-check {
+            color: #1877f2;
+            font-size: 18px;
+            flex-shrink: 0;
+            margin-left: 10px;
+        }
+
+        .create-group-empty {
+            font-size: 14px;
+            color: #65676b;
+            padding: 10px 8px;
+        }
+
+        .create-group-footer {
+            border-top: 1px solid #e4e6eb;
+            padding: 12px 16px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .create-group-btn {
+            border: none;
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .create-group-btn.secondary {
+            background: #e4e6eb;
+            color: #1c1e21;
+        }
+
+        .create-group-btn.primary {
+            background: #1877f2;
+            color: #fff;
+        }
+
+        .create-group-btn[disabled] {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .search-box {
+            background: #f0f2f5;
+            border-radius: 999px;
+            padding: 13px 16px;
+            margin: 0 8px 18px;
+            color: #65676b;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .tabs {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0 8px 16px;
+            flex-shrink: 0;
+        }
+
+        .tab {
+            padding: 10px 14px;
+            border-radius: 999px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #050505;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .tab.active {
+            background: #e7f3ff;
+            color: #1877f2;
+        }
+
+        /* SCROLL 1 */
+        .chat-list {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding-right: 6px;
+            min-height: 0;
+        }
+
+        .conversation-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 9px 10px;
+            border-radius: 12px;
+            cursor: pointer;
+            margin-bottom: 2px;
+        }
+
+        .conversation-item:hover {
+            background: #f2f2f2;
+        }
+
+        .conversation-item.active {
+            background: #e7f0fb;
+        }
+
+        .avatar-wrap {
+            position: relative;
+            width: 56px;
+            height: 56px;
+            flex-shrink: 0;
+        }
+
+        .avatar {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            object-fit: cover;
+            background: #d8dadf;
+        }
+
+        .small-badge {
+            position: absolute;
+            right: -2px;
+            bottom: -2px;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #bcc0c4;
+            border: 2px solid #fff;
+        }
+
+        .conversation-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .conversation-name {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            line-height: 20px;
+            color: #080809;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .conversation-preview {
+            font-size: 13px;
+            color: #65686c;
+            line-height: 17px;
+            padding-bottom: 1px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .conversation-preview.unread {
+            color: #050505;
+            font-weight: 700;
+        }
+
+        .unread-badge {
+            min-width: 22px;
+            height: 22px;
+            border-radius: 999px;
+            background: #1877f2;
+            color: #fff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 0 7px;
+            flex-shrink: 0;
+        }
+
+        .conversation-side {
+            color: #8a8d91;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        /* CENTER CHAT */
+        .chat-area {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            height: 76px;
+            border-bottom: 1px solid #e4e6eb;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 18px;
+            flex-shrink: 0;
+        }
+
+        .chat-user {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .chat-user .avatar {
+            width: 40px;
+            height: 40px;
+        }
+
+        .chat-user-info h2 {
+            font-size: 17px;
+            font-weight: 700;
+            margin: 4px 0;
+            line-height: 23px;
+            color: #080809;
+        }
+
+        .chat-user-info p {
+            font-size: 13px;
+            color: #65686c;
+        }
+
+        .chat-actions {
+            display: flex;
+            gap: 18px;
+            align-items: center;
+        }
+
+        .chat-actions button {
+            border: none;
+            background: transparent;
+            padding: 0;
+            cursor: pointer;
+        }
+
+        .chat-actions i {
+            color: #a000ff;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        /* SCROLL 2 */
+        .messages {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 12px 18px;
+            background: #fff;
+            min-height: 0;
+        }
+
+        .message-row {
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+            margin: 10px 0;
+        }
+
+        .message-row.search-hit .bubble {
+            box-shadow: 0 0 0 2px #1877f2 inset;
+        }
+
+        .message-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #d8dadf;
+            flex-shrink: 0;
+            object-fit: cover;
+        }
+
+        .message-group {
+            max-width: 60%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message-body {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            max-width: calc(100% - 40px);
+        }
+
+        .sender-name {
+            font-size: 14px;
+            color: #65676b;
+            margin: 0 0 6px 12px;
+        }
+
+        .bubble {
+            background: #f0f2f5;
+            padding: 12px 16px;
+            border-radius: 20px;
+            font-size: 15px;
+            line-height: 1.33;
+            color: #080809;
+            width: fit-content;
+            margin-bottom: 4px;
+            max-width: 100%;
+            word-break: break-word;
+        }
+
+        .attachment-image {
+            max-width: 240px;
+            border-radius: 14px;
+            display: block;
+        }
+
+        .message-row.own {
+            justify-content: flex-end;
+        }
+
+        .message-row.own .message-group {
+            align-items: flex-end;
+        }
+
+        .message-row.own .message-body {
+            flex-direction: row-reverse;
+        }
+
+        .message-row.own .sender-name {
+            margin: 0 12px 6px 0;
+            text-align: right;
+        }
+
+        .message-row.own .bubble {
+            background: #1877f2;
+            color: #fff;
+        }
+
+        .message-row.own .bubble a {
+            color: #fff;
+        }
+
+        .mention {
+            font-weight: 700;
+            color: inherit;
+        }
+
+        .time-divider {
+            text-align: center;
+            color: #8a8d91;
+            font-size: 14px;
+            margin: 40px 0 20px;
+        }
+
+        .seen-icons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 4px;
+            margin-top: 8px;
+            padding-right: 8px;
+        }
+
+        .seen-icons img {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .reply-snippet {
+            border-left: 3px solid #ccd0d5;
+            padding: 6px 10px;
+            margin: 0 0 6px 0;
+            background: #f7f8fa;
+            border-radius: 10px;
+            font-size: 13px;
+            color: #65676b;
+            max-width: 100%;
+        }
+
+        .reply-snippet strong {
+            color: #1c1e21;
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        .message-inline-actions {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.16s ease;
+        }
+
+        .message-row:hover .message-inline-actions {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .message-action-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: none;
+            background: #f0f2f5;
+            color: #65676b;
+            cursor: pointer;
+            font-size: 14px;
+            padding: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .message-action-icon:hover {
+            background: #e4e6eb;
+            color: #1c1e21;
+        }
+
+        .message-more-wrap {
+            position: relative;
+        }
+
+        .message-more-menu {
+            position: absolute;
+            z-index: 8;
+            bottom: calc(100% + 10px);
+            left: 0;
+            min-width: 132px;
+            border-radius: 12px;
+            background: #fff;
+            border: 1px solid #e4e6eb;
+            box-shadow: 0 8px 22px rgba(0, 0, 0, 0.14);
+            padding: 6px;
+            display: none;
+        }
+
+        .message-more-menu.open {
+            display: block;
+        }
+
+        .message-more-menu button {
+            width: 100%;
+            border: none;
+            background: transparent;
+            text-align: left;
+            border-radius: 8px;
+            padding: 9px 10px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #1c1e21;
+        }
+
+        .message-more-menu button:hover {
+            background: #f2f3f5;
+        }
+
+        .message-hover-time {
+            min-width: 54px;
+            text-align: right;
+            font-size: 12px;
+            color: #65676b;
+            opacity: 0;
+            transition: opacity 0.16s ease;
+            pointer-events: none;
+        }
+
+        .message-row:hover .message-hover-time {
+            opacity: 1;
+        }
+
+        .message-pin {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: 2px;
+            color: #65676b;
+            font-size: 12px;
+        }
+
+        .reaction-row {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-top: 4px;
+        }
+
+        .reaction-chip {
+            border-radius: 999px;
+            background: #f0f2f5;
+            color: #050505;
+            font-size: 12px;
+            padding: 2px 8px;
+            border: 1px solid #d8dadf;
+        }
+
+        .reaction-chip.mine {
+            border-color: #1877f2;
+            background: #e7f3ff;
+            color: #1877f2;
+        }
+
+        .typing-indicator {
+            min-height: 22px;
+            padding: 0 22px 6px;
+            color: #65676b;
+            font-size: 13px;
+        }
+
+        .reply-preview-bar,
+        .edit-preview-bar,
+        .attachment-preview-bar {
+            margin: 0 16px;
+            border: 1px solid #e4e6eb;
+            background: #f7f8fa;
+            border-radius: 10px;
+            padding: 8px 10px;
+            display: none;
+        }
+
+        .reply-preview-header,
+        .attachment-preview-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #65676b;
+            margin-bottom: 6px;
+        }
+
+        .reply-preview-content {
+            font-size: 13px;
+            color: #1c1e21;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .close-preview-btn {
+            border: none;
+            background: transparent;
+            color: #65676b;
+            cursor: pointer;
+            font-size: 14px;
+            padding: 0;
+        }
+
+        .attachment-preview-list {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            max-height: 120px;
+            overflow-y: auto;
+        }
+
+        .attachment-preview-item {
+            font-size: 13px;
+            color: #1c1e21;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .chat-input-area {
+            border-top: 1px solid #e4e6eb;
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-shrink: 0;
+        }
+
+        .left-tools,
+        .right-tools {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            color: #1877f2;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .left-tools i,
+        .right-tools i {
+            cursor: pointer;
+        }
+
+        .gif-text {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1877f2;
+            cursor: pointer;
+        }
+
+        .input-box {
+            flex: 1;
+            height: 44px;
+            border-radius: 999px;
+            background: #f0f2f5;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            color: #65676b;
+            font-size: 16px;
+        }
+
+        .input-box .fa-face-smile {
+            color: #1877f2;
+            font-size: 20px;
+        }
+
+        /* RIGHT PANEL */
+        .right-panel {
+            border-left: 1px solid #e4e6eb;
+            display: flex;
+            flex-direction: column;
+            padding: 18px 18px 0;
+            overflow-y: auto;
+        }
+
+        .right-search-panel {
+            display: none;
+            flex-direction: column;
+            gap: 14px;
+            padding: 6px 0 16px;
+            min-height: 100%;
+        }
+
+        .right-search-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 36px;
+            font-weight: 700;
+        }
+
+        .right-search-header button {
+            border: none;
+            background: transparent;
+            font-size: 24px;
+            cursor: pointer;
+            color: #1c1e21;
+        }
+
+        .right-search-box {
+            border-radius: 999px;
+            background: #f0f2f5;
+            padding: 12px 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #65676b;
+        }
+
+        .right-search-box input {
+            border: none;
+            background: transparent;
+            outline: none;
+            flex: 1;
+            min-width: 0;
+            font-size: 18px;
+            color: #1c1e21;
+        }
+
+        .message-search-count {
+            font-size: 14px;
+            color: #65676b;
+            white-space: nowrap;
+            display: none;
+        }
+
+        .message-search-clear {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            border: none;
+            background: #e4e6eb;
+            color: #1c1e21;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .message-search-results {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            overflow-y: auto;
+            min-height: 0;
+            padding-bottom: 8px;
+        }
+
+        .message-search-item {
+            width: 100%;
+            border: none;
+            background: transparent;
+            text-align: left;
+            padding: 10px 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .message-search-item:hover {
+            background: #f2f3f5;
+        }
+
+        .message-search-avatar {
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            object-fit: cover;
+            background: #d8dadf;
+            flex-shrink: 0;
+        }
+
+        .message-search-meta {
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .message-search-sender {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1c1e21;
+        }
+
+        .message-search-content-row {
+            display: flex;
+            align-items: baseline;
+            gap: 6px;
+        }
+
+        .message-search-content {
+            font-size: 15px;
+            color: #65676b;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            min-width: 0;
+        }
+
+        .message-search-hit {
+            background: #ffe08a;
+            color: #1c1e21;
+            border-radius: 4px;
+            padding: 0 1px;
+            font-weight: 700;
+        }
+
+        .message-search-time {
+            font-size: 15px;
+            color: #8a8d91;
+            white-space: nowrap;
+        }
+
+        .message-search-empty {
+            font-size: 14px;
+            color: #65676b;
+            padding: 8px 12px;
+        }
+
+        .profile-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 16px 0 12px;
+        }
+
+        .profile-stack {
+            position: relative;
+            width: 90px;
+            height: 72px;
+            margin-bottom: 10px;
+        }
+
+        .profile-stack .avatar.main {
+            width: 64px;
+            height: 64px;
+            position: absolute;
+            left: 6px;
+            bottom: 0;
+            z-index: 2;
+        }
+
+        .profile-stack .avatar.sub {
+            width: 54px;
+            height: 54px;
+            position: absolute;
+            right: 0;
+            top: 0;
+            z-index: 1;
+            background: #d8dadf;
+        }
+
+        .profile-stack.single {
+            width: 64px;
+            height: 64px;
+        }
+
+        .profile-stack.single .avatar.main {
+            left: 0;
+            bottom: 0;
+        }
+
+        .profile-stack.single .avatar.sub {
+            display: none;
+        }
+
+        .profile-name {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .profile-actions {
+            display: flex;
+            gap: 34px;
+            margin-bottom: 18px;
+        }
+
+        .profile-action {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            font-size: 15px;
+            color: #1c1e21;
+        }
+
+        .profile-action .circle {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: #e4e6eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: #050505;
+        }
+
+        .accordion {
+            margin-top: 10px;
+        }
+
+        .accordion-item {
+            padding: 16px 0;
+        }
+
+        .accordion-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            padding: 0 2px;
+            color: #080809;
+            line-height: 20px;
+        }
+
+        .accordion-header i {
+            transition: transform 0.16s ease;
+        }
+
+        .accordion-header.expanded i {
+            transform: rotate(180deg);
+        }
+
+        .accordion-body {
+            padding: 14px 0 0 0;
+        }
+
+        .file-link {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 0;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            color: #1c1e21;
+        }
+
+        .file-icon {
+            width: 24px;
+            text-align: center;
+            font-size: 20px;
+            color: #050505;
+        }
+
+        .member-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 8px 0;
+        }
+
+        .member-meta {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 0;
+        }
+
+        .member-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            object-fit: cover;
+            background: #d8dadf;
+            flex-shrink: 0;
+        }
+
+        .member-text {
+            min-width: 0;
+        }
+
+        .member-text strong {
+            display: block;
+            font-size: 18px;
+            font-weight: 700;
+            color: #1c1e21;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .member-text span {
+            display: block;
+            margin-top: 2px;
+            font-size: 13px;
+            color: #65676b;
+        }
+
+        .member-more-btn {
+            border: none;
+            background: transparent;
+            color: #1c1e21;
+            cursor: pointer;
+            font-size: 18px;
+            padding: 4px;
+            flex-shrink: 0;
+        }
+
+        .generic-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.26);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 34;
+            padding: 16px;
+        }
+
+        .generic-modal.open {
+            display: flex;
+        }
+
+        .pinned-modal-overlay {
+            background: rgba(0, 0, 0, 0.12);
+            align-items: flex-start;
+            justify-content: center;
+            padding-top: 0;
+            z-index: 40;
+        }
+
+        .pinned-modal-card {
+            width: 1100px;
+            max-width: calc(100vw - 24px);
+            height: 1185px;
+            max-height: calc(100vh - 12px);
+            background: #fff;
+            border-radius: 22px;
+            overflow: hidden;
+            box-shadow: 0 8px 28px rgba(0, 0, 0, 0.16);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .pinned-modal-header {
+            position: relative;
+            height: 118px;
+            border-bottom: 1px solid #d9d9d9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            background: #fff;
+        }
+
+        .pinned-modal-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #111;
+            line-height: 1.2;
+        }
+
+        .pinned-modal-close {
+            position: absolute;
+            top: 24px;
+            right: 30px;
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            border: none;
+            background: #e4e6eb;
+            cursor: pointer;
+        }
+
+        .pinned-modal-close::before,
+        .pinned-modal-close::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 34px;
+            height: 3px;
+            background: #606770;
+            border-radius: 3px;
+        }
+
+        .pinned-modal-close::before {
+            transform: translate(-50%, -50%) rotate(45deg);
+        }
+
+        .pinned-modal-close::after {
+            transform: translate(-50%, -50%) rotate(-45deg);
+        }
+
+        .pinned-modal-body {
+            flex: 1;
+            overflow-y: auto;
+            background: #fff;
+            padding: 52px 66px 40px;
+        }
+
+        .generic-card {
+            width: min(1120px, 96vw);
+            max-height: 92vh;
+            background: #fff;
+            border-radius: 18px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.22);
+        }
+
+        .generic-card.compact {
+            width: min(760px, 96vw);
+        }
+
+        .generic-header {
+            height: 108px;
+            border-bottom: 1px solid #e4e6eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .generic-header h3 {
+            font-size: 56px;
+            font-weight: 700;
+            color: #1c1e21;
+        }
+
+        .generic-close {
+            position: absolute;
+            right: 16px;
+            top: 14px;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            border: none;
+            background: #e4e6eb;
+            color: #61656a;
+            font-size: 22px;
+            cursor: pointer;
+        }
+
+        .generic-body {
+            min-height: 340px;
+            padding: 18px 24px 22px;
+            overflow-y: auto;
+        }
+
+        .pinned-empty-state {
+            height: 520px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: #65676b;
+            gap: 10px;
+        }
+
+        .pinned-empty-state i {
+            font-size: 64px;
+            color: #bcc0c4;
+        }
+
+        .pinned-empty-state strong {
+            font-size: 34px;
+            color: #4e5358;
+        }
+
+        .pinned-empty-state p {
+            font-size: 18px;
+        }
+
+        .pinned-message-list {
+            display: flex;
+            flex-direction: column;
+            gap: 28px;
+        }
+
+        .pinned-message-item {
+            width: 100%;
+            border: none;
+            background: transparent;
+            text-align: left;
+            padding: 0;
+            cursor: pointer;
+        }
+
+        .pinned-message-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-left: 96px;
+            padding-right: 16px;
+            margin-bottom: 10px;
+        }
+
+        .pinned-message-sender {
+            font-size: 15px;
+            color: #6b6f76;
+            font-weight: 400;
+        }
+
+        .pinned-message-date {
+            font-size: 15px;
+            color: #6b6f76;
+            font-weight: 400;
+        }
+
+        .pinned-message-row {
+            display: flex;
+            align-items: flex-end;
+            gap: 18px;
+        }
+
+        .pinned-message-avatar {
+            width: 58px;
+            height: 58px;
+            border-radius: 50%;
+            object-fit: cover;
+            background: #d8dadf;
+            flex-shrink: 0;
+            margin-bottom: 4px;
+        }
+
+        .pinned-message-bubble-wrap {
+            max-width: 650px;
+            width: 100%;
+        }
+
+        .pinned-message-bubble {
+            background: #f0f1f3;
+            border-radius: 34px;
+            padding: 20px 24px 24px;
+            min-height: 210px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            gap: 12px;
+        }
+
+        .pinned-message-link {
+            font-size: 15px;
+            line-height: 1.28;
+            font-weight: 700;
+            color: #111;
+            text-decoration: underline;
+            word-break: break-word;
+            display: inline-block;
+        }
+
+        .pinned-message-domain {
+            font-size: 15px;
+            font-weight: 700;
+            color: #111;
+            line-height: 1.3;
+        }
+
+        .pinned-message-text {
+            font-size: 15px;
+            line-height: 1.4;
+            color: #111;
+            font-weight: 600;
+            word-break: break-word;
+        }
+
+        .pinned-message-hint {
+            font-size: 12px;
+            color: #8b9098;
+            margin-top: 18px;
+            padding-left: 96px;
+        }
+
+        .rename-description {
+            font-size: 20px;
+            color: #1c1e21;
+            margin-bottom: 16px;
+        }
+
+        .rename-input-wrap {
+            border: 2px solid #c7cbd1;
+            border-radius: 18px;
+            padding: 12px 16px;
+        }
+
+        .rename-input-label {
+            font-size: 18px;
+            color: #6f7378;
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        .rename-input-row {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .rename-input-row input {
+            border: none;
+            outline: none;
+            width: 100%;
+            font-size: 46px;
+            font-weight: 500;
+            color: #1c1e21;
+            background: transparent;
+        }
+
+        .rename-count {
+            font-size: 16px;
+            color: #6f7378;
+            flex-shrink: 0;
+        }
+
+        .rename-footer {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 12px;
+            margin-top: 18px;
+        }
+
+        .text-btn {
+            border: none;
+            background: transparent;
+            color: #2a64c7;
+            font-size: 22px;
+            cursor: pointer;
+            padding: 8px 10px;
+        }
+
+        .solid-btn {
+            border: none;
+            border-radius: 14px;
+            background: #1877f2;
+            color: #fff;
+            font-size: 22px;
+            font-weight: 700;
+            padding: 10px 24px;
+            cursor: pointer;
+        }
+
+        .solid-btn[disabled] {
+            background: #d4d8de;
+            color: #a4a9af;
+            cursor: not-allowed;
+        }
+
+        /* SCROLLBAR STYLE */
+        .chat-list::-webkit-scrollbar,
+        .messages::-webkit-scrollbar,
+        .right-panel::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .chat-list::-webkit-scrollbar-track,
+        .messages::-webkit-scrollbar-track,
+        .right-panel::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .chat-list::-webkit-scrollbar-thumb,
+        .messages::-webkit-scrollbar-thumb,
+        .right-panel::-webkit-scrollbar-thumb {
+            background: #bcc0c4;
+            border-radius: 999px;
+        }
+
+        .chat-list::-webkit-scrollbar-thumb:hover,
+        .messages::-webkit-scrollbar-thumb:hover,
+        .right-panel::-webkit-scrollbar-thumb:hover {
+            background: #a8adb3;
+        }
+
+        .chat-list,
+        .messages,
+        .right-panel {
+            scrollbar-width: thin;
+            scrollbar-color: #bcc0c4 transparent;
+        }
+
+        @@media (max-width: 1400px) {
+            .app {
+                grid-template-columns: 360px 1fr 340px;
+            }
+
+            .app.right-panel-collapsed {
+                grid-template-columns: 360px 1fr 0;
+            }
+        }
+
+        @@media (max-width: 1200px) {
+            .app {
+                grid-template-columns: 340px 1fr;
+            }
+
+            .app.right-panel-collapsed {
+                grid-template-columns: 340px 1fr;
+            }
+
+            .right-panel {
+                display: none;
+            }
+        }
+
+        @@media (max-width: 768px) {
+            .app {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                display: none;
+            }
+
+            .message-group {
+                max-width: 80%;
+            }
+
+            .pinned-modal-card {
+                width: calc(100vw - 16px);
+                height: calc(100vh - 16px);
+                border-radius: 16px;
+            }
+
+            .pinned-modal-header {
+                height: 88px;
+            }
+
+            .pinned-modal-close {
+                width: 52px;
+                height: 52px;
+                right: 16px;
+                top: 18px;
+            }
+
+            .pinned-modal-close::before,
+            .pinned-modal-close::after {
+                width: 24px;
+            }
+
+            .pinned-modal-body {
+                padding: 24px 18px;
+            }
+
+            .pinned-message-meta {
+                padding-left: 0;
+                padding-right: 0;
+            }
+
+            .pinned-message-row {
+                gap: 12px;
+                align-items: flex-start;
+            }
+
+            .pinned-message-avatar {
+                width: 44px;
+                height: 44px;
+            }
+
+            .pinned-message-bubble-wrap {
+                max-width: 100%;
+            }
+
+            .pinned-message-bubble {
+                min-height: auto;
+                padding: 18px;
+                border-radius: 24px;
+            }
+
+            .pinned-message-hint {
+                padding-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app" id="appLayout">
+        <!-- LEFT -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1>Đoạn chat</h1>
+                <div class="header-actions">
+                    <button class="icon-btn"><i class="fa-solid fa-ellipsis"></i></button>
+                    <button class="icon-btn" id="openCreateGroupButton" type="button" title="Tạo nhóm chat">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="search-box" id="conversationSearchForm">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input name="q"
+                       id="conversationSearchInput"
+                       value="@Model.Keyword"
+                       placeholder="Tìm kiếm trên Messenger"
+                       style="border:none;background:transparent;outline:none;width:100%;font-size:15px;color:#050505;" />
+            </div>
+            <div id="userSearchResults" style="padding: 0 8px 10px; max-height: 220px; overflow-y: auto; display:none;">
+                <div style="font-size: 13px; color: #65676b; margin-bottom: 8px;">Kết quả người dùng</div>
+                <div id="userSearchResultsContent"></div>
+            </div>
+
+            <div class="tabs">
+                <a class="tab @(activeTab == "all" ? "active" : "")"
+                   style="text-decoration:none;"
+                   href="@Url.Action("Index", "Conversation", new { tab = "all" })">Tất cả</a>
+                <a class="tab @(activeTab == "unread" ? "active" : "")"
+                   style="text-decoration:none;"
+                   href="@Url.Action("Index", "Conversation", new { tab = "unread" })">Chưa đọc</a>
+                <a class="tab @(activeTab == "group" ? "active" : "")"
+                   style="text-decoration:none;"
+                   href="@Url.Action("Index", "Conversation", new { tab = "group" })">Nhóm</a>
+            </div>
+
+            <div class="chat-list" id="conversationList">
+                @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+                {
+                    <div class="conversation-preview" style="padding: 8px 10px; color: #c62828;">@Model.ErrorMessage</div>
+                }
+                @foreach (var conversation in Model.Conversations)
+                {
+                    var isActive = Model.SelectedConversationId == conversation.Id;
+                    var isUnread = conversation.HasUnread && !isActive;
+                    var previewPrefix = conversation.LastSenderId.HasValue
+                        ? (conversation.LastSenderId.Value == currentUserId
+                            ? "Bạn: "
+                            : $"{conversation.LastSenderName}: ")
+                        : string.Empty;
+                    var previewText = string.IsNullOrWhiteSpace(conversation.LastMessage)
+                        ? "(Chưa có tin nhắn)"
+                        : $"{previewPrefix}{conversation.LastMessage}";
+                    <a class="conversation-item @(isActive ? "active" : "")"
+                       href="@Url.Action("Index", "Conversation", new { conversationId = conversation.Id, tab = Model.Tab })"
+                       style="text-decoration:none;color:inherit;">
+                        <div class="avatar-wrap">
+                        <img class="avatar" src="@(string.IsNullOrWhiteSpace(conversation.AvatarUrl) ? "https://via.placeholder.com/56" : conversation.AvatarUrl)" alt="avatar" />
+                        </div>
+                        <div class="conversation-content">
+                            <div class="conversation-name">@conversation.Name</div>
+                            <div class="conversation-preview @(isUnread ? "unread" : "")">@previewText</div>
+                        </div>
+                        @if (isUnread)
+                        {
+                            <div class="unread-badge">@conversation.UnreadCount</div>
+                        }
+                    </a>
+                }
+            </div>
+        </aside>
+
+        <!-- CENTER -->
+        <main class="chat-area">
+            <div class="chat-header">
+                <div class="chat-user">
+                    <img class="avatar" id="chatHeaderAvatar" src="@(string.IsNullOrWhiteSpace(selectedConversationAvatar) ? "https://via.placeholder.com/40" : selectedConversationAvatar)" alt="avatar" />
+                    <div class="chat-user-info">
+                        <h2 id="chatHeaderName">@selectedConversationName</h2>
+                        @if (isGroupConversation)
+                        {
+                            <p>@selectedMembers.Count thành viên</p>
+                        }
+                    </div>
+                </div>
+                <div class="chat-actions">
+                    <i class="fa-solid fa-phone"></i>
+                    <i class="fa-solid fa-video"></i>
+                    <button type="button" id="toggleRightPanelButton" style="border:none;background:transparent;padding:0;">
+                        <i class="fa-solid fa-circle-info"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="messages"
+                 id="messagesPanel"
+                 data-conversation-id="@(Model.SelectedConversationId ?? 0)"
+                 data-current-user-id="@currentUserId"
+                 data-last-message-id="@lastMessageId">
+                @if (Model.Messages.Count == 0)
+                {
+                    <div class="time-divider">Chưa có tin nhắn</div>
+                }
+                else
+                {
+                    foreach (var message in Model.Messages)
+                    {
+                        var isMine = message.SenderId == currentUserId;
+                        <div class="message-row @(isMine ? "own" : "")" data-message-id="@message.Id">
+                            @if (!isMine)
+                            {
+                                <img class="message-avatar"
+                                     src="@(string.IsNullOrWhiteSpace(message.SenderAvatarUrl) ? "https://via.placeholder.com/32" : message.SenderAvatarUrl)"
+                                     alt="avatar" />
+                            }
+                            <div class="message-group">
+                                @if (!isMine && isGroupConversation)
+                                {
+                                    <div class="sender-name">@message.SenderName</div>
+                                }
+                                <div class="bubble">@message.Content</div>
+                                @foreach (var attachment in message.Attachments)
+                                {
+                                    <div class="bubble">
+                                        <a href="@attachment.FileUrl" target="_blank" rel="noopener noreferrer">@attachment.FileName</a>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+            <div id="typingIndicator" class="typing-indicator"></div>
+            <div id="replyPreview" class="reply-preview-bar"></div>
+            <div id="editPreview" class="edit-preview-bar"></div>
+            <div id="attachmentPreview" class="attachment-preview-bar"></div>
+
+            <div class="chat-input-area">
+                <div class="left-tools">
+                    <i class="fa-solid fa-circle-plus"></i>
+                    <i class="fa-solid fa-image" id="pickFilesButton" title="Gửi file"></i>
+                    <i class="fa-regular fa-face-laugh"></i>
+                    <span class="gif-text">GIF</span>
+                </div>
+                <form id="sendMessageForm"
+                      method="post"
+                      enctype="multipart/form-data"
+                      asp-controller="Conversation"
+                      asp-action="SendMessage"
+                      style="display:flex;flex:1;gap:8px;">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="conversationId" value="@Model.SelectedConversationId" />
+                    <input type="hidden" name="tab" value="@Model.Tab" />
+                    <input type="hidden" id="replyToMessageIdInput" name="replyToMessageId" />
+                    <input type="file" id="attachmentInput" name="attachments" multiple style="display:none;" />
+                    <div class="input-box">
+                        <input id="messageInput"
+                               name="content"
+                               autocomplete="off"
+                               placeholder="Aa"
+                               style="width:100%;border:none;background:transparent;outline:none;" />
+                        <i class="fa-regular fa-face-smile"></i>
+                    </div>
+                    <button class="icon-btn"
+                            id="sendButton"
+                            type="submit"
+                            @(Model.SelectedConversationId is null ? "disabled" : "")>
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </button>
+                </form>
+
+                <div class="right-tools">
+                    <i class="fa-solid fa-thumbs-up"></i>
+                </div>
+            </div>
+        </main>
+
+        <!-- RIGHT -->
+        <aside class="right-panel">
+            <div id="rightInfoPanel">
+                <div class="profile-box">
+                    <div class="profile-stack @(hasCustomGroupAvatar ? "single" : "")" id="rightProfileStack">
+                        <img class="avatar main" id="rightProfileAvatar" src="@(string.IsNullOrWhiteSpace(selectedConversationAvatar) ? "https://via.placeholder.com/64" : selectedConversationAvatar)" alt="avatar" />
+                        <img class="avatar sub" id="rightProfileSubAvatar" src="https://via.placeholder.com/54" alt="avatar" />
+                    </div>
+                    <div class="profile-name" id="rightProfileName">@selectedConversationName</div>
+
+                    <div class="profile-actions">
+                        <div class="profile-action">
+                            <div class="circle"><i class="fa-solid fa-bell-slash"></i></div>
+                            <span>Bật lại</span>
+                        </div>
+                        <button class="profile-action" id="openMessageSearchButton" type="button" style="border:none;background:transparent;">
+                            <div class="circle"><i class="fa-solid fa-magnifying-glass"></i></div>
+                            <span>Tìm kiếm</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="accordion">
+                    <div class="accordion-item">
+                        <div class="accordion-header" data-action="toggle-accordion" data-target="chatInfoBody">
+                            <span>Thông tin về đoạn chat</span>
+                            <i class="fa-solid fa-chevron-down" id="chatInfoChevron"></i>
+                        </div>
+                        <div class="accordion-body" id="chatInfoBody" style="display:none;">
+                            <button type="button" class="file-link" id="openPinnedMessagesButton" style="border:none;background:transparent;width:100%;text-align:left;">
+                                <span class="file-icon"><i class="fa-solid fa-thumbtack"></i></span>
+                                <span>Xem tin nhắn đã ghim</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    @if (isGroupConversation)
+                    {
+                        <div class="accordion-item">
+                            <div class="accordion-header" data-action="toggle-accordion" data-target="chatCustomizeBody">
+                                <span>Tùy chỉnh đoạn chat</span>
+                                <i class="fa-solid fa-chevron-down" id="chatCustomizeChevron"></i>
+                            </div>
+                            <div class="accordion-body" id="chatCustomizeBody" style="display:none;">
+                                <button type="button" class="file-link" id="openRenameConversationButton" style="border:none;background:transparent;width:100%;text-align:left;">
+                                    <span class="file-icon"><i class="fa-solid fa-pen"></i></span>
+                                    <span>Đổi tên đoạn chat</span>
+                                </button>
+                                <button type="button" class="file-link" id="changeConversationImageButton" style="border:none;background:transparent;width:100%;text-align:left;">
+                                    <span class="file-icon"><i class="fa-regular fa-image"></i></span>
+                                    <span>Thay đổi ảnh</span>
+                                </button>
+                                <input type="file" id="conversationImageInput" accept="image/*" style="display:none;" />
+                            </div>
+                        </div>
+                    }
+
+                    @if (isGroupConversation)
+                    {
+                        <div class="accordion-item">
+                            <div class="accordion-header" data-action="toggle-accordion" data-target="chatMembersBody">
+                                <span>Thành viên trong đoạn chat</span>
+                                <i class="fa-solid fa-chevron-down" id="chatMembersChevron"></i>
+                            </div>
+                            <div class="accordion-body" id="chatMembersBody" style="display:none;">
+                                @if (selectedMembers.Count == 0)
+                                {
+                                    <div class="file-link"><span>Chưa có thành viên</span></div>
+                                }
+                                else
+                                {
+                                    foreach (var member in selectedMembers)
+                                    {
+                                        <div class="member-row">
+                                            <div class="member-meta">
+                                                <img src="@(string.IsNullOrWhiteSpace(member.AvatarUrl) ? "https://via.placeholder.com/44" : member.AvatarUrl)" class="member-avatar" alt="avatar" />
+                                                <div class="member-text">
+                                                    <strong>@member.FullName</strong>
+                                                    <span>Thành viên</span>
+                                                </div>
+                                            </div>
+                                            <button type="button" class="member-more-btn" title="Tùy chọn">
+                                                <i class="fa-solid fa-ellipsis"></i>
+                                            </button>
+                                        </div>
+                                    }
+                                }
+                                <button type="button" class="file-link" id="openAddMemberButton" style="border:none;background:transparent;width:100%;text-align:left;">
+                                    <span class="file-icon"><i class="fa-solid fa-user-plus"></i></span>
+                                    <span>Thêm người</span>
+                                </button>
+                            </div>
+                        </div>
+                    }
+
+                    <div class="accordion-item">
+                        <div class="accordion-header">
+                            <span>File phương tiện, file và liên kết</span>
+                            <i class="fa-solid fa-chevron-up"></i>
+                        </div>
+                        <div class="accordion-body">
+                            <div class="file-link">
+                                <span class="file-icon"><i class="fa-regular fa-image"></i></span>
+                                <span>File phương tiện</span>
+                            </div>
+                            <div class="file-link">
+                                <span class="file-icon"><i class="fa-regular fa-file-lines"></i></span>
+                                <span>File</span>
+                            </div>
+                            <div class="file-link">
+                                <span class="file-icon"><i class="fa-solid fa-link"></i></span>
+                                <span>Liên kết</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <div class="accordion-header">
+                            <span>Quyền riêng tư và hỗ trợ</span>
+                            <i class="fa-solid fa-chevron-down"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="right-search-panel" id="rightSearchPanel">
+                <div class="right-search-header">
+                    <button type="button" id="closeMessageSearchButton"><i class="fa-solid fa-xmark"></i></button>
+                    <span>Tìm kiếm</span>
+                </div>
+                <div class="right-search-box">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input id="messageSearchInput" placeholder="Tìm kiếm trong cuộc trò chuyện" autocomplete="off" />
+                    <span id="messageSearchCount" class="message-search-count"></span>
+                    <button type="button" id="clearMessageSearchButton" class="message-search-clear" title="Xóa tìm kiếm">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                <div class="message-search-results" id="messageSearchResults">
+                    <div class="message-search-empty">Nhập nội dung để tìm lịch sử tin nhắn.</div>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <div class="create-group-modal" id="createGroupModal" aria-hidden="true">
+        <div class="create-group-card">
+            <div class="create-group-header">
+                <h3>Tạo nhóm chat</h3>
+                <button class="icon-btn" type="button" id="closeCreateGroupModalButton">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="create-group-body">
+                <input id="createGroupNameInput" class="create-group-name" placeholder="Tên nhóm (tùy chọn)" maxlength="80" />
+                <div class="create-group-search-box">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input id="createGroupSearchInput" placeholder="Tìm kiếm người để thêm vào nhóm" autocomplete="off" />
+                </div>
+                <div id="selectedGroupMembers" class="selected-member-list">
+                    <div class="create-group-empty">Chưa chọn thành viên.</div>
+                </div>
+                <div id="createGroupUserResults" class="create-group-results">
+                    <div class="create-group-empty">Nhập từ khóa để tìm người dùng.</div>
+                </div>
+            </div>
+            <div class="create-group-footer">
+                <button type="button" class="create-group-btn secondary" id="cancelCreateGroupButton">Hủy</button>
+                <button type="button" class="create-group-btn primary" id="submitCreateGroupButton">Tạo nhóm</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="generic-modal pinned-modal-overlay" id="pinnedMessagesModal" aria-hidden="true">
+        <div class="pinned-modal-card">
+            <div class="pinned-modal-header">
+                <div class="pinned-modal-title">Tin nhắn đã ghim</div>
+                <button type="button" class="pinned-modal-close" id="closePinnedMessagesModalButton" aria-label="Đóng modal"></button>
+            </div>
+            <div class="pinned-modal-body" id="pinnedMessagesModalBody">
+                <div class="pinned-empty-state">
+                    <i class="fa-solid fa-thumbtack"></i>
+                    <strong>Chưa ghim tin nhắn nào</strong>
+                    <p>Tin nhắn đã ghim trong đoạn chat này sẽ hiển thị ở đây</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="generic-modal" id="renameConversationModal" aria-hidden="true">
+        <div class="generic-card compact">
+            <div class="generic-header">
+                <h3>Đổi tên đoạn chat</h3>
+                <button type="button" class="generic-close" id="closeRenameConversationModalButton"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="generic-body">
+                <p class="rename-description">Mọi người đều biết khi tên nhóm chat thay đổi.</p>
+                <div class="rename-input-wrap">
+                    <span class="rename-input-label">Tên đoạn chat</span>
+                    <div class="rename-input-row">
+                        <input id="renameConversationInput" maxlength="500" />
+                        <span class="rename-count" id="renameConversationCount">0/500</span>
+                    </div>
+                </div>
+                <div class="rename-footer">
+                    <button type="button" class="text-btn" id="cancelRenameConversationButton">Hủy</button>
+                    <button type="button" class="solid-btn" id="saveRenameConversationButton">Lưu</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="create-group-modal" id="addMemberModal" aria-hidden="true">
+        <div class="create-group-card">
+            <div class="create-group-header">
+                <h3>Thêm thành viên</h3>
+                <button class="icon-btn" type="button" id="closeAddMemberModalButton">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="create-group-body">
+                <div class="create-group-search-box">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input id="addMemberSearchInput" placeholder="Tìm kiếm người để thêm vào nhóm" autocomplete="off" />
+                </div>
+                <div id="selectedAddMembers" class="selected-member-list">
+                    <div class="create-group-empty">Chưa chọn thành viên.</div>
+                </div>
+                <div id="addMemberResults" class="create-group-results">
+                    <div class="create-group-empty">Nhập từ khóa để tìm người dùng.</div>
+                </div>
+            </div>
+            <div class="create-group-footer">
+                <button type="button" class="create-group-btn secondary" id="cancelAddMemberButton">Hủy</button>
+                <button type="button" class="create-group-btn primary" id="submitAddMemberButton">Thêm người</button>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/%40microsoft/signalr@8.0.7/dist/browser/signalr.min.js"></script>
+    <script>
+        (function () {
+            var appLayout = document.getElementById("appLayout");
+            var shouldScroll = @Model.ShouldScrollToBottom.ToString().ToLowerInvariant();
+            var panel = document.getElementById("messagesPanel");
+            var conversationList = document.getElementById("conversationList");
+            var userSearchResultsPanel = document.getElementById("userSearchResults");
+            var userSearchResultsContent = document.getElementById("userSearchResultsContent");
+            var typingIndicator = document.getElementById("typingIndicator");
+            var replyPreview = document.getElementById("replyPreview");
+            var editPreview = document.getElementById("editPreview");
+            var attachmentPreview = document.getElementById("attachmentPreview");
+            var rightInfoPanel = document.getElementById("rightInfoPanel");
+            var rightSearchPanel = document.getElementById("rightSearchPanel");
+            var openMessageSearchButton = document.getElementById("openMessageSearchButton");
+            var closeMessageSearchButton = document.getElementById("closeMessageSearchButton");
+            var messageSearchInput = document.getElementById("messageSearchInput");
+            var messageSearchCount = document.getElementById("messageSearchCount");
+            var messageSearchResults = document.getElementById("messageSearchResults");
+            var clearMessageSearchButton = document.getElementById("clearMessageSearchButton");
+            var rightPanel = document.querySelector(".right-panel");
+            var toggleRightPanelButton = document.getElementById("toggleRightPanelButton");
+            var chatHeaderName = document.getElementById("chatHeaderName");
+            var chatHeaderAvatar = document.getElementById("chatHeaderAvatar");
+            var rightProfileName = document.getElementById("rightProfileName");
+            var rightProfileAvatar = document.getElementById("rightProfileAvatar");
+            var rightProfileStack = document.getElementById("rightProfileStack");
+            var rightProfileSubAvatar = document.getElementById("rightProfileSubAvatar");
+            var openPinnedMessagesButton = document.getElementById("openPinnedMessagesButton");
+            var pinnedMessagesModal = document.getElementById("pinnedMessagesModal");
+            var closePinnedMessagesModalButton = document.getElementById("closePinnedMessagesModalButton");
+            var pinnedMessagesModalBody = document.getElementById("pinnedMessagesModalBody");
+            var openRenameConversationButton = document.getElementById("openRenameConversationButton");
+            var renameConversationModal = document.getElementById("renameConversationModal");
+            var closeRenameConversationModalButton = document.getElementById("closeRenameConversationModalButton");
+            var cancelRenameConversationButton = document.getElementById("cancelRenameConversationButton");
+            var saveRenameConversationButton = document.getElementById("saveRenameConversationButton");
+            var renameConversationInput = document.getElementById("renameConversationInput");
+            var renameConversationCount = document.getElementById("renameConversationCount");
+            var changeConversationImageButton = document.getElementById("changeConversationImageButton");
+            var conversationImageInput = document.getElementById("conversationImageInput");
+            var openAddMemberButton = document.getElementById("openAddMemberButton");
+            var addMemberModal = document.getElementById("addMemberModal");
+            var closeAddMemberModalButton = document.getElementById("closeAddMemberModalButton");
+            var cancelAddMemberButton = document.getElementById("cancelAddMemberButton");
+            var addMemberSearchInput = document.getElementById("addMemberSearchInput");
+            var selectedAddMembers = document.getElementById("selectedAddMembers");
+            var addMemberResults = document.getElementById("addMemberResults");
+            var submitAddMemberButton = document.getElementById("submitAddMemberButton");
+            var openCreateGroupButton = document.getElementById("openCreateGroupButton");
+            var createGroupModal = document.getElementById("createGroupModal");
+            var closeCreateGroupModalButton = document.getElementById("closeCreateGroupModalButton");
+            var cancelCreateGroupButton = document.getElementById("cancelCreateGroupButton");
+            var createGroupNameInput = document.getElementById("createGroupNameInput");
+            var createGroupSearchInput = document.getElementById("createGroupSearchInput");
+            var selectedGroupMembers = document.getElementById("selectedGroupMembers");
+            var createGroupUserResults = document.getElementById("createGroupUserResults");
+            var submitCreateGroupButton = document.getElementById("submitCreateGroupButton");
+            var conversationId = Number((panel && panel.dataset.conversationId) || 0);
+            var currentUserId = Number((panel && panel.dataset.currentUserId) || 0);
+            var isGroupConversation = @Html.Raw(JsonSerializer.Serialize(isGroupConversation));
+            var currentTab = @Html.Raw(JsonSerializer.Serialize(activeTab));
+            var realtimeToken = @Html.Raw(JsonSerializer.Serialize(Model.RealtimeToken ?? string.Empty));
+            var chatHubUrl = @Html.Raw(JsonSerializer.Serialize(Model.ChatHubUrl ?? string.Empty));
+            var sendForm = document.getElementById("sendMessageForm");
+            var sendButton = document.getElementById("sendButton");
+            var messageInput = document.getElementById("messageInput");
+            var replyToInput = document.getElementById("replyToMessageIdInput");
+            var attachmentInput = document.getElementById("attachmentInput");
+            var pickFilesButton = document.getElementById("pickFilesButton");
+            var antiForgeryInput = sendForm ? sendForm.querySelector('input[name="__RequestVerificationToken"]') : null;
+            var antiForgeryToken = antiForgeryInput ? antiForgeryInput.value : "";
+            var pollTimer = null;
+            var connection = null;
+            var allMessages = [];
+            var selectedReplyMessage = null;
+            var selectedEditMessage = null;
+            var typingUsers = {};
+            var typingStopTimer = null;
+            var hasSentTyping = false;
+            var searchRequestSequence = 0;
+            var latestPageSnapshot = "";
+            var loadedPage = 1;
+            var hasMorePages = true;
+            var isLoadingOlder = false;
+            var pageSize = 30;
+            var messageSearchRequestSequence = 0;
+            var pinnedMessageIds = {};
+            var pollTick = 0;
+            var realtimeSyncTimer = null;
+            var conversationRefreshTimer = null;
+            var isRightPanelVisible = true;
+            var createGroupSearchSequence = 0;
+            var selectedGroupMemberMap = {};
+            var addMemberSearchSequence = 0;
+            var selectedAddMemberMap = {};
+            var currentConversationName = @Html.Raw(JsonSerializer.Serialize(selectedConversationName));
+            var currentConversationAvatar = @Html.Raw(JsonSerializer.Serialize(string.IsNullOrWhiteSpace(selectedConversationAvatar) ? "https://via.placeholder.com/64" : selectedConversationAvatar));
+            var currentConversationHasCustomAvatar = @Html.Raw(JsonSerializer.Serialize(hasCustomGroupAvatar));
+
+            function scrollToBottom() {
+                if (!panel) return;
+                panel.scrollTop = panel.scrollHeight;
+            }
+
+            function startPolling() {
+                if (!conversationId || pollTimer) return;
+                loadLatestMessages(false, false);
+                refreshConversationList();
+                pollTimer = setInterval(function () {
+                    pollTick += 1;
+                    loadLatestMessages(false, false);
+                    if (pollTick % 2 === 0) {
+                        refreshConversationList();
+                    }
+                }, 1500);
+            }
+
+            function stopPolling() {
+                if (!pollTimer) return;
+                clearInterval(pollTimer);
+                pollTimer = null;
+                pollTick = 0;
+            }
+
+            function scheduleRealtimeSync(forceRender) {
+                if (realtimeSyncTimer) {
+                    clearTimeout(realtimeSyncTimer);
+                }
+
+                realtimeSyncTimer = setTimeout(function () {
+                    realtimeSyncTimer = null;
+                    loadLatestMessages(false, Boolean(forceRender));
+                }, 220);
+            }
+
+            function scheduleConversationListRefresh(delayMs) {
+                var delay = typeof delayMs === "number" ? delayMs : 120;
+                if (conversationRefreshTimer) {
+                    clearTimeout(conversationRefreshTimer);
+                }
+
+                conversationRefreshTimer = setTimeout(function () {
+                    conversationRefreshTimer = null;
+                    refreshConversationList();
+                }, delay);
+            }
+
+            function setRightPanelVisible(visible) {
+                if (!appLayout || !rightPanel) return;
+                if (window.matchMedia("(max-width: 1200px)").matches) return;
+
+                isRightPanelVisible = Boolean(visible);
+                appLayout.classList.toggle("right-panel-collapsed", !isRightPanelVisible);
+            }
+
+            function updateCreateGroupSubmitState() {
+                if (!submitCreateGroupButton) return;
+                submitCreateGroupButton.disabled = Object.keys(selectedGroupMemberMap).length === 0;
+            }
+
+            function resetCreateGroupState() {
+                selectedGroupMemberMap = {};
+                createGroupSearchSequence = 0;
+
+                if (createGroupNameInput) {
+                    createGroupNameInput.value = "";
+                }
+
+                if (createGroupSearchInput) {
+                    createGroupSearchInput.value = "";
+                }
+
+                if (createGroupUserResults) {
+                    createGroupUserResults.innerHTML = '<div class="create-group-empty">Nhập từ khóa để tìm người dùng.</div>';
+                }
+
+                renderSelectedGroupMembers();
+                updateCreateGroupSubmitState();
+            }
+
+            function renderSelectedGroupMembers() {
+                if (!selectedGroupMembers) return;
+
+                var memberIds = Object.keys(selectedGroupMemberMap);
+                if (memberIds.length === 0) {
+                    selectedGroupMembers.innerHTML = '<div class="create-group-empty">Chưa chọn thành viên.</div>';
+                    return;
+                }
+
+                var html = "";
+                memberIds.forEach(function (key) {
+                    var member = selectedGroupMemberMap[key];
+                    if (!member) return;
+
+                    html += '<div class="selected-member-chip">';
+                    html += '<span>' + escapeHtml(member.fullName || "") + "</span>";
+                    html += '<button type="button" data-action="remove-selected-member" data-user-id="' + Number(member.userId || 0) + '"><i class="fa-solid fa-xmark"></i></button>';
+                    html += "</div>";
+                });
+
+                selectedGroupMembers.innerHTML = html || '<div class="create-group-empty">Chưa chọn thành viên.</div>';
+            }
+
+            function renderCreateGroupUsers(users) {
+                if (!createGroupUserResults) return;
+
+                if (!Array.isArray(users) || users.length === 0) {
+                    createGroupUserResults.innerHTML = '<div class="create-group-empty">Không tìm thấy người dùng phù hợp.</div>';
+                    return;
+                }
+
+                var html = "";
+                users.forEach(function (user) {
+                    var userId = Number(user.userId || 0);
+                    if (!userId || userId === currentUserId) return;
+
+                    var isSelected = Boolean(selectedGroupMemberMap[String(userId)]);
+                    var avatar = escapeHtml(user.avatarUrl || "https://via.placeholder.com/40");
+                    html += '<button type="button" class="create-group-user-item" data-action="toggle-group-member" data-user-id="' + userId + '" data-user-name="' + escapeHtml(user.fullName || "") + '" data-user-email="' + escapeHtml(user.email || "") + '" data-user-avatar="' + avatar + '">';
+                    html += '<div class="create-group-user-meta">';
+                    html += '<img src="' + avatar + '" alt="avatar" />';
+                    html += '<div class="create-group-user-text"><strong>' + escapeHtml(user.fullName || "") + '</strong><span>' + escapeHtml(user.email || "") + "</span></div>";
+                    html += "</div>";
+                    html += '<div class="create-group-user-check">' + (isSelected ? '<i class="fa-solid fa-circle-check"></i>' : "") + "</div>";
+                    html += "</button>";
+                });
+
+                createGroupUserResults.innerHTML = html || '<div class="create-group-empty">Không tìm thấy người dùng phù hợp.</div>';
+            }
+
+            function addOrRemoveGroupMemberFromButton(button) {
+                if (!button) return;
+
+                var userId = Number(button.getAttribute("data-user-id") || 0);
+                if (!userId || userId === currentUserId) return;
+
+                var key = String(userId);
+                if (selectedGroupMemberMap[key]) {
+                    delete selectedGroupMemberMap[key];
+                } else {
+                    selectedGroupMemberMap[key] = {
+                        userId: userId,
+                        fullName: decodeHtmlEntities(button.getAttribute("data-user-name") || ""),
+                        email: decodeHtmlEntities(button.getAttribute("data-user-email") || ""),
+                        avatarUrl: decodeHtmlEntities(button.getAttribute("data-user-avatar") || "")
+                    };
+                }
+
+                renderSelectedGroupMembers();
+                updateCreateGroupSubmitState();
+                var activeKeyword = createGroupSearchInput ? createGroupSearchInput.value : "";
+                if (activeKeyword && activeKeyword.trim()) {
+                    searchUsersForCreateGroup(activeKeyword);
+                }
+            }
+
+            async function searchUsersForCreateGroup(keyword) {
+                if (!createGroupUserResults) return;
+
+                var trimmed = (keyword || "").trim();
+                if (!trimmed) {
+                    createGroupUserResults.innerHTML = '<div class="create-group-empty">Nhập từ khóa để tìm người dùng.</div>';
+                    return;
+                }
+
+                var requestId = ++createGroupSearchSequence;
+                createGroupUserResults.innerHTML = '<div class="create-group-empty">Đang tìm kiếm...</div>';
+                try {
+                    var response = await fetch("/conversations/users-search-json?q=" + encodeURIComponent(trimmed), {
+                        method: "GET",
+                        headers: {
+                            "X-Requested-With": "XMLHttpRequest"
+                        },
+                        cache: "no-store"
+                    });
+
+                    if (response.status === 401) {
+                        window.location.href = "/Account/Login";
+                        return;
+                    }
+
+                    if (!response.ok) return;
+                    var users = await response.json();
+                    if (requestId !== createGroupSearchSequence) return;
+                    renderCreateGroupUsers(users);
+                } catch {
+                    // Ignore transient group-search errors.
+                }
+            }
+
+            function openCreateGroupModal() {
+                if (!createGroupModal) return;
+                resetCreateGroupState();
+                createGroupModal.classList.add("open");
+                createGroupModal.setAttribute("aria-hidden", "false");
+                if (createGroupSearchInput) {
+                    createGroupSearchInput.focus();
+                }
+            }
+
+            function closeCreateGroupModal() {
+                if (!createGroupModal) return;
+                createGroupModal.classList.remove("open");
+                createGroupModal.setAttribute("aria-hidden", "true");
+            }
+
+            async function submitCreateGroup() {
+                if (!submitCreateGroupButton) return;
+
+                var ids = Object.keys(selectedGroupMemberMap).map(function (key) {
+                    return Number(key);
+                }).filter(function (id) {
+                    return id > 0 && id !== currentUserId;
+                });
+
+                if (ids.length === 0) {
+                    return;
+                }
+
+                submitCreateGroupButton.disabled = true;
+                try {
+                    var body = getRequestTokenParams();
+                    var groupName = createGroupNameInput ? createGroupNameInput.value.trim() : "";
+                    if (groupName) {
+                        body.append("name", groupName);
+                    }
+
+                    ids.forEach(function (id) {
+                        body.append("memberUserIds", String(id));
+                    });
+
+                    var response = await fetch("/conversations/create-group-json", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+                            "X-Requested-With": "XMLHttpRequest"
+                        },
+                        body: body.toString(),
+                        credentials: "same-origin"
+                    });
+
+                    if (response.status === 401) {
+                        window.location.href = "/Account/Login";
+                        return;
+                    }
+
+                    if (!response.ok) {
+                        return;
+                    }
+
+                    var payload = await response.json();
+                    var createdConversationId = Number((payload && payload.conversationId) || 0);
+                    if (!createdConversationId) return;
+
+                    window.location.href = buildConversationHref(createdConversationId);
+                } finally {
+                    submitCreateGroupButton.disabled = false;
+                    updateCreateGroupSubmitState();
+                }
+            }
+
+            function syncRightProfileAvatarMode() {
+                if (!rightProfileStack || !rightProfileSubAvatar) return;
+                var shouldSingleAvatar = Boolean(isGroupConversation) && Boolean(currentConversationHasCustomAvatar);
+                rightProfileStack.classList.toggle("single", shouldSingleAvatar);
+                rightProfileSubAvatar.style.display = shouldSingleAvatar ? "none" : "";
+            }
+
+            function setConversationDisplay(name, avatarUrl) {
+                currentConversationName = String(name || currentConversationName || "");
+                currentConversationAvatar = String(avatarUrl || currentConversationAvatar || "");
+                if (isGroupConversation) {
+                    var avatarTrimmed = currentConversationAvatar.trim();
+                    currentConversationHasCustomAvatar =
+                        avatarTrimmed.length > 0 &&
+                        avatarTrimmed.indexOf("via.placeholder.com") === -1;
+                }
+
+                if (chatHeaderName) {
+                    chatHeaderName.textContent = currentConversationName || "Chưa chọn đoạn chat";
+                }
+                if (rightProfileName) {
+                    rightProfileName.textContent = currentConversationName || "Chưa chọn đoạn chat";
+                }
+
+                var normalizedAvatar = currentConversationAvatar || "https://via.placeholder.com/64";
+                if (chatHeaderAvatar) {
+                    chatHeaderAvatar.src = normalizedAvatar;
+                }
+                if (rightProfileAvatar) {
+                    rightProfileAvatar.src = normalizedAvatar;
+                }
+                syncRightProfileAvatarMode();
+            }
+
+            function setModalOpen(modal, isOpen) {
+                if (!modal) return;
+                modal.classList.toggle("open", Boolean(isOpen));
+                modal.setAttribute("aria-hidden", isOpen ? "false" : "true");
+            }
+
+            function toggleAccordionBody(targetId) {
+                if (!targetId) return;
+                var body = document.getElementById(targetId);
+                if (!body) return;
+
+                var header = body.previousElementSibling;
+                var isOpen = body.style.display !== "none";
+                body.style.display = isOpen ? "none" : "block";
+                if (header) {
+                    header.classList.toggle("expanded", !isOpen);
+                }
+            }
+
+            function renderPinnedMessagesModal() {
+                if (!pinnedMessagesModalBody) return;
+
+                var pinnedIds = Object.keys(pinnedMessageIds).map(function (key) {
+                    return Number(key);
+                }).filter(function (id) {
+                    return id > 0;
+                });
+
+                if (pinnedIds.length === 0) {
+                    pinnedMessagesModalBody.innerHTML = ''
+                        + '<div class="pinned-empty-state">'
+                        + '<i class="fa-solid fa-thumbtack"></i>'
+                        + '<strong>Chưa ghim tin nhắn nào</strong>'
+                        + '<p>Tin nhắn đã ghim trong đoạn chat này sẽ hiển thị ở đây</p>'
+                        + '</div>';
+                    return;
+                }
+
+                var lookup = {};
+                allMessages.forEach(function (message) {
+                    lookup[String(Number(message.id || 0))] = message;
+                });
+
+                var items = pinnedIds.map(function (id) {
+                    return lookup[String(id)] || null;
+                }).filter(function (message) {
+                    return Boolean(message);
+                }).sort(function (a, b) {
+                    return parseDate(b.sentAt) - parseDate(a.sentAt);
+                });
+
+                if (items.length === 0) {
+                    pinnedMessagesModalBody.innerHTML = ''
+                        + '<div class="pinned-empty-state">'
+                        + '<i class="fa-solid fa-thumbtack"></i>'
+                        + '<strong>Chưa tải đủ tin nhắn đã ghim</strong>'
+                        + '<p>Kéo lên lịch sử chat để tải thêm rồi mở lại.</p>'
+                        + '</div>';
+                    return;
+                }
+
+                var html = '<div class="pinned-message-list">';
+                items.forEach(function (message) {
+                    var messageId = Number(message.id || 0);
+                    var senderName = Number(message.senderId || 0) === currentUserId
+                        ? "Bạn"
+                        : (message.senderName || "");
+                    var contentText = (message.content || "").trim() || "(Tin nhắn đính kèm)";
+                    var avatarUrl = escapeHtml(message.senderAvatarUrl || "https://via.placeholder.com/58");
+                    var dateText = formatPinnedDate(message.sentAt);
+                    var firstUrl = findFirstUrlInMessage(message, contentText);
+                    var firstDomain = extractDomainFromUrl(firstUrl);
+
+                    html += '<button type="button" class="pinned-message-item" data-action="open-pinned-message" data-message-id="' + messageId + '">';
+                    html += '<div class="pinned-message-meta">';
+                    html += '<div class="pinned-message-sender">' + escapeHtml(senderName) + "</div>";
+                    html += '<div class="pinned-message-date">' + escapeHtml(dateText) + "</div>";
+                    html += '</div>';
+                    html += '<div class="pinned-message-row">';
+                    html += '<img class="pinned-message-avatar" src="' + avatarUrl + '" alt="avatar" />';
+                    html += '<div class="pinned-message-bubble-wrap"><div class="pinned-message-bubble">';
+                    if (firstUrl) {
+                        html += '<span class="pinned-message-link">' + escapeHtml(firstUrl) + "</span>";
+                        if (firstDomain) {
+                            html += '<div class="pinned-message-domain">' + escapeHtml(firstDomain) + "</div>";
+                        }
+                    } else {
+                        html += '<div class="pinned-message-text">' + escapeHtml(contentText) + "</div>";
+                    }
+                    html += "</div></div>";
+                    html += '</div>';
+                    html += '<div class="pinned-message-hint">Enter</div>';
+                    html += "</button>";
+                });
+                html += "</div>";
+                pinnedMessagesModalBody.innerHTML = html;
+            }
+
+            function formatPinnedDate(value) {
+                if (!value) return "";
+                var date = new Date(value);
+                if (Number.isNaN(date.getTime())) return "";
+                return date.toLocaleDateString("vi-VN", {
+                    day: "numeric",
+                    month: "numeric",
+                    year: "2-digit"
+                });
+            }
+
+            function extractDomainFromUrl(value) {
+                if (!value) return "";
+                try {
+                    return new URL(value).hostname || "";
+                } catch {
+                    return "";
+                }
+            }
+
+            function findFirstUrlInMessage(message, fallbackText) {
+                var attachments = Array.isArray(message && message.attachments) ? message.attachments : [];
+                for (var i = 0; i < attachments.length; i++) {
+                    var fileUrl = String((attachments[i] && attachments[i].fileUrl) || "").trim();
+                    if (/^https?:\/\//i.test(fileUrl)) {
+                        return fileUrl;
+                    }
+                }
+
+                var text = String(fallbackText || "");
+                var matched = text.match(/https?:\/\/[^\s]+/i);
+                return matched ? matched[0] : "";
+            }
+
+            function syncRenameCount() {
+                if (!renameConversationInput || !renameConversationCount) return;
+                var value = renameConversationInput.value || "";
+                renameConversationCount.textContent = String(value.length) + "/500";
+                if (saveRenameConversationButton) {
+                    saveRenameConversationButton.disabled = !value.trim();
+                }
+            }
+
+            function openRenameConversationModal() {
+                if (!renameConversationInput) return;
+                renameConversationInput.value = currentConversationName || "";
+                syncRenameCount();
+                setModalOpen(renameConversationModal, true);
+                renameConversationInput.focus();
+            }
+
+            async function updateConversationSettings(payload) {
+                if (!conversationId) return false;
+                var requestBody = getRequestTokenParams();
+                requestBody.append("conversationId", String(conversationId));
+                if (payload && typeof payload.name === "string") {
+                    requestBody.append("name", payload.name);
+                }
+                if (payload && typeof payload.avatarUrl === "string") {
+                    requestBody.append("avatarUrl", payload.avatarUrl);
+                }
+
+                try {
+                    var response = await fetch("/conversations/update-settings-json", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+                            "X-Requested-With": "XMLHttpRequest"
+                        },
+                        body: requestBody.toString(),
+                        credentials: "same-origin"
+                    });
+
+                    if (response.status === 401) {
+                        window.location.href = "/Account/Login";
+                        return false;
+                    }
+
+                    if (!response.ok) {
+                        var errorMessage = await readResponseError(response, "Không thể cập nhật đoạn chat.");
+                        window.alert(errorMessage);
+                        return false;
+                    }
+
+                    var data = await response.json();
+                    if (!data) return false;
+
+                    setConversationDisplay(data.name || currentConversationName, data.avatarUrl || currentConversationAvatar);
+                    scheduleConversationListRefresh(40);
+                    return true;
+                } catch {
+                    return false;
+                }
+            }
+
+            async function readResponseError(response, fallbackMessage) {
+                if (!response) return fallbackMessage || "Có lỗi xảy ra.";
+                try {
+                    var contentType = String(response.headers.get("content-type") || "").toLowerCase();
+                    if (contentType.indexOf("application/json") >= 0) {
+                        var data = await response.json();
+                        if (data && typeof data.error === "string" && data.error.trim()) {
+                            return data.error.trim();
+                        }
+                    } else {
+                        var text = await response.text();
+                        if (text && text.trim()) {
+                            return text.trim();
+                        }
+                    }
+                } catch {
+                    // Ignore parse error.
+                }
+
+                return fallbackMessage || "Có lỗi xảy ra.";
+            }
+
+            async function uploadConversationImage(file) {
+                if (!conversationId) {
+                    window.alert("Hãy chọn một đoạn chat trước khi đổi ảnh.");
+                    return false;
+                }
+
+                if (!file) return false;
+                if (!String(file.type || "").toLowerCase().startsWith("image/")) {
+                    window.alert("Vui lòng chọn file ảnh hợp lệ.");
+                    return false;
+                }
+
+                var body = new FormData();
+                if (antiForgeryToken) {
+                    body.append("__RequestVerificationToken", antiForgeryToken);
+                }
+                body.append("conversationId", String(conversationId));
+                body.append("image", file);
+
+                if (changeConversationImageButton) {
+                    changeConversationImageButton.disabled = true;
+                }
+
+                try {
+                    var response = await fetch("/conversations/update-image-json", {
+                        method: "POST",
+                        headers: {
+                            "X-Requested-With": "XMLHttpRequest"
+                        },
+                        body: body,
+                        credentials: "same-origin"
+                    });
+
+                    if (response.status === 401) {
+                        window.location.href = "/Account/Login";
+                        return false;
+                    }
+
+                    if (!response.ok) {
+                        var errorMessage = await readResponseError(response, "Không thể cập nhật ảnh đoạn chat.");
+                        window.alert(errorMessage);
+                        return false;
+                    }
+
+                    var data = await response.json();
+                    if (!data) return false;
+                    setConversationDisplay(data.name || currentConversationName, data.avatarUrl || currentConversationAvatar);
+                    scheduleConversationListRefresh(40);
+                    return true;
+                } catch {
+                    window.alert("Không thể tải ảnh lên lúc này. Vui lòng thử lại.");
+                    return false;
+                } finally {
+                    if (changeConversationImageButton) {
+                        changeConversationImageButton.disabled = false;
+                    }
+                }
+            }
+
+            function renderSelectedAddMembers() {
+                if (!selectedAddMembers) return;
+
+                var keys = Object.keys(selectedAddMemberMap);
+                if (keys.length === 0) {
+                    selectedAddMembers.innerHTML = '<div class="create-group-empty">Chưa chọn thành viên.</div>';
+                    return;
+                }
+
+                var html = "";
+                keys.forEach(function (key) {
+                    var member = selectedAddMemberMap[key];
+                    if (!member) return;
+                    html += '<div class="selected-member-chip">';
+                    html += '<span>' + escapeHtml(member.fullName || "") + "</span>";
+                    html += '<button type="button" data-action="remove-add-member" data-user-id="' + Number(member.userId || 0) + '"><i class="fa-solid fa-xmark"></i></button>';
+                    html += "</div>";
+                });
+
+                selectedAddMembers.innerHTML = html || '<div class="create-group-empty">Chưa chọn thành viên.</div>';
+            }
+
+            function updateAddMemberSubmitState() {
+                if (!submitAddMemberButton) return;
+                submitAddMemberButton.disabled = Object.keys(selectedAddMemberMap).length === 0;
+            }
+
+            function resetAddMemberState() {
+                selectedAddMemberMap = {};
+                addMemberSearchSequence = 0;
+                if (addMemberSearchInput) {
+                    addMemberSearchInput.value = "";
+                }
+                if (addMemberResults) {
+                    addMemberResults.innerHTML = '<div class="create-group-empty">Nhập từ khóa để tìm người dùng.</div>';
+                }
+                renderSelectedAddMembers();
+                updateAddMemberSubmitState();
+            }
+
+            function renderAddMemberUsers(users) {
+                if (!addMemberResults) return;
+
+                if (!Array.isArray(users) || users.length === 0) {
+                    addMemberResults.innerHTML = '<div class="create-group-empty">Không tìm thấy người dùng phù hợp.</div>';
+                    return;
+                }
+
+                var existingMemberIds = {};
+                @foreach (var member in selectedMembers)
+                {
+                    <text>existingMemberIds["@(member.UserId)"] = true;</text>
+                }
+
+                var html = "";
+                users.forEach(function (user) {
+                    var userId = Number(user.userId || 0);
+                    if (!userId || userId === currentUserId) return;
+                    if (existingMemberIds[String(userId)]) return;
+
+                    var selected = Boolean(selectedAddMemberMap[String(userId)]);
+                    var avatar = escapeHtml(user.avatarUrl || "https://via.placeholder.com/40");
+                    html += '<button type="button" class="create-group-user-item" data-action="toggle-add-member" data-user-id="' + userId + '" data-user-name="' + escapeHtml(user.fullName || "") + '" data-user-email="' + escapeHtml(user.email || "") + '" data-user-avatar="' + avatar + '">';
+                    html += '<div class="create-group-user-meta">';
+                    html += '<img src="' + avatar + '" alt="avatar" />';
+                    html += '<div class="create-group-user-text"><strong>' + escapeHtml(user.fullName || "") + '</strong><span>' + escapeHtml(user.email || "") + "</span></div>";
+                    html += '</div><div class="create-group-user-check">' + (selected ? '<i class="fa-solid fa-circle-check"></i>' : "") + "</div></button>";
+                });
+
+                addMemberResults.innerHTML = html || '<div class="create-group-empty">Không tìm thấy người dùng phù hợp.</div>';
+            }
+
+            async function searchUsersForAddMember(keyword) {
+                if (!addMemberResults) return;
+
+                var trimmed = (keyword || "").trim();
+                if (!trimmed) {
+                    addMemberResults.innerHTML = '<div class="create-group-empty">Nhập từ khóa để tìm người dùng.</div>';
+                    return;
+                }
+
+                var requestId = ++addMemberSearchSequence;
+                addMemberResults.innerHTML = '<div class="create-group-empty">Đang tìm kiếm...</div>';
+                try {
+                    var response = await fetch("/conversations/users-search-json?q=" + encodeURIComponent(trimmed), {
+                        method: "GET",
+                        headers: { "X-Requested-With": "XMLHttpRequest" },
+                        cache: "no-store"
+                    });
+
+                    if (response.status === 401) {
+                        window.location.href = "/Account/Login";
+                        return;
+                    }
+
+                    if (!response.ok) return;
+                    var users = await response.json();
+                    if (requestId !== addMemberSearchSequence) return;
+                    renderAddMemberUsers(users);
+                } catch {
+                    // Ignore transient add-member search errors.
+                }
+            }
+
+            async function submitAddMembers() {
+                if (!submitAddMemberButton || !conversationId) return;
+                var ids = Object.keys(selectedAddMemberMap).map(function (key) { return Number(key); }).filter(function (id) {
+                    return id > 0;
+                });
+                if (ids.length === 0) return;
+
+                submitAddMemberButton.disabled = true;
+                try {
+                    var body = getRequestTokenParams();
+                    body.append("conversationId", String(conversationId));
+                    ids.forEach(function (id) {
+                        body.append("memberUserIds", String(id));
+                    });
+
+                    var response = await fetch("/conversations/add-members-json", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+                            "X-Requested-With": "XMLHttpRequest"
+                        },
+                        body: body.toString(),
+                        credentials: "same-origin"
+                    });
+
+                    if (response.status === 401) {
+                        window.location.href = "/Account/Login";
+                        return;
+                    }
+
+                    if (!response.ok) {
+                        return;
+                    }
+
+                    window.location.href = buildConversationHref(conversationId);
+                } finally {
+                    submitAddMemberButton.disabled = false;
+                    updateAddMemberSubmitState();
+                }
+            }
+
+            function escapeHtml(value) {
+                return String(value || "")
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/"/g, "&quot;")
+                    .replace(/'/g, "&#39;");
+            }
+
+            function decodeHtmlEntities(value) {
+                if (value === null || value === undefined) return "";
+                var textarea = document.createElement("textarea");
+                textarea.innerHTML = String(value);
+                return textarea.value;
+            }
+
+            function escapeRegex(value) {
+                return String(value || "").replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+            }
+
+            function highlightSearchKeyword(content, keyword) {
+                var text = String(content || "");
+                var normalizedKeyword = String(keyword || "").trim();
+                if (!normalizedKeyword) {
+                    return escapeHtml(text);
+                }
+
+                var regex = new RegExp(escapeRegex(normalizedKeyword), "gi");
+                var lastIndex = 0;
+                var highlighted = "";
+                var match = null;
+                while ((match = regex.exec(text)) !== null) {
+                    var start = match.index;
+                    var end = regex.lastIndex;
+                    highlighted += escapeHtml(text.slice(lastIndex, start));
+                    highlighted += '<span class="message-search-hit">' + escapeHtml(text.slice(start, end)) + "</span>";
+                    lastIndex = end;
+
+                    if (regex.lastIndex === match.index) {
+                        regex.lastIndex += 1;
+                    }
+                }
+
+                highlighted += escapeHtml(text.slice(lastIndex));
+                return highlighted;
+            }
+
+            function getRequestTokenParams() {
+                var params = new URLSearchParams();
+                if (antiForgeryToken) {
+                    params.append("__RequestVerificationToken", antiForgeryToken);
+                }
+                return params;
+            }
+
+            function getPinnedStorageKey() {
+                return "conversation-pins-" + String(conversationId || 0);
+            }
+
+            function loadPinnedMessagesFromStorage() {
+                pinnedMessageIds = {};
+                if (!conversationId || !window.localStorage) return;
+
+                try {
+                    var raw = window.localStorage.getItem(getPinnedStorageKey());
+                    if (!raw) return;
+
+                    var parsed = JSON.parse(raw);
+                    if (!Array.isArray(parsed)) return;
+                    parsed.forEach(function (id) {
+                        var normalized = Number(id || 0);
+                        if (!normalized) return;
+                        pinnedMessageIds[String(normalized)] = true;
+                    });
+                } catch {
+                    pinnedMessageIds = {};
+                }
+            }
+
+            function persistPinnedMessages() {
+                if (!conversationId || !window.localStorage) return;
+                try {
+                    var ids = Object.keys(pinnedMessageIds).map(function (id) { return Number(id); });
+                    window.localStorage.setItem(getPinnedStorageKey(), JSON.stringify(ids));
+                } catch {
+                    // Ignore local storage errors.
+                }
+            }
+
+            function isMessagePinned(messageId) {
+                return Boolean(pinnedMessageIds[String(Number(messageId || 0))]);
+            }
+
+            function togglePinnedMessage(messageId) {
+                var key = String(Number(messageId || 0));
+                if (key === "0") return false;
+                var pinned = false;
+
+                if (pinnedMessageIds[key]) {
+                    delete pinnedMessageIds[key];
+                    persistPinnedMessages();
+                    pinned = false;
+                }
+                else
+                {
+                    pinnedMessageIds[key] = true;
+                    persistPinnedMessages();
+                    pinned = true;
+                }
+
+                if (pinnedMessagesModal && pinnedMessagesModal.classList.contains("open")) {
+                    renderPinnedMessagesModal();
+                }
+
+                return pinned;
+            }
+
+            function formatTime(value) {
+                if (!value) return "";
+                var date = new Date(value);
+                if (Number.isNaN(date.getTime())) return "";
+                return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+            }
+
+            function getReactionSymbol(reactionType) {
+                var normalized = String(reactionType || "").toLowerCase();
+                if (normalized === "love") return "❤️";
+                if (normalized === "haha") return "😂";
+                if (normalized === "wow") return "😮";
+                if (normalized === "sad") return "😢";
+                if (normalized === "angry") return "😡";
+                return "👍";
+            }
+
+            function parseDate(value) {
+                var parsed = new Date(value || "");
+                return Number.isNaN(parsed.getTime()) ? 0 : parsed.getTime();
+            }
+
+            function isImageAttachment(attachment) {
+                if (!attachment) return false;
+                var type = String(attachment.attachmentType || "").toLowerCase();
+                return type === "image";
+            }
+
+            function computeLatestPageSnapshot(messages) {
+                if (!Array.isArray(messages) || messages.length === 0) return "empty";
+
+                return messages.map(function (message) {
+                    var reactions = Array.isArray(message.reactions) ? message.reactions : [];
+                    var seenBy = Array.isArray(message.seenBy) ? message.seenBy : [];
+                    var attachments = Array.isArray(message.attachments) ? message.attachments : [];
+                    var receipts = Array.isArray(message.receipts) ? message.receipts : [];
+                    var reactionKey = reactions.map(function (reaction) {
+                        return String(reaction.reactionType || "") + ":" + Number(reaction.count || 0) + ":" + (reaction.isMine ? "1" : "0");
+                    }).join(",");
+                    return [
+                        Number(message.id || 0),
+                        message.content || "",
+                        message.editedAt || "",
+                        message.isDeletedForEveryone ? "1" : "0",
+                        seenBy.length,
+                        attachments.length,
+                        receipts.length,
+                        reactionKey
+                    ].join("#");
+                }).join("|");
+            }
+
+            function upsertMessageInMemory(message) {
+                if (!message) return false;
+
+                var messageId = Number(message.id || 0);
+                if (!messageId) return false;
+
+                var index = allMessages.findIndex(function (item) {
+                    return Number(item.id || 0) === messageId;
+                });
+
+                if (index >= 0) {
+                    allMessages[index] = message;
+                } else {
+                    allMessages.push(message);
+                }
+
+                allMessages.sort(function (a, b) {
+                    var sentDiff = parseDate(a.sentAt) - parseDate(b.sentAt);
+                    if (sentDiff !== 0) return sentDiff;
+                    return Number(a.id || 0) - Number(b.id || 0);
+                });
+
+                return true;
+            }
+
+            function applyRealtimeMessage(message, forceRender) {
+                if (!panel || !message) return;
+                if (Number(message.conversationId || 0) !== conversationId) return;
+
+                var distanceToBottom = panel.scrollHeight - panel.scrollTop - panel.clientHeight;
+                var shouldStickBottom = distanceToBottom < 120 || Number(message.senderId || 0) === currentUserId;
+                var didUpdate = upsertMessageInMemory(message);
+                if (!didUpdate) return;
+
+                renderMessages(allMessages);
+                if (shouldStickBottom) {
+                    scrollToBottom();
+                }
+
+                scheduleConversationListRefresh(60);
+                scheduleRealtimeSync(Boolean(forceRender));
+            }
+
+            function setReplyMessage(message) {
+                if (message) {
+                    setEditMessage(null, false);
+                }
+
+                selectedReplyMessage = message || null;
+                if (!replyToInput) return;
+
+                replyToInput.value = selectedReplyMessage ? String(selectedReplyMessage.id || "") : "";
+                if (!replyPreview) return;
+
+                if (!selectedReplyMessage) {
+                    replyPreview.style.display = "none";
+                    replyPreview.innerHTML = "";
+                    return;
+                }
+
+                var senderName = Number(selectedReplyMessage.senderId || 0) === currentUserId
+                    ? "Bạn"
+                    : (selectedReplyMessage.senderName || "");
+                var previewText = (selectedReplyMessage.content || "").trim();
+                if (!previewText) {
+                    previewText = selectedReplyMessage.isDeletedForEveryone
+                        ? "Tin nhắn đã được gỡ"
+                        : "(Tin nhắn đính kèm)";
+                }
+
+                replyPreview.innerHTML = ''
+                    + '<div class="reply-preview-header">'
+                    + '<strong>Đang trả lời</strong>'
+                    + '<button type="button" class="close-preview-btn" id="clearReplyButton"><i class="fa-solid fa-xmark"></i></button>'
+                    + '</div>'
+                    + '<div class="reply-preview-content"><strong>' + escapeHtml(senderName) + ':</strong> ' + escapeHtml(previewText) + '</div>';
+                replyPreview.style.display = "block";
+
+                var clearReplyButton = document.getElementById("clearReplyButton");
+                if (clearReplyButton) {
+                    clearReplyButton.addEventListener("click", function () {
+                        setReplyMessage(null);
+                    });
+                }
+            }
+
+            function setEditMessage(message, shouldFocus) {
+                selectedEditMessage = message || null;
+                if (!editPreview) return;
+
+                if (!selectedEditMessage) {
+                    editPreview.style.display = "none";
+                    editPreview.innerHTML = "";
+                    return;
+                }
+
+                setReplyMessage(null);
+                editPreview.innerHTML = ''
+                    + '<div class="reply-preview-header">'
+                    + '<strong>Đang chỉnh sửa</strong>'
+                    + '<button type="button" class="close-preview-btn" id="clearEditButton"><i class="fa-solid fa-xmark"></i></button>'
+                    + '</div>'
+                    + '<div class="reply-preview-content">' + escapeHtml(selectedEditMessage.content || "") + "</div>";
+                editPreview.style.display = "block";
+
+                if (messageInput) {
+                    messageInput.value = selectedEditMessage.content || "";
+                    if (shouldFocus) {
+                        messageInput.focus();
+                    }
+                }
+
+                var clearEditButton = document.getElementById("clearEditButton");
+                if (clearEditButton) {
+                    clearEditButton.addEventListener("click", function () {
+                        setEditMessage(null, false);
+                    });
+                }
+            }
+
+            function renderAttachmentPreview() {
+                if (!attachmentPreview || !attachmentInput) return;
+                var files = Array.prototype.slice.call(attachmentInput.files || []);
+                if (files.length === 0) {
+                    attachmentPreview.style.display = "none";
+                    attachmentPreview.innerHTML = "";
+                    return;
+                }
+
+                var itemsHtml = files.map(function (file) {
+                    return '<div class="attachment-preview-item">' + escapeHtml(file.name || "file") + "</div>";
+                }).join("");
+
+                attachmentPreview.innerHTML = ''
+                    + '<div class="attachment-preview-header">'
+                    + '<strong>Tệp đính kèm (' + files.length + ')</strong>'
+                    + '<button type="button" class="close-preview-btn" id="clearAttachmentButton"><i class="fa-solid fa-xmark"></i></button>'
+                    + '</div>'
+                    + '<div class="attachment-preview-list">' + itemsHtml + "</div>";
+                attachmentPreview.style.display = "block";
+
+                var clearAttachmentButton = document.getElementById("clearAttachmentButton");
+                if (clearAttachmentButton) {
+                    clearAttachmentButton.addEventListener("click", function () {
+                        attachmentInput.value = "";
+                        renderAttachmentPreview();
+                    });
+                }
+            }
+
+            function renderTypingIndicator() {
+                if (!typingIndicator) return;
+
+                var names = Object.keys(typingUsers).map(function (key) {
+                    return typingUsers[key];
+                }).filter(function (value) {
+                    return Boolean(value);
+                });
+
+                if (names.length === 0) {
+                    typingIndicator.textContent = "";
+                    return;
+                }
+
+                if (names.length === 1) {
+                    typingIndicator.textContent = names[0] + " đang nhập...";
+                    return;
+                }
+
+                typingIndicator.textContent = names.slice(0, 2).join(", ") + " đang nhập...";
+            }
+
+            async function sendTypingState(isTyping) {
+                if (!connection || connection.state !== signalR.HubConnectionState.Connected || !conversationId) {
+                    return;
+                }
+
+                try {
+                    if (isTyping) {
+                        if (hasSentTyping) return;
+                        await connection.invoke("StartTyping", conversationId);
+                        hasSentTyping = true;
+                        return;
+                    }
+
+                    if (!hasSentTyping) return;
+                    await connection.invoke("StopTyping", conversationId);
+                    hasSentTyping = false;
+                } catch {
+                    // Ignore typing transport errors.
+                }
+            }
+
+            function getReceiptInfo(message, isMine) {
+                if (!isMine) {
+                    return { text: "", title: "" };
+                }
+
+                var receipts = Array.isArray(message.receipts) ? message.receipts : [];
+                if (receipts.length === 0) {
+                    return { text: "Đã gửi", title: "Đã gửi" };
+                }
+
+                var seen = receipts.filter(function (item) {
+                    return String(item.status || "").toLowerCase() === "seen";
+                });
+                var delivered = receipts.filter(function (item) {
+                    return String(item.status || "").toLowerCase() === "delivered";
+                });
+
+                if (seen.length > 0) {
+                    var seenNames = seen.map(function (item) {
+                        return item.fullName || "Người dùng";
+                    });
+                    var seenPreview = seenNames.slice(0, 2).join(", ");
+                    if (seenNames.length > 2) {
+                        seenPreview += " +" + (seenNames.length - 2);
+                    }
+
+                    return {
+                        text: "Đã xem: " + seenPreview,
+                        title: "Đã xem: " + seenNames.join(", ")
+                    };
+                }
+
+                return {
+                    text: "Đã nhận: " + delivered.length + "/" + receipts.length,
+                    title: "Đã nhận: " + delivered.map(function (item) { return item.fullName || "Người dùng"; }).join(", ")
+                };
+            }
+
+            function buildConversationHref(targetConversationId) {
+                var params = new URLSearchParams();
+                params.set("conversationId", String(targetConversationId));
+                if (currentTab) {
+                    params.set("tab", currentTab);
+                }
+
+                return "/conversations?" + params.toString();
+            }
+
+            function renderConversationList(conversations) {
+                if (!conversationList) return;
+
+                if (!Array.isArray(conversations) || conversations.length === 0) {
+                    conversationList.innerHTML = '<div class="conversation-preview" style="padding: 8px 10px;">Không có đoạn chat.</div>';
+                    return;
+                }
+
+                var html = "";
+                conversations.forEach(function (conversation) {
+                    var id = Number(conversation.id || 0);
+                    var isActive = id === conversationId;
+                    var hasUnread = Boolean(conversation.hasUnread) && !isActive;
+                    var lastSenderId = conversation.lastSenderId === null || conversation.lastSenderId === undefined
+                        ? null
+                        : Number(conversation.lastSenderId);
+
+                    var prefix = "";
+                    if (lastSenderId !== null) {
+                        prefix = lastSenderId === currentUserId
+                            ? "Bạn: "
+                            : ((conversation.lastSenderName || "") + ": ");
+                    }
+
+                    var lastMessage = (conversation.lastMessage || "").trim();
+                    var preview = lastMessage ? (prefix + lastMessage) : "(Chưa có tin nhắn)";
+                    var avatar = conversation.avatarUrl || "https://via.placeholder.com/56";
+                    var unreadBadge = hasUnread
+                        ? '<div class="unread-badge">' + Number(conversation.unreadCount || 0) + "</div>"
+                        : "";
+
+                    html += '<a class="conversation-item ' + (isActive ? "active" : "") + '"';
+                    html += ' href="' + escapeHtml(buildConversationHref(id)) + '"';
+                    html += ' style="text-decoration:none;color:inherit;">';
+                    html += '<div class="avatar-wrap">';
+                    html += '<img class="avatar" src="' + escapeHtml(avatar) + '" alt="avatar" />';
+                    html += "</div>";
+                    html += '<div class="conversation-content">';
+                    html += '<div class="conversation-name">' + escapeHtml(conversation.name || "") + "</div>";
+                    html += '<div class="conversation-preview ' + (hasUnread ? "unread" : "") + '">';
+                    html += escapeHtml(preview);
+                    html += "</div></div>";
+                    html += unreadBadge;
+                    html += "</a>";
+                });
+
+                conversationList.innerHTML = html;
+            }
+
+            async function refreshConversationList() {
+                if (!conversationList) return;
+
+                var endpoint = "/conversations/list-json";
+                var queryParts = [];
+                if (currentTab) {
+                    queryParts.push("tab=" + encodeURIComponent(currentTab));
+                }
+                if (queryParts.length > 0) {
+                    endpoint += "?" + queryParts.join("&");
+                }
+
+                try {
+                    var response = await fetch(endpoint, {
+                        method: "GET",
+                        headers: {
+                            "X-Requested-With": "XMLHttpRequest"
+                        },
+                        cache: "no-store"
+                    });
+
+                    if (response.status === 401) {
+                        window.location.href = "/Account/Login";
+                        return;
+                    }
+
+                    if (!response.ok) return false;
+                    var conversations = await response.json();
+                    renderConversationList(conversations);
+                } catch {
+                    // Ignore transient refresh errors.
+                }
+            }
+
+            function renderUserSearch(users) {
+                if (!userSearchResultsPanel || !userSearchResultsContent) return;
+
+                if (!Array.isArray(users) || users.length === 0) {
+                    userSearchResultsContent.innerHTML = '<div class="conversation-preview">Không tìm thấy người dùng phù hợp.</div>';
+                    userSearchResultsPanel.style.display = "block";
+                    return;
+                }
+
+                var html = "";
+                users.forEach(function (user) {
+                    var userId = Number(user.userId || 0);
+                    var fullName = escapeHtml(user.fullName || "");
+                    var email = escapeHtml(user.email || "");
+                    var avatar = escapeHtml(user.avatarUrl || "https://via.placeholder.com/56");
+
+                    html += '<a class="conversation-item"';
+                    html += ' href="/conversations/start-user/' + userId + '"';
+                    html += ' style="text-decoration:none;color:inherit;">';
+                    html += '<div class="avatar-wrap"><img class="avatar" src="' + avatar + '" alt="avatar" /></div>';
+                    html += '<div class="conversation-content">';
+                    html += '<div class="conversation-name">' + fullName + "</div>";
+                    html += '<div class="conversation-preview">' + email + "</div>";
+                    html += "</div></a>";
+                });
+
+                userSearchResultsContent.innerHTML = html;
+                userSearchResultsPanel.style.display = "block";
+            }
+
+            async function searchUsersRealtime(keyword) {
+                if (!userSearchResultsPanel || !userSearchResultsContent) return;
+
+                var trimmed = (keyword || "").trim();
+                if (!trimmed) {
+                    userSearchResultsContent.innerHTML = "";
+                    userSearchResultsPanel.style.display = "none";
+                    return;
+                }
+
+                var requestId = ++searchRequestSequence;
+                try {
+                    var response = await fetch("/conversations/users-search-json?q=" + encodeURIComponent(trimmed), {
+                        method: "GET",
+                        headers: {
+                            "X-Requested-With": "XMLHttpRequest"
+                        },
+                        cache: "no-store"
+                    });
+
+                    if (response.status === 401) {
+                        window.location.href = "/Account/Login";
+                        return;
+                    }
+
+                    if (!response.ok) return;
+                    var users = await response.json();
+                    if (requestId !== searchRequestSequence) return;
+                    renderUserSearch(users);
+                } catch {
+                    // Ignore transient errors while typing.
+                }
+            }
+
+            function toggleMessageSearchPanel(isOpen) {
+                if (!rightInfoPanel || !rightSearchPanel) return;
+
+                rightInfoPanel.style.display = isOpen ? "none" : "block";
+                rightSearchPanel.style.display = isOpen ? "flex" : "none";
+                if (!isOpen) {
+                    if (messageSearchInput) {
+                        messageSearchInput.disabled = false;
+                    }
+                    return;
+                }
+
+                if (messageSearchInput) {
+                    messageSearchInput.disabled = !conversationId;
+                    messageSearchInput.placeholder = conversationId
+                        ? "Tìm kiếm trong cuộc trò chuyện"
+                        : "Chọn đoạn chat để tìm kiếm";
+                }
+
+                if (!conversationId) {
+                    if (messageSearchResults) {
+                        messageSearchResults.innerHTML = '<div class="message-search-empty">Hãy chọn một đoạn chat trước khi tìm kiếm.</div>';
+                    }
+                    setMessageSearchCount(null, false);
+                    return;
+                }
+
+                if (messageSearchInput) {
+                    messageSearchInput.focus();
+                }
+            }
+
+            function setMessageSearchCount(totalCount, hasKeyword) {
+                if (!messageSearchCount) return;
+
+                if (!hasKeyword) {
+                    messageSearchCount.textContent = "";
+                    messageSearchCount.style.display = "none";
+                    return;
+                }
+
+                var count = Number(totalCount || 0);
+                var text = count > 99 ? "Hơn 99 kết quả" : (String(count) + " kết quả");
+                messageSearchCount.textContent = text;
+                messageSearchCount.style.display = "inline";
+            }
+
+            function formatSearchTime(value) {
+                if (!value) return "";
+                var date = new Date(value);
+                if (Number.isNaN(date.getTime())) return "";
+                return date.toLocaleString([], {
+                    day: "2-digit",
+                    month: "2-digit",
+                    hour: "2-digit",
+                    minute: "2-digit"
+                });
+            }
+
+            function renderMessageSearchResults(items, keyword) {
+                if (!messageSearchResults) return;
+
+                if (!Array.isArray(items) || items.length === 0) {
+                    messageSearchResults.innerHTML = '<div class="message-search-empty">Không tìm thấy tin nhắn phù hợp.</div>';
+                    return;
+                }
+
+                var html = "";
+                items.forEach(function (item) {
+                    var messageId = Number(item.messageId || 0);
+                    if (!messageId) return;
+                    var avatar = escapeHtml(item.senderAvatarUrl || "https://via.placeholder.com/46");
+                    var timeText = formatSearchTime(item.sentAt);
+                    var contentText = (item.content || "").trim();
+                    if (!contentText) {
+                        contentText = "(Tin nhắn đính kèm)";
+                    }
+
+                    html += '<button type="button" class="message-search-item" data-message-id="' + messageId + '">';
+                    html += '<img class="message-search-avatar" src="' + avatar + '" alt="avatar" />';
+                    html += '<div class="message-search-meta">';
+                    html += '<div class="message-search-sender">' + escapeHtml(item.senderName || "") + "</div>";
+                    html += '<div class="message-search-content-row">';
+                    html += '<div class="message-search-content">' + highlightSearchKeyword(contentText, keyword) + "</div>";
+                    if (timeText) {
+                        html += '<div class="message-search-time">· ' + escapeHtml(timeText) + "</div>";
+                    }
+                    html += "</div>";
+                    html += "</div>";
+                    html += "</button>";
+                });
+
+                messageSearchResults.innerHTML = html || '<div class="message-search-empty">Không tìm thấy tin nhắn phù hợp.</div>';
+            }
+
+            function highlightMessageRow(messageId) {
+                if (!panel) return null;
+
+                var highlighted = panel.querySelectorAll(".message-row.search-hit");
+                highlighted.forEach(function (element) {
+                    element.classList.remove("search-hit");
+                });
+
+                var target = panel.querySelector('.message-row[data-message-id="' + String(messageId) + '"]');
+                if (!target) return null;
+
+                target.classList.add("search-hit");
+                setTimeout(function () {
+                    target.classList.remove("search-hit");
+                }, 2500);
+
+                return target;
+            }
+
+            async function jumpToMessage(messageId) {
+                var id = Number(messageId || 0);
+                if (!id || !panel) return;
+
+                var target = highlightMessageRow(id);
+                var attempts = 0;
+                while (!target && hasMorePages && attempts < 30) {
+                    var loaded = await loadOlderMessages();
+                    if (!loaded) break;
+                    attempts += 1;
+                    target = highlightMessageRow(id);
+                }
+
+                if (!target) return;
+                target.scrollIntoView({ behavior: "smooth", block: "center" });
+            }
+
+            function closeAllMessageMenus() {
+                if (!panel) return;
+                var openedMenus = panel.querySelectorAll(".message-more-menu.open");
+                openedMenus.forEach(function (menu) {
+                    menu.classList.remove("open");
+                });
+            }
+
+            function toggleMessageMenu(toggleButton) {
+                var wrapper = toggleButton ? toggleButton.closest(".message-more-wrap") : null;
+                var menu = wrapper ? wrapper.querySelector(".message-more-menu") : null;
+                if (!menu) return;
+
+                var shouldOpen = !menu.classList.contains("open");
+                closeAllMessageMenus();
+                if (shouldOpen) {
+                    menu.classList.add("open");
+                }
+            }
+
+            async function searchConversationMessages(keyword) {
+                if (!messageSearchResults) return;
+                if (!conversationId) {
+                    messageSearchResults.innerHTML = '<div class="message-search-empty">Hãy chọn một đoạn chat trước khi tìm kiếm.</div>';
+                    setMessageSearchCount(null, false);
+                    return;
+                }
+
+                var trimmed = (keyword || "").trim();
+                if (!trimmed) {
+                    messageSearchResults.innerHTML = '<div class="message-search-empty">Nhập nội dung để tìm lịch sử tin nhắn.</div>';
+                    setMessageSearchCount(null, false);
+                    return;
+                }
+
+                var requestId = ++messageSearchRequestSequence;
+                messageSearchResults.innerHTML = '<div class="message-search-empty">Đang tìm kiếm...</div>';
+                try {
+                    var response = await fetch(
+                        "/conversations/search-messages-json?conversationId=" + conversationId + "&q=" + encodeURIComponent(trimmed) + "&page=1&pageSize=40",
+                        {
+                            method: "GET",
+                            headers: {
+                                "X-Requested-With": "XMLHttpRequest"
+                            },
+                            cache: "no-store"
+                        });
+
+                    if (response.status === 401) {
+                        window.location.href = "/Account/Login";
+                        return;
+                    }
+
+                    if (!response.ok) return;
+                    var payload = await response.json();
+                    if (requestId !== messageSearchRequestSequence) return;
+                    var items = Array.isArray(payload)
+                        ? payload
+                        : (Array.isArray(payload.items) ? payload.items : []);
+                    var totalCount = Array.isArray(payload)
+                        ? items.length
+                        : Number(payload.totalCount || 0);
+                    setMessageSearchCount(totalCount, true);
+                    renderMessageSearchResults(items, trimmed);
+                } catch {
+                    // Ignore transient search errors.
+                }
+            }
+
+            function renderMessages(messages) {
+                if (!panel) return;
+                allMessages = Array.isArray(messages) ? messages : [];
+
+                if (!Array.isArray(allMessages) || allMessages.length === 0) {
+                    panel.innerHTML = '<div class="time-divider">Chưa có tin nhắn</div>';
+                    panel.dataset.lastMessageId = "0";
+                    return;
+                }
+
+                var html = "";
+                allMessages.forEach(function (message) {
+                    var isMine = message.senderId === currentUserId;
+                    var sender = escapeHtml(isMine ? "Bạn" : message.senderName);
+                    var timeText = formatTime(message.sentAt);
+                    var timeLabel = timeText + (message.editedAt ? " (đã sửa)" : "");
+                    var avatar = escapeHtml(message.senderAvatarUrl || "https://via.placeholder.com/32");
+                    var content = escapeHtml(message.content || "");
+                    var replyTo = message.replyTo || null;
+                    var attachments = Array.isArray(message.attachments) ? message.attachments : [];
+                    var reactions = Array.isArray(message.reactions) ? message.reactions : [];
+                    var seenBy = Array.isArray(message.seenBy) ? message.seenBy : [];
+                    var isDeleted = Boolean(message.isDeletedForEveryone);
+                    var messageId = Number(message.id || 0);
+                    var isPinned = isMessagePinned(messageId);
+                    var replyHtml = "";
+                    if (replyTo) {
+                        var replySender = Number(replyTo.senderId || 0) === currentUserId ? "Bạn" : escapeHtml(replyTo.senderName || "");
+                        var replyContent = escapeHtml(replyTo.isDeletedForEveryone ? "Tin nhắn đã được gỡ" : (replyTo.content || ""));
+                        replyHtml = '<div class="reply-snippet"><strong>' + replySender + '</strong><span>' + replyContent + "</span></div>";
+                    }
+
+                    var attachmentsHtml = isDeleted ? "" : attachments.map(function (attachment) {
+                        var fileName = escapeHtml(attachment.fileName);
+                        var fileUrl = escapeHtml(attachment.fileUrl);
+                        if (isImageAttachment(attachment)) {
+                            return '<div class="bubble"><a href="' + fileUrl + '" target="_blank" rel="noopener noreferrer"><img src="' + fileUrl + '" alt="' + fileName + '" class="attachment-image" /></a></div>';
+                        }
+
+                        return '<div class="bubble"><a href="' + fileUrl + '" target="_blank" rel="noopener noreferrer">' + fileName + "</a></div>";
+                    }).join("");
+
+                    var reactionHtml = reactions.map(function (reaction) {
+                        var className = "reaction-chip" + (reaction.isMine ? " mine" : "");
+                        return '<span class="' + className + '">' + getReactionSymbol(reaction.reactionType) + " " + Number(reaction.count || 0) + "</span>";
+                    }).join("");
+
+                    var actionsHtml = '<div class="message-inline-actions">';
+                    if (!isDeleted) {
+                        actionsHtml += '<button type="button" class="message-action-icon" data-action="react-like" data-message-id="' + messageId + '" title="Bày tỏ cảm xúc"><i class="fa-regular fa-face-smile"></i></button>';
+                    }
+                    actionsHtml += '<button type="button" class="message-action-icon" data-action="reply" data-message-id="' + messageId + '" title="Trả lời"><i class="fa-solid fa-reply"></i></button>';
+                    actionsHtml += '<div class="message-more-wrap">';
+                    actionsHtml += '<button type="button" class="message-action-icon" data-action="toggle-menu" data-message-id="' + messageId + '" title="Khác"><i class="fa-solid fa-ellipsis"></i></button>';
+                    actionsHtml += '<div class="message-more-menu" data-message-id="' + messageId + '">';
+                    actionsHtml += '<button type="button" data-action="menu-remove" data-message-id="' + messageId + '">Gỡ</button>';
+                    actionsHtml += '<button type="button" data-action="toggle-pin" data-message-id="' + messageId + '">' + (isPinned ? "Bỏ ghim" : "Ghim") + "</button>";
+                    actionsHtml += "</div></div></div>";
+
+                    var seenHtml = "";
+                    if (isMine && seenBy.length > 0) {
+                        var seenAvatars = seenBy.slice(0, 4).map(function (member) {
+                            var seenAvatar = escapeHtml(member.avatarUrl || "https://via.placeholder.com/18");
+                            return '<img src="' + seenAvatar + '" alt="seen" />';
+                        }).join("");
+                        seenHtml = '<div class="seen-icons">' + seenAvatars + "</div>";
+                    }
+
+                    html += '<div class="message-row ' + (isMine ? "own" : "") + '" data-message-id="' + messageId + '">';
+                    if (!isMine) {
+                        html += '<img class="message-avatar" src="' + avatar + '" alt="avatar" />';
+                    }
+                    html += '<div class="message-body">';
+                    html += '<div class="message-group">';
+                    if (!isMine && isGroupConversation) {
+                        html += '<div class="sender-name">' + sender + "</div>";
+                    }
+                    html += replyHtml;
+                    html += '<div class="bubble">' + content + "</div>";
+                    html += attachmentsHtml;
+                    if (isPinned) {
+                        html += '<div class="message-pin"><i class="fa-solid fa-thumbtack"></i><span>Đã ghim</span></div>';
+                    }
+                    if (reactionHtml) {
+                        html += '<div class="reaction-row">' + reactionHtml + "</div>";
+                    }
+                    html += seenHtml;
+                    html += "</div>";
+                    html += '<div class="message-hover-time">' + escapeHtml(timeLabel) + "</div>";
+                    html += actionsHtml;
+                    html += "</div></div>";
+                });
+
+                panel.innerHTML = html;
+                panel.dataset.lastMessageId = String(allMessages[allMessages.length - 1].id || 0);
+            }
+
+            function mergeLatestPage(latestPage) {
+                var normalizedLatest = Array.isArray(latestPage) ? latestPage : [];
+                var latestIds = {};
+                normalizedLatest.forEach(function (item) {
+                    latestIds[String(Number(item.id || 0))] = true;
+                });
+
+                var retainedOlder = allMessages.filter(function (item) {
+                    return !latestIds[String(Number(item.id || 0))];
+                });
+
+                allMessages = retainedOlder.concat(normalizedLatest);
+                allMessages.sort(function (a, b) {
+                    var sentDiff = parseDate(a.sentAt) - parseDate(b.sentAt);
+                    if (sentDiff !== 0) return sentDiff;
+                    return Number(a.id || 0) - Number(b.id || 0);
+                });
+            }
+
+            async function loadLatestMessages(forceScroll, forceRender) {
+                if (!panel || !conversationId) return;
+                try {
+                    var response = await fetch(
+                        "/conversations/messages-json?conversationId=" + conversationId + "&page=1&pageSize=" + pageSize + "&markRead=true",
+                        {
+                            method: "GET",
+                            headers: {
+                                "X-Requested-With": "XMLHttpRequest"
+                            },
+                            cache: "no-store"
+                        });
+
+                    if (response.status === 401) {
+                        window.location.href = "/Account/Login";
+                        return;
+                    }
+
+                    if (!response.ok) return;
+                    var latestMessages = await response.json();
+                    var newSnapshot = computeLatestPageSnapshot(latestMessages);
+                    if (!forceRender && !forceScroll && latestPageSnapshot === newSnapshot) {
+                        return;
+                    }
+
+                    latestPageSnapshot = newSnapshot;
+                    hasMorePages = Array.isArray(latestMessages) && latestMessages.length === pageSize;
+                    loadedPage = 1;
+
+                    var distanceToBottom = panel.scrollHeight - panel.scrollTop - panel.clientHeight;
+                    var shouldStickBottom = forceScroll || distanceToBottom < 120;
+                    mergeLatestPage(latestMessages);
+                    renderMessages(allMessages);
+                    if (shouldStickBottom) {
+                        scrollToBottom();
+                    }
+
+                    await refreshConversationList();
+                } catch {
+                    // Keep UI responsive even if background refresh fails.
+                }
+            }
+
+            async function loadOlderMessages() {
+                if (!panel || !conversationId || !hasMorePages || isLoadingOlder) return false;
+
+                isLoadingOlder = true;
+                var nextPage = loadedPage + 1;
+                var beforeHeight = panel.scrollHeight;
+                var beforeTop = panel.scrollTop;
+                var didLoadAny = false;
+
+                try {
+                    var response = await fetch(
+                        "/conversations/messages-json?conversationId=" + conversationId + "&page=" + nextPage + "&pageSize=" + pageSize + "&markRead=false",
+                        {
+                            method: "GET",
+                            headers: {
+                                "X-Requested-With": "XMLHttpRequest"
+                            },
+                            cache: "no-store"
+                        });
+
+                    if (response.status === 401) {
+                        window.location.href = "/Account/Login";
+                        return;
+                    }
+
+                    if (!response.ok) return;
+                    var olderMessages = await response.json();
+                    if (!Array.isArray(olderMessages) || olderMessages.length === 0) {
+                        hasMorePages = false;
+                        return false;
+                    }
+
+                    var existing = {};
+                    allMessages.forEach(function (item) {
+                        existing[String(Number(item.id || 0))] = true;
+                    });
+
+                    var toPrepend = olderMessages.filter(function (item) {
+                        return !existing[String(Number(item.id || 0))];
+                    });
+
+                    if (toPrepend.length > 0) {
+                        allMessages = toPrepend.concat(allMessages);
+                        renderMessages(allMessages);
+                        panel.scrollTop = panel.scrollHeight - beforeHeight + beforeTop;
+                        didLoadAny = true;
+                    }
+
+                    loadedPage = nextPage;
+                    if (olderMessages.length < pageSize) {
+                        hasMorePages = false;
+                    }
+                } catch {
+                    // Ignore transient load older errors.
+                } finally {
+                    isLoadingOlder = false;
+                }
+
+                return didLoadAny;
+            }
+
+            async function initRealtime() {
+                if (!conversationId || !window.signalR || !realtimeToken || !chatHubUrl) {
+                    startPolling();
+                    return;
+                }
+
+                connection = new signalR.HubConnectionBuilder()
+                    .withUrl(chatHubUrl, {
+                        accessTokenFactory: function () { return realtimeToken; }
+                    })
+                    .withAutomaticReconnect([0, 2000, 5000, 10000])
+                    .build();
+
+                connection.on("MessageReceived", function (message) {
+                    applyRealtimeMessage(message, false);
+                });
+
+                connection.on("MessageUpdated", function (message) {
+                    applyRealtimeMessage(message, true);
+                });
+
+                connection.on("SeenUpdated", function (payload) {
+                    if (!payload) return;
+                    if (Number(payload.conversationId || 0) !== conversationId) return;
+                    if (Number(payload.userId || 0) === currentUserId) return;
+                    scheduleRealtimeSync(true);
+                });
+
+                connection.on("TypingUpdated", function (payload) {
+                    if (!payload) return;
+                    if (Number(payload.conversationId || 0) !== conversationId) return;
+
+                    var typingUserId = Number(payload.userId || 0);
+                    if (!typingUserId || typingUserId === currentUserId) return;
+
+                    if (payload.isTyping) {
+                        typingUsers[String(typingUserId)] = payload.userName || "Ai đó";
+                    } else {
+                        delete typingUsers[String(typingUserId)];
+                    }
+                    renderTypingIndicator();
+                });
+
+                connection.on("ConversationUpdated", function (payload) {
+                    if (!payload) return;
+                    scheduleConversationListRefresh(40);
+                });
+
+                connection.onreconnecting(function () {
+                    startPolling();
+                });
+
+                connection.onreconnected(async function () {
+                    try {
+                        await connection.invoke("JoinConversation", conversationId);
+                        stopPolling();
+                        await loadLatestMessages(false, true);
+                        scheduleConversationListRefresh(20);
+                    } catch {
+                        startPolling();
+                    }
+                });
+
+                connection.onclose(function () {
+                    startPolling();
+                });
+
+                try {
+                    await connection.start();
+                    await connection.invoke("JoinConversation", conversationId);
+                    stopPolling();
+                    scheduleConversationListRefresh(20);
+                } catch {
+                    startPolling();
+                }
+            }
+
+            async function postWithToken(endpoint, additionalFields) {
+                var body = getRequestTokenParams();
+                var fields = additionalFields || {};
+                Object.keys(fields).forEach(function (key) {
+                    body.append(key, fields[key]);
+                });
+
+                return await fetch(endpoint, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+                        "X-Requested-With": "XMLHttpRequest"
+                    },
+                    body: body.toString(),
+                    credentials: "same-origin"
+                });
+            }
+
+            async function toggleReaction(messageId, reactionType) {
+                try {
+                    var response = await postWithToken(
+                        "/conversations/message/" + encodeURIComponent(String(messageId)) + "/reaction",
+                        { reactionType: reactionType });
+
+                    if (response.status === 401) {
+                        window.location.href = "/Account/Login";
+                        return;
+                    }
+
+                    if (!response.ok) return;
+                    await loadLatestMessages(false, true);
+                } catch {
+                    // Ignore transient reaction errors.
+                }
+            }
+
+            async function unsendMessage(messageId) {
+                try {
+                    var response = await postWithToken(
+                        "/conversations/message/" + encodeURIComponent(String(messageId)) + "/unsend");
+
+                    if (response.status === 401) {
+                        window.location.href = "/Account/Login";
+                        return;
+                    }
+
+                    if (!response.ok) return;
+                    await loadLatestMessages(false, true);
+                    await refreshConversationList();
+                } catch {
+                    // Ignore transient unsend errors.
+                }
+            }
+
+            async function editMessage(messageId, content) {
+                try {
+                    var response = await postWithToken(
+                        "/conversations/message/" + encodeURIComponent(String(messageId)) + "/edit",
+                        { content: content });
+
+                    if (response.status === 401) {
+                        window.location.href = "/Account/Login";
+                        return false;
+                    }
+
+                    if (!response.ok) return false;
+                    await loadLatestMessages(false, true);
+                    return true;
+                } catch {
+                    return false;
+                }
+            }
+
+            async function hideMessageForMe(messageId) {
+                try {
+                    var response = await postWithToken("/conversations/message/" + encodeURIComponent(String(messageId)) + "/hide");
+
+                    if (response.status === 401) {
+                        window.location.href = "/Account/Login";
+                        return;
+                    }
+
+                    if (!response.ok) return;
+                    allMessages = allMessages.filter(function (item) {
+                        return Number(item.id || 0) !== Number(messageId);
+                    });
+                    renderMessages(allMessages);
+                    await refreshConversationList();
+                } catch {
+                    // Ignore transient hide errors.
+                }
+            }
+
+            if (panel) {
+                panel.addEventListener("click", function (event) {
+                    var trigger = event.target.closest("[data-action]");
+                    if (!trigger) {
+                        closeAllMessageMenus();
+                        return;
+                    }
+
+                    var action = trigger.getAttribute("data-action");
+                    var messageId = Number(trigger.getAttribute("data-message-id") || 0);
+                    if (!action || !messageId) return;
+
+                    var targetMessage = allMessages.find(function (item) {
+                        return Number(item.id || 0) === messageId;
+                    });
+
+                    if (action === "toggle-menu") {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        toggleMessageMenu(trigger);
+                        return;
+                    }
+
+                    closeAllMessageMenus();
+
+                    if (action === "reply") {
+                        if (targetMessage) {
+                            setReplyMessage(targetMessage);
+                            if (messageInput) {
+                                messageInput.focus();
+                            }
+                        }
+                        return;
+                    }
+
+                    if (action === "react-like") {
+                        toggleReaction(messageId, "like");
+                        return;
+                    }
+
+                    if (action === "menu-remove") {
+                        var canUnsend = targetMessage && Number(targetMessage.senderId || 0) === currentUserId && !Boolean(targetMessage.isDeletedForEveryone);
+                        if (canUnsend) {
+                            if (window.confirm("Bạn muốn gỡ tin nhắn này?")) {
+                                unsendMessage(messageId);
+                            }
+                            return;
+                        }
+
+                        if (window.confirm("Gỡ tin nhắn này phía bạn?")) {
+                            hideMessageForMe(messageId);
+                        }
+                        return;
+                    }
+
+                    if (action === "toggle-pin") {
+                        togglePinnedMessage(messageId);
+                        renderMessages(allMessages);
+                        return;
+                    }
+                });
+
+                panel.addEventListener("scroll", function () {
+                    closeAllMessageMenus();
+                    if (panel.scrollTop < 80) {
+                        loadOlderMessages();
+                    }
+                });
+            }
+
+            document.addEventListener("click", function (event) {
+                if (!panel) return;
+                if (event.target.closest(".message-more-wrap")) return;
+                closeAllMessageMenus();
+            });
+
+            if (shouldScroll) {
+                scrollToBottom();
+            }
+
+            loadPinnedMessagesFromStorage();
+            setConversationDisplay(currentConversationName, currentConversationAvatar);
+            updateCreateGroupSubmitState();
+            updateAddMemberSubmitState();
+            setRightPanelVisible(true);
+            initRealtime();
+            loadLatestMessages(shouldScroll, true);
+            toggleMessageSearchPanel(false);
+
+            if (sendForm && messageInput && sendButton && conversationId > 0) {
+                sendForm.addEventListener("submit", async function (event) {
+                    event.preventDefault();
+
+                    var text = messageInput.value.trim();
+                    var hasFiles = attachmentInput && attachmentInput.files && attachmentInput.files.length > 0;
+                    if (!text && !hasFiles && !selectedEditMessage) return;
+
+                    sendButton.disabled = true;
+                    try {
+                        await sendTypingState(false);
+                        if (typingStopTimer) {
+                            clearTimeout(typingStopTimer);
+                            typingStopTimer = null;
+                        }
+
+                        if (selectedEditMessage) {
+                            if (hasFiles || !text) {
+                                return;
+                            }
+
+                            var edited = await editMessage(selectedEditMessage.id, text);
+                            if (!edited) {
+                                return;
+                            }
+
+                            setEditMessage(null, false);
+                            messageInput.value = "";
+                            return;
+                        }
+
+                        var formData = new FormData(sendForm);
+                        var response = await fetch(sendForm.action, {
+                            method: "POST",
+                            headers: {
+                                "X-Requested-With": "XMLHttpRequest"
+                            },
+                            body: formData,
+                            credentials: "same-origin"
+                        });
+                        if (response.status === 401) {
+                            window.location.href = "/Account/Login";
+                            return;
+                        }
+
+                        if (!response.ok) {
+                            return;
+                        }
+
+                        messageInput.value = "";
+                        if (attachmentInput) {
+                            attachmentInput.value = "";
+                            renderAttachmentPreview();
+                        }
+                        setReplyMessage(null);
+                        await loadLatestMessages(true, true);
+                        await refreshConversationList();
+                    } finally {
+                        sendButton.disabled = false;
+                        messageInput.focus();
+                    }
+                });
+
+                messageInput.addEventListener("input", function () {
+                    if (!conversationId) return;
+
+                    var hasText = messageInput.value.trim().length > 0;
+                    if (!hasText) {
+                        sendTypingState(false);
+                        if (typingStopTimer) {
+                            clearTimeout(typingStopTimer);
+                            typingStopTimer = null;
+                        }
+                        return;
+                    }
+
+                    sendTypingState(true);
+                    if (typingStopTimer) {
+                        clearTimeout(typingStopTimer);
+                    }
+
+                    typingStopTimer = setTimeout(function () {
+                        sendTypingState(false);
+                        typingStopTimer = null;
+                    }, 1200);
+                });
+
+                messageInput.addEventListener("blur", function () {
+                    sendTypingState(false);
+                    if (typingStopTimer) {
+                        clearTimeout(typingStopTimer);
+                        typingStopTimer = null;
+                    }
+                });
+            }
+
+            var input = document.getElementById("conversationSearchInput");
+            if (input) {
+                var debounceTimer = null;
+                input.addEventListener("input", function () {
+                    if (debounceTimer) {
+                        clearTimeout(debounceTimer);
+                    }
+
+                    debounceTimer = setTimeout(function () {
+                        searchUsersRealtime(input.value);
+                    }, 400);
+                });
+
+                if (input.value && input.value.trim()) {
+                    searchUsersRealtime(input.value);
+                }
+            }
+
+            if (openMessageSearchButton) {
+                openMessageSearchButton.addEventListener("click", function () {
+                    toggleMessageSearchPanel(true);
+                    searchConversationMessages(messageSearchInput ? messageSearchInput.value : "");
+                });
+            }
+
+            if (closeMessageSearchButton) {
+                closeMessageSearchButton.addEventListener("click", function () {
+                    toggleMessageSearchPanel(false);
+                });
+            }
+
+            if (messageSearchInput) {
+                var messageSearchDebounce = null;
+                messageSearchInput.addEventListener("input", function () {
+                    if (messageSearchDebounce) {
+                        clearTimeout(messageSearchDebounce);
+                    }
+
+                    messageSearchDebounce = setTimeout(function () {
+                        searchConversationMessages(messageSearchInput.value);
+                    }, 280);
+                });
+
+                messageSearchInput.addEventListener("keydown", function (event) {
+                    if (event.key === "Escape") {
+                        toggleMessageSearchPanel(false);
+                    }
+                });
+            }
+
+            if (clearMessageSearchButton) {
+                clearMessageSearchButton.addEventListener("click", function () {
+                    if (!messageSearchInput) return;
+                    messageSearchInput.value = "";
+                    searchConversationMessages("");
+                    messageSearchInput.focus();
+                });
+            }
+
+            if (toggleRightPanelButton) {
+                toggleRightPanelButton.addEventListener("click", function () {
+                    setRightPanelVisible(!isRightPanelVisible);
+                });
+            }
+
+            if (rightInfoPanel) {
+                rightInfoPanel.addEventListener("click", function (event) {
+                    var header = event.target.closest('[data-action="toggle-accordion"]');
+                    if (!header) return;
+                    var targetId = header.getAttribute("data-target") || "";
+                    toggleAccordionBody(targetId);
+                });
+            }
+
+            if (openPinnedMessagesButton) {
+                openPinnedMessagesButton.addEventListener("click", function () {
+                    renderPinnedMessagesModal();
+                    setModalOpen(pinnedMessagesModal, true);
+                });
+            }
+
+            if (closePinnedMessagesModalButton) {
+                closePinnedMessagesModalButton.addEventListener("click", function () {
+                    setModalOpen(pinnedMessagesModal, false);
+                });
+            }
+
+            if (pinnedMessagesModal) {
+                pinnedMessagesModal.addEventListener("click", function (event) {
+                    if (event.target === pinnedMessagesModal) {
+                        setModalOpen(pinnedMessagesModal, false);
+                        return;
+                    }
+
+                    var item = event.target.closest('[data-action="open-pinned-message"]');
+                    if (!item) return;
+                    var messageId = Number(item.getAttribute("data-message-id") || 0);
+                    if (!messageId) return;
+                    setModalOpen(pinnedMessagesModal, false);
+                    jumpToMessage(messageId);
+                });
+            }
+
+            if (openRenameConversationButton) {
+                openRenameConversationButton.addEventListener("click", function () {
+                    openRenameConversationModal();
+                });
+            }
+
+            if (closeRenameConversationModalButton) {
+                closeRenameConversationModalButton.addEventListener("click", function () {
+                    setModalOpen(renameConversationModal, false);
+                });
+            }
+
+            if (cancelRenameConversationButton) {
+                cancelRenameConversationButton.addEventListener("click", function () {
+                    setModalOpen(renameConversationModal, false);
+                });
+            }
+
+            if (renameConversationInput) {
+                renameConversationInput.addEventListener("input", function () {
+                    syncRenameCount();
+                });
+            }
+
+            if (saveRenameConversationButton) {
+                saveRenameConversationButton.addEventListener("click", async function () {
+                    if (!renameConversationInput) return;
+                    var nextName = renameConversationInput.value.trim();
+                    if (!nextName) return;
+
+                    saveRenameConversationButton.disabled = true;
+                    try {
+                        var ok = await updateConversationSettings({ name: nextName });
+                        if (!ok) return;
+                        setModalOpen(renameConversationModal, false);
+                    } finally {
+                        syncRenameCount();
+                    }
+                });
+            }
+
+            if (renameConversationModal) {
+                renameConversationModal.addEventListener("click", function (event) {
+                    if (event.target === renameConversationModal) {
+                        setModalOpen(renameConversationModal, false);
+                    }
+                });
+            }
+
+            if (changeConversationImageButton && conversationImageInput) {
+                changeConversationImageButton.addEventListener("click", function () {
+                    conversationImageInput.click();
+                });
+
+                conversationImageInput.addEventListener("change", async function () {
+                    var file = conversationImageInput.files && conversationImageInput.files[0];
+                    if (!file) return;
+                    await uploadConversationImage(file);
+                    conversationImageInput.value = "";
+                });
+            }
+
+            if (openAddMemberButton) {
+                openAddMemberButton.addEventListener("click", function () {
+                    resetAddMemberState();
+                    setModalOpen(addMemberModal, true);
+                    if (addMemberSearchInput) {
+                        addMemberSearchInput.focus();
+                    }
+                });
+            }
+
+            if (closeAddMemberModalButton) {
+                closeAddMemberModalButton.addEventListener("click", function () {
+                    setModalOpen(addMemberModal, false);
+                });
+            }
+
+            if (cancelAddMemberButton) {
+                cancelAddMemberButton.addEventListener("click", function () {
+                    setModalOpen(addMemberModal, false);
+                });
+            }
+
+            if (addMemberModal) {
+                addMemberModal.addEventListener("click", function (event) {
+                    if (event.target === addMemberModal) {
+                        setModalOpen(addMemberModal, false);
+                    }
+                });
+            }
+
+            if (addMemberSearchInput) {
+                var addMemberDebounce = null;
+                addMemberSearchInput.addEventListener("input", function () {
+                    if (addMemberDebounce) {
+                        clearTimeout(addMemberDebounce);
+                    }
+                    addMemberDebounce = setTimeout(function () {
+                        searchUsersForAddMember(addMemberSearchInput.value);
+                    }, 260);
+                });
+            }
+
+            if (addMemberResults) {
+                addMemberResults.addEventListener("click", function (event) {
+                    var button = event.target.closest('[data-action="toggle-add-member"]');
+                    if (!button) return;
+
+                    var userId = Number(button.getAttribute("data-user-id") || 0);
+                    if (!userId) return;
+
+                    var key = String(userId);
+                    if (selectedAddMemberMap[key]) {
+                        delete selectedAddMemberMap[key];
+                    } else {
+                        selectedAddMemberMap[key] = {
+                            userId: userId,
+                            fullName: decodeHtmlEntities(button.getAttribute("data-user-name") || ""),
+                            email: decodeHtmlEntities(button.getAttribute("data-user-email") || ""),
+                            avatarUrl: decodeHtmlEntities(button.getAttribute("data-user-avatar") || "")
+                        };
+                    }
+
+                    renderSelectedAddMembers();
+                    updateAddMemberSubmitState();
+                    if (addMemberSearchInput && addMemberSearchInput.value.trim()) {
+                        searchUsersForAddMember(addMemberSearchInput.value);
+                    }
+                });
+            }
+
+            if (selectedAddMembers) {
+                selectedAddMembers.addEventListener("click", function (event) {
+                    var removeButton = event.target.closest('[data-action="remove-add-member"]');
+                    if (!removeButton) return;
+                    var userId = Number(removeButton.getAttribute("data-user-id") || 0);
+                    if (!userId) return;
+                    delete selectedAddMemberMap[String(userId)];
+                    renderSelectedAddMembers();
+                    updateAddMemberSubmitState();
+                    if (addMemberSearchInput && addMemberSearchInput.value.trim()) {
+                        searchUsersForAddMember(addMemberSearchInput.value);
+                    }
+                });
+            }
+
+            if (submitAddMemberButton) {
+                submitAddMemberButton.addEventListener("click", function () {
+                    submitAddMembers();
+                });
+            }
+
+            if (openCreateGroupButton) {
+                openCreateGroupButton.addEventListener("click", function () {
+                    openCreateGroupModal();
+                });
+            }
+
+            if (closeCreateGroupModalButton) {
+                closeCreateGroupModalButton.addEventListener("click", function () {
+                    closeCreateGroupModal();
+                });
+            }
+
+            if (cancelCreateGroupButton) {
+                cancelCreateGroupButton.addEventListener("click", function () {
+                    closeCreateGroupModal();
+                });
+            }
+
+            if (createGroupModal) {
+                createGroupModal.addEventListener("click", function (event) {
+                    if (event.target === createGroupModal) {
+                        closeCreateGroupModal();
+                    }
+                });
+            }
+
+            if (createGroupSearchInput) {
+                var groupSearchDebounce = null;
+                createGroupSearchInput.addEventListener("input", function () {
+                    if (groupSearchDebounce) {
+                        clearTimeout(groupSearchDebounce);
+                    }
+
+                    groupSearchDebounce = setTimeout(function () {
+                        searchUsersForCreateGroup(createGroupSearchInput.value);
+                    }, 260);
+                });
+
+                createGroupSearchInput.addEventListener("keydown", function (event) {
+                    if (event.key === "Escape") {
+                        closeCreateGroupModal();
+                    }
+                });
+            }
+
+            if (createGroupUserResults) {
+                createGroupUserResults.addEventListener("click", function (event) {
+                    var button = event.target.closest('[data-action="toggle-group-member"]');
+                    if (!button) return;
+                    addOrRemoveGroupMemberFromButton(button);
+                });
+            }
+
+            if (selectedGroupMembers) {
+                selectedGroupMembers.addEventListener("click", function (event) {
+                    var removeButton = event.target.closest('[data-action="remove-selected-member"]');
+                    if (!removeButton) return;
+
+                    var userId = Number(removeButton.getAttribute("data-user-id") || 0);
+                    if (!userId) return;
+
+                    delete selectedGroupMemberMap[String(userId)];
+                    renderSelectedGroupMembers();
+                    updateCreateGroupSubmitState();
+                    if (createGroupSearchInput && createGroupSearchInput.value.trim()) {
+                        searchUsersForCreateGroup(createGroupSearchInput.value);
+                    }
+                });
+            }
+
+            if (submitCreateGroupButton) {
+                submitCreateGroupButton.addEventListener("click", function () {
+                    submitCreateGroup();
+                });
+            }
+
+            window.addEventListener("resize", function () {
+                if (window.matchMedia("(max-width: 1200px)").matches) {
+                    return;
+                }
+
+                setRightPanelVisible(isRightPanelVisible);
+            });
+
+            document.addEventListener("keydown", function (event) {
+                if (event.key !== "Escape") return;
+                if (createGroupModal && createGroupModal.classList.contains("open")) {
+                    closeCreateGroupModal();
+                    return;
+                }
+                if (addMemberModal && addMemberModal.classList.contains("open")) {
+                    setModalOpen(addMemberModal, false);
+                    return;
+                }
+                if (renameConversationModal && renameConversationModal.classList.contains("open")) {
+                    setModalOpen(renameConversationModal, false);
+                    return;
+                }
+                if (pinnedMessagesModal && pinnedMessagesModal.classList.contains("open")) {
+                    setModalOpen(pinnedMessagesModal, false);
+                }
+            });
+
+            if (messageSearchResults) {
+                messageSearchResults.addEventListener("click", function (event) {
+                    var item = event.target.closest(".message-search-item");
+                    if (!item) return;
+
+                    var messageId = Number(item.getAttribute("data-message-id") || 0);
+                    if (!messageId) return;
+                    jumpToMessage(messageId);
+                });
+            }
+
+            if (pickFilesButton && attachmentInput) {
+                pickFilesButton.addEventListener("click", function () {
+                    attachmentInput.click();
+                });
+
+                attachmentInput.addEventListener("change", function () {
+                    renderAttachmentPreview();
+                });
+            }
+
+            window.addEventListener("beforeunload", function () {
+                if (realtimeSyncTimer) {
+                    clearTimeout(realtimeSyncTimer);
+                    realtimeSyncTimer = null;
+                }
+                if (conversationRefreshTimer) {
+                    clearTimeout(conversationRefreshTimer);
+                    conversationRefreshTimer = null;
+                }
+                if (!connection || connection.state !== signalR.HubConnectionState.Connected) return;
+                sendTypingState(false);
+                connection.invoke("LeaveConversation", conversationId);
+            });
+        })();
+    </script>
+</body>
+</html>
+

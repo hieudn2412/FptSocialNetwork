@@ -1,0 +1,4 @@
+D:\FA26\PRN232\FptSocialNetwork\BusinessObjects\obj\Debug\net8.0\BusinessObjects.GeneratedMSBuildEditorConfig.editorconfig
+D:\FA26\PRN232\FptSocialNetwork\BusinessObjects\obj\Debug\net8.0\BusinessObjects.AssemblyInfoInputs.cache
+D:\FA26\PRN232\FptSocialNetwork\BusinessObjects\obj\Debug\net8.0\BusinessObjects.AssemblyInfo.cs
+D:\FA26\PRN232\FptSocialNetwork\BusinessObjects\obj\Debug\net8.0\BusinessObjects.csproj.CoreCompileInputs.cache

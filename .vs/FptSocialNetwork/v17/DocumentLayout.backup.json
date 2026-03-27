@@ -1,0 +1,389 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "D:\\FA26\\PRN232\\FptSocialNetwork\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{5C110180-B512-48F3-8657-DDE79F73C57C}|FptSocialNetwork.Client\\FptSocialNetwork.Client.csproj|d:\\fa26\\prn232\\fptsocialnetwork\\fptsocialnetwork.client\\views\\conversation\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{5C110180-B512-48F3-8657-DDE79F73C57C}|FptSocialNetwork.Client\\FptSocialNetwork.Client.csproj|solutionrelative:fptsocialnetwork.client\\views\\conversation\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5C110180-B512-48F3-8657-DDE79F73C57C}|FptSocialNetwork.Client\\FptSocialNetwork.Client.csproj|d:\\fa26\\prn232\\fptsocialnetwork\\fptsocialnetwork.client\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{5C110180-B512-48F3-8657-DDE79F73C57C}|FptSocialNetwork.Client\\FptSocialNetwork.Client.csproj|solutionrelative:fptsocialnetwork.client\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{31C72BD8-4ECF-4280-9C83-64592296563A}|FptSocialNetwork.Api\\FptSocialNetwork.Api.csproj|d:\\fa26\\prn232\\fptsocialnetwork\\fptsocialnetwork.api\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{31C72BD8-4ECF-4280-9C83-64592296563A}|FptSocialNetwork.Api\\FptSocialNetwork.Api.csproj|solutionrelative:fptsocialnetwork.api\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5C110180-B512-48F3-8657-DDE79F73C57C}|FptSocialNetwork.Client\\FptSocialNetwork.Client.csproj|d:\\fa26\\prn232\\fptsocialnetwork\\fptsocialnetwork.client\\services\\messageapiservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5C110180-B512-48F3-8657-DDE79F73C57C}|FptSocialNetwork.Client\\FptSocialNetwork.Client.csproj|solutionrelative:fptsocialnetwork.client\\services\\messageapiservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5C110180-B512-48F3-8657-DDE79F73C57C}|FptSocialNetwork.Client\\FptSocialNetwork.Client.csproj|d:\\fa26\\prn232\\fptsocialnetwork\\fptsocialnetwork.client\\services\\imessageapiservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5C110180-B512-48F3-8657-DDE79F73C57C}|FptSocialNetwork.Client\\FptSocialNetwork.Client.csproj|solutionrelative:fptsocialnetwork.client\\services\\imessageapiservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5C110180-B512-48F3-8657-DDE79F73C57C}|FptSocialNetwork.Client\\FptSocialNetwork.Client.csproj|d:\\fa26\\prn232\\fptsocialnetwork\\fptsocialnetwork.client\\controllers\\conversationcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5C110180-B512-48F3-8657-DDE79F73C57C}|FptSocialNetwork.Client\\FptSocialNetwork.Client.csproj|solutionrelative:fptsocialnetwork.client\\controllers\\conversationcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{48F14319-7DFB-4486-AE14-9EEF17795700}|DataAccessLayer\\DataAccessLayer.csproj|d:\\fa26\\prn232\\fptsocialnetwork\\dataaccesslayer\\services\\authservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{48F14319-7DFB-4486-AE14-9EEF17795700}|DataAccessLayer\\DataAccessLayer.csproj|solutionrelative:dataaccesslayer\\services\\authservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{48F14319-7DFB-4486-AE14-9EEF17795700}|DataAccessLayer\\DataAccessLayer.csproj|d:\\fa26\\prn232\\fptsocialnetwork\\dataaccesslayer\\services\\iauthservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{48F14319-7DFB-4486-AE14-9EEF17795700}|DataAccessLayer\\DataAccessLayer.csproj|solutionrelative:dataaccesslayer\\services\\iauthservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{31C72BD8-4ECF-4280-9C83-64592296563A}|FptSocialNetwork.Api\\FptSocialNetwork.Api.csproj|d:\\fa26\\prn232\\fptsocialnetwork\\fptsocialnetwork.api\\properties\\launchsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{31C72BD8-4ECF-4280-9C83-64592296563A}|FptSocialNetwork.Api\\FptSocialNetwork.Api.csproj|solutionrelative:fptsocialnetwork.api\\properties\\launchsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{31C72BD8-4ECF-4280-9C83-64592296563A}|FptSocialNetwork.Api\\FptSocialNetwork.Api.csproj|d:\\fa26\\prn232\\fptsocialnetwork\\fptsocialnetwork.api\\controllers\\conversationscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{31C72BD8-4ECF-4280-9C83-64592296563A}|FptSocialNetwork.Api\\FptSocialNetwork.Api.csproj|solutionrelative:fptsocialnetwork.api\\controllers\\conversationscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{48F14319-7DFB-4486-AE14-9EEF17795700}|DataAccessLayer\\DataAccessLayer.csproj|d:\\fa26\\prn232\\fptsocialnetwork\\dataaccesslayer\\services\\models\\conversationmodels.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{48F14319-7DFB-4486-AE14-9EEF17795700}|DataAccessLayer\\DataAccessLayer.csproj|solutionrelative:dataaccesslayer\\services\\models\\conversationmodels.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{48F14319-7DFB-4486-AE14-9EEF17795700}|DataAccessLayer\\DataAccessLayer.csproj|d:\\fa26\\prn232\\fptsocialnetwork\\dataaccesslayer\\repositories\\igenericrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{48F14319-7DFB-4486-AE14-9EEF17795700}|DataAccessLayer\\DataAccessLayer.csproj|solutionrelative:dataaccesslayer\\repositories\\igenericrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5C110180-B512-48F3-8657-DDE79F73C57C}|FptSocialNetwork.Client\\FptSocialNetwork.Client.csproj|d:\\fa26\\prn232\\fptsocialnetwork\\fptsocialnetwork.client\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5C110180-B512-48F3-8657-DDE79F73C57C}|FptSocialNetwork.Client\\FptSocialNetwork.Client.csproj|solutionrelative:fptsocialnetwork.client\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 1,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedHeight": 615,
+          "SelectedChildIndex": 1,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{d78612c7-9962-4b83-95d9-268046dad23a}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Index.cshtml",
+              "DocumentMoniker": "D:\\FA26\\PRN232\\FptSocialNetwork\\FptSocialNetwork.Client\\Views\\Conversation\\Index.cshtml",
+              "RelativeDocumentMoniker": "FptSocialNetwork.Client\\Views\\Conversation\\Index.cshtml",
+              "ToolTip": "D:\\FA26\\PRN232\\FptSocialNetwork\\FptSocialNetwork.Client\\Views\\Conversation\\Index.cshtml",
+              "RelativeToolTip": "FptSocialNetwork.Client\\Views\\Conversation\\Index.cshtml",
+              "ViewState": "AgIAAPgKAAAAAAAAAAASwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-03-27T09:50:57.864Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "appsettings.json",
+              "DocumentMoniker": "D:\\FA26\\PRN232\\FptSocialNetwork\\FptSocialNetwork.Client\\appsettings.json",
+              "RelativeDocumentMoniker": "FptSocialNetwork.Client\\appsettings.json",
+              "ToolTip": "D:\\FA26\\PRN232\\FptSocialNetwork\\FptSocialNetwork.Client\\appsettings.json",
+              "RelativeToolTip": "FptSocialNetwork.Client\\appsettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2026-03-27T08:33:47.043Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "appsettings.json",
+              "DocumentMoniker": "D:\\FA26\\PRN232\\FptSocialNetwork\\FptSocialNetwork.Api\\appsettings.json",
+              "RelativeDocumentMoniker": "FptSocialNetwork.Api\\appsettings.json",
+              "ToolTip": "D:\\FA26\\PRN232\\FptSocialNetwork\\FptSocialNetwork.Api\\appsettings.json",
+              "RelativeToolTip": "FptSocialNetwork.Api\\appsettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABcAAABdAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2026-03-27T08:33:42.235Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "MessageApiService.cs",
+              "DocumentMoniker": "D:\\FA26\\PRN232\\FptSocialNetwork\\FptSocialNetwork.Client\\Services\\MessageApiService.cs",
+              "RelativeDocumentMoniker": "FptSocialNetwork.Client\\Services\\MessageApiService.cs",
+              "ToolTip": "D:\\FA26\\PRN232\\FptSocialNetwork\\FptSocialNetwork.Client\\Services\\MessageApiService.cs",
+              "RelativeToolTip": "FptSocialNetwork.Client\\Services\\MessageApiService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-27T08:05:18.036Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "IMessageApiService.cs",
+              "DocumentMoniker": "D:\\FA26\\PRN232\\FptSocialNetwork\\FptSocialNetwork.Client\\Services\\IMessageApiService.cs",
+              "RelativeDocumentMoniker": "FptSocialNetwork.Client\\Services\\IMessageApiService.cs",
+              "ToolTip": "D:\\FA26\\PRN232\\FptSocialNetwork\\FptSocialNetwork.Client\\Services\\IMessageApiService.cs",
+              "RelativeToolTip": "FptSocialNetwork.Client\\Services\\IMessageApiService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-27T08:05:15.73Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "AuthService.cs",
+              "DocumentMoniker": "D:\\FA26\\PRN232\\FptSocialNetwork\\DataAccessLayer\\Services\\AuthService.cs",
+              "RelativeDocumentMoniker": "DataAccessLayer\\Services\\AuthService.cs",
+              "ToolTip": "D:\\FA26\\PRN232\\FptSocialNetwork\\DataAccessLayer\\Services\\AuthService.cs",
+              "RelativeToolTip": "DataAccessLayer\\Services\\AuthService.cs",
+              "ViewState": "AgIAAEUAAAAAAAAAAAAgwD4AAAAdAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-27T07:39:31.996Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "IAuthService.cs",
+              "DocumentMoniker": "D:\\FA26\\PRN232\\FptSocialNetwork\\DataAccessLayer\\Services\\IAuthService.cs",
+              "RelativeDocumentMoniker": "DataAccessLayer\\Services\\IAuthService.cs",
+              "ToolTip": "D:\\FA26\\PRN232\\FptSocialNetwork\\DataAccessLayer\\Services\\IAuthService.cs",
+              "RelativeToolTip": "DataAccessLayer\\Services\\IAuthService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-27T07:39:28.259Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "ConversationsController.cs",
+              "DocumentMoniker": "D:\\FA26\\PRN232\\FptSocialNetwork\\FptSocialNetwork.Api\\Controllers\\ConversationsController.cs",
+              "RelativeDocumentMoniker": "FptSocialNetwork.Api\\Controllers\\ConversationsController.cs",
+              "ToolTip": "D:\\FA26\\PRN232\\FptSocialNetwork\\FptSocialNetwork.Api\\Controllers\\ConversationsController.cs",
+              "RelativeToolTip": "FptSocialNetwork.Api\\Controllers\\ConversationsController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAAfAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-27T07:08:13.826Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "launchSettings.json",
+              "DocumentMoniker": "D:\\FA26\\PRN232\\FptSocialNetwork\\FptSocialNetwork.Api\\Properties\\launchSettings.json",
+              "RelativeDocumentMoniker": "FptSocialNetwork.Api\\Properties\\launchSettings.json",
+              "ToolTip": "D:\\FA26\\PRN232\\FptSocialNetwork\\FptSocialNetwork.Api\\Properties\\launchSettings.json",
+              "RelativeToolTip": "FptSocialNetwork.Api\\Properties\\launchSettings.json",
+              "ViewState": "AgIAAAMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2026-03-27T07:07:19.263Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "ConversationController.cs",
+              "DocumentMoniker": "D:\\FA26\\PRN232\\FptSocialNetwork\\FptSocialNetwork.Client\\Controllers\\ConversationController.cs",
+              "RelativeDocumentMoniker": "FptSocialNetwork.Client\\Controllers\\ConversationController.cs",
+              "ToolTip": "D:\\FA26\\PRN232\\FptSocialNetwork\\FptSocialNetwork.Client\\Controllers\\ConversationController.cs",
+              "RelativeToolTip": "FptSocialNetwork.Client\\Controllers\\ConversationController.cs",
+              "ViewState": "AgIAADUAAAAAAAAAAAAYwMwAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-27T07:06:26.017Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "ConversationModels.cs",
+              "DocumentMoniker": "D:\\FA26\\PRN232\\FptSocialNetwork\\DataAccessLayer\\Services\\Models\\ConversationModels.cs",
+              "RelativeDocumentMoniker": "DataAccessLayer\\Services\\Models\\ConversationModels.cs",
+              "ToolTip": "D:\\FA26\\PRN232\\FptSocialNetwork\\DataAccessLayer\\Services\\Models\\ConversationModels.cs",
+              "RelativeToolTip": "DataAccessLayer\\Services\\Models\\ConversationModels.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACIAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-27T07:02:38.546Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "IGenericRepository.cs",
+              "DocumentMoniker": "D:\\FA26\\PRN232\\FptSocialNetwork\\DataAccessLayer\\Repositories\\IGenericRepository.cs",
+              "RelativeDocumentMoniker": "DataAccessLayer\\Repositories\\IGenericRepository.cs",
+              "ToolTip": "D:\\FA26\\PRN232\\FptSocialNetwork\\DataAccessLayer\\Repositories\\IGenericRepository.cs",
+              "RelativeToolTip": "DataAccessLayer\\Repositories\\IGenericRepository.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAMAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-27T06:53:40.738Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "Program.cs",
+              "DocumentMoniker": "D:\\FA26\\PRN232\\FptSocialNetwork\\FptSocialNetwork.Client\\Program.cs",
+              "RelativeDocumentMoniker": "FptSocialNetwork.Client\\Program.cs",
+              "ToolTip": "D:\\FA26\\PRN232\\FptSocialNetwork\\FptSocialNetwork.Client\\Program.cs",
+              "RelativeToolTip": "FptSocialNetwork.Client\\Program.cs",
+              "ViewState": "AgIAADAAAAAAAAAAAAAQwAIAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-27T06:27:04.549Z",
+              "EditorCaption": ""
+            }
+          ]
+        },
+        {
+          "DockedHeight": 1191,
+          "SelectedChildIndex": -1,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c64b9c2-e352-428e-a56d-0ace190b99a6}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:130:0:{1fc202d4-d401-403c-9834-5b218574bb67}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:131:0:{75188d03-9892-4ae2-abf1-207126247ce5}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:132:0:{75188d03-9892-4ae2-abf1-207126247ce5}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:133:0:{75188d03-9892-4ae2-abf1-207126247ce5}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:134:0:{75188d03-9892-4ae2-abf1-207126247ce5}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:129:0:{1fc202d4-d401-403c-9834-5b218574bb67}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:129:0:{75188d03-9892-4ae2-abf1-207126247ce5}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{34e76e81-ee4a-11d0-ae2e-00a0c90fffc3}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{3ae79031-e1bc-11d0-8f78-00a0c9110057}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:130:0:{13b12e3e-c1b4-4539-9371-4fe9a0d523fc}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:20:0:{e8034f19-ab72-4f06-83fd-f6832b41aa63}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:27:0:{e8034f19-ab72-4f06-83fd-f6832b41aa63}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:28:0:{e8034f19-ab72-4f06-83fd-f6832b41aa63}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:1:0:{e8b06f52-6d01-11d2-aa7d-00c04f990343}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:4:0:{e8034f19-ab72-4f06-83fd-f6832b41aa63}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:29:0:{e8034f19-ab72-4f06-83fd-f6832b41aa63}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{eefa5220-e298-11d0-8f78-00a0c9110057}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:10:0:{e8034f19-ab72-4f06-83fd-f6832b41aa63}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{b1e99781-ab81-11d0-b683-00aa00a3ee26}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:8:0:{e8034f19-ab72-4f06-83fd-f6832b41aa63}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:1:0:{e8034f19-ab72-4f06-83fd-f6832b41aa63}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:136:0:{75188d03-9892-4ae2-abf1-207126247ce5}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:138:0:{1fc202d4-d401-403c-9834-5b218574bb67}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:137:0:{75188d03-9892-4ae2-abf1-207126247ce5}"
+            }
+          ]
+        },
+        {
+          "DockedHeight": 1191,
+          "SelectedChildIndex": -1,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:4:0:{d212f56b-c48a-434c-a121-1c5d80b59b9f}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:6:0:{d212f56b-c48a-434c-a121-1c5d80b59b9f}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:7:0:{d212f56b-c48a-434c-a121-1c5d80b59b9f}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:9:0:{d212f56b-c48a-434c-a121-1c5d80b59b9f}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:10:0:{d212f56b-c48a-434c-a121-1c5d80b59b9f}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:11:0:{d212f56b-c48a-434c-a121-1c5d80b59b9f}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:2:0:{d212f56b-c48a-434c-a121-1c5d80b59b9f}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:1:0:{d212f56b-c48a-434c-a121-1c5d80b59b9f}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

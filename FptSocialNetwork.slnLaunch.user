@@ -1,0 +1,15 @@
+[
+  {
+    "Name": "New Profile",
+    "Projects": [
+      {
+        "Path": "FptSocialNetwork.Client\\FptSocialNetwork.Client.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "FptSocialNetwork.Api\\FptSocialNetwork.Api.csproj",
+        "Action": "Start"
+      }
+    ]
+  }
+]
