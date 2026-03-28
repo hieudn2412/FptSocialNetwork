@@ -112,6 +112,28 @@ namespace FptSocialNetwork.Client.Services
             return await SendAsync<PostDto>(request);
         }
 
+        public async Task<ApiResponse<PostDto>> UpdatePostAsync(long postId, string content, int? postStatusId = null)
+        {
+            using var request = new HttpRequestMessage(HttpMethod.Put, $"api/posts/{postId}")
+            {
+                Content = new StringContent(
+                    JsonSerializer.Serialize(new UpdatePostRequest
+                    {
+                        Content = content,
+                        PostStatusId = postStatusId
+                    }),
+                    Encoding.UTF8,
+                    "application/json")
+            };
+
+            return await SendAsync<PostDto>(request);
+        }
+
+        public async Task<ApiResponse<DeletePostResultDto>> DeletePostAsync(long postId)
+        {
+            return await SendAsync<DeletePostResultDto>(new HttpRequestMessage(HttpMethod.Delete, $"api/posts/{postId}"));
+        }
+
         private async Task<ApiResponse<T>> SendAsync<T>(HttpRequestMessage request)
         {
             try

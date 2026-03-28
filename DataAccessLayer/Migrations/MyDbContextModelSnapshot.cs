@@ -332,6 +332,9 @@ namespace DataAccessLayer.Migrations
                     b.Property<int>("PostStatusId")
                         .HasColumnType("int");
 
+                    b.Property<long?>("SharedFromPostId")
+                        .HasColumnType("bigint");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
@@ -341,6 +344,8 @@ namespace DataAccessLayer.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("PostStatusId");
+
+                    b.HasIndex("SharedFromPostId");
 
                     b.HasIndex("UserId");
 
@@ -640,6 +645,11 @@ namespace DataAccessLayer.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("Post", "SharedFromPost")
+                        .WithMany("SharedByPosts")
+                        .HasForeignKey("SharedFromPostId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("User", "User")
                         .WithMany("Posts")
                         .HasForeignKey("UserId")
@@ -647,6 +657,8 @@ namespace DataAccessLayer.Migrations
                         .IsRequired();
 
                     b.Navigation("PostStatus");
+
+                    b.Navigation("SharedFromPost");
 
                     b.Navigation("User");
                 });
@@ -700,6 +712,8 @@ namespace DataAccessLayer.Migrations
                     b.Navigation("Comments");
 
                     b.Navigation("Likes");
+
+                    b.Navigation("SharedByPosts");
                 });
 
             modelBuilder.Entity("PostStatus", b =>
@@ -727,8 +741,7 @@ namespace DataAccessLayer.Migrations
 
                     b.Navigation("Posts");
 
-                    b.Navigation("UserProfile")
-                        .IsRequired();
+                    b.Navigation("UserProfile");
                 });
 
             modelBuilder.Entity("UserRole", b =>

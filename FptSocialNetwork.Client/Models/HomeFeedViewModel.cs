@@ -25,6 +25,11 @@ namespace FptSocialNetwork.Client.Models
         public string School { get; set; } = string.Empty;
         public int FollowerCount { get; set; }
         public int FollowingCount { get; set; }
+        public bool IsOwnProfile { get; set; } = true;
+        public int ViewedUserId { get; set; }
+        public bool IsFollowingViewedUser { get; set; }
+        public string RealtimeToken { get; set; } = string.Empty;
+        public string SocialHubUrl { get; set; } = string.Empty;
     }
 
     public class CreatePostInputModel

@@ -11,6 +11,11 @@
     --dropdown-bg: #2a2f39;
     --dropdown-card: #232831;
     --dropdown-line: #3a414e;
+    --social-search-bg: #2a2f39;
+    --social-search-border: #3a414e;
+    --social-search-text: #edf0f4;
+    --social-search-muted: #b8bfcb;
+    --social-search-hover: #343a45;
 }
 
 .fb-global-nav {

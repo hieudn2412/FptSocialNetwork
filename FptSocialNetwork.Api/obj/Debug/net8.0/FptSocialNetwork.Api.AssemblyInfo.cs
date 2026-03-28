@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("FptSocialNetwork.Api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e8edf4acb82ddb8e9bd95a56a996beeeb833aacb")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+8115298243993892bfe24318163bd9a41ce549db")]
 [assembly: System.Reflection.AssemblyProductAttribute("FptSocialNetwork.Api")]
 [assembly: System.Reflection.AssemblyTitleAttribute("FptSocialNetwork.Api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

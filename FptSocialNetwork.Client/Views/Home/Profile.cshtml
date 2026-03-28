@@ -35,8 +35,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/social-search.css" asp-append-version="true" />
     <style>
-        :root { --bg:#15171a; --card:#232831; --line:#3a414e; --soft:#373d47; --text:#edf0f4; --muted:#b7bfcc; --brand:#f37021; --danger:#412427; }
+        :root { --bg:#15171a; --card:#232831; --line:#3a414e; --soft:#373d47; --text:#edf0f4; --muted:#b7bfcc; --brand:#f37021; --danger:#412427; --social-search-bg:#252a33; --social-search-border:#414856; --social-search-text:#edf0f4; --social-search-muted:#b7bfcc; --social-search-hover:#313744; }
         * { box-sizing:border-box; margin:0; padding:0; }
         body { font-family:"Manrope","Segoe UI",sans-serif; background:linear-gradient(180deg,#1c1f24,#15171a 200px); color:var(--text); }
         a { color:inherit; text-decoration:none; }
@@ -45,13 +46,40 @@
         .logo { width:40px; height:40px; border-radius:50%; background:linear-gradient(135deg,var(--brand),#ff9c40); color:#fff; font-weight:800; display:flex; align-items:center; justify-content:center; }
         .search { width:320px; height:40px; border-radius:999px; background:#353b45; display:flex; align-items:center; gap:10px; padding:0 14px; color:var(--muted); }
         .search input { width:100%; border:none; background:transparent; color:var(--text); outline:none; }
-        .home-link,.icon { width:40px; height:40px; border-radius:50%; background:#373d48; border:none; color:var(--text); display:inline-flex; align-items:center; justify-content:center; cursor:pointer; }
+        .home-link,.icon { position:relative; width:40px; height:40px; border-radius:50%; background:#373d48; border:none; color:var(--text); display:inline-flex; align-items:center; justify-content:center; cursor:pointer; }
+        .post-menu-wrap { position:relative; }
+        .post-menu { position:absolute; top:44px; right:0; width:200px; background:#252a33; border:1px solid #414856; border-radius:12px; box-shadow:0 16px 30px rgba(0,0,0,.24); padding:6px; display:none; z-index:1500; }
+        .post-menu.open { display:block; }
+        .post-menu-form { margin:0; }
+        .post-menu-item { width:100%; border:none; background:transparent; height:40px; border-radius:10px; text-align:left; padding:0 12px; font-size:14px; font-weight:700; color:var(--text); cursor:pointer; font-family:inherit; }
+        .post-menu-item:hover { background:#343a45; }
+        .post-menu-item.danger { color:#ffb4ae; }
         .topbar-avatar-image { width:100%; height:100%; border-radius:50%; object-fit:cover; }
         .profile-dropdown-wrap { position:relative; }
         .profile-dropdown-menu { position:absolute; top:48px; right:0; min-width:210px; background:#252a33; border:1px solid #414856; border-radius:12px; box-shadow:0 12px 24px rgba(0,0,0,.24); padding:6px; display:none; z-index:1600; }
         .profile-dropdown-menu.open { display:block; }
         .profile-menu-item { width:100%; border:none; background:transparent; text-decoration:none; color:var(--text); border-radius:8px; font-size:14px; font-weight:700; height:40px; padding:0 10px; display:flex; align-items:center; gap:10px; cursor:pointer; font-family:inherit; }
         .profile-menu-item:hover { background:#343a45; }
+        .follow-primary { height:40px; border-radius:10px; border:1px solid #414856; background:#f37021; color:#fff; padding:0 14px; font-weight:800; cursor:pointer; }
+        .follow-secondary { height:40px; border-radius:10px; border:1px solid #414856; background:#323844; color:#fff; padding:0 14px; font-weight:800; cursor:pointer; }
+        .social-notification-wrap { position:relative; }
+        .social-notification-badge { position:absolute; top:-2px; right:-1px; min-width:18px; height:18px; border-radius:999px; background:#ef4444; color:#fff; font-size:11px; font-weight:800; display:inline-flex; align-items:center; justify-content:center; padding:0 5px; border:2px solid #20242a; }
+        .social-notification-dropdown { position:absolute; top:48px; right:0; width:min(360px,calc(100vw - 24px)); max-height:420px; overflow-y:auto; background:#252a33; border:1px solid #414856; border-radius:14px; box-shadow:0 18px 36px rgba(0,0,0,.26); padding:8px; display:none; z-index:1700; }
+        .social-notification-dropdown.open { display:block; }
+        .social-notification-title { font-size:18px; font-weight:800; padding:6px 8px 10px; }
+        .social-notification-empty { color:var(--muted); font-size:14px; padding:14px 8px; text-align:center; }
+        .social-notification-list { display:grid; gap:6px; }
+        .social-notification-item { width:100%; border:none; background:#252a33; border-radius:12px; text-align:left; padding:10px; display:grid; grid-template-columns:38px 1fr; gap:10px; cursor:pointer; color:var(--text); }
+        .social-notification-item:hover { background:#313744; }
+        .social-notification-item.unread { background:#2f3c51; }
+        .social-notification-icon { width:38px; height:38px; border-radius:50%; background:rgba(243,112,33,.16); color:var(--brand); display:inline-flex; align-items:center; justify-content:center; }
+        .social-notification-copy { display:grid; gap:4px; }
+        .social-notification-copy strong { font-size:14px; }
+        .social-notification-copy span { font-size:13px; color:var(--text); line-height:1.4; }
+        .social-notification-copy small { color:var(--muted); font-size:12px; }
+        .social-toast-host { position:fixed; right:18px; bottom:18px; z-index:4000; display:grid; gap:10px; }
+        .social-toast { min-width:240px; max-width:320px; background:rgba(20,23,26,.96); color:#fff; border:1px solid #414856; border-radius:12px; padding:12px 14px; box-shadow:0 16px 30px rgba(0,0,0,.28); transition:opacity .3s ease, transform .3s ease; }
+        .social-toast.hide { opacity:0; transform:translateY(8px); }
         .home-link { width:86px; height:46px; border-radius:10px; color:var(--brand); background:rgba(243,112,33,.16); position:relative; font-size:21px; }
         .home-link::after { content:""; position:absolute; left:18px; right:18px; bottom:-5px; height:3px; border-radius:20px; background:var(--brand); }
         .page { max-width:1120px; margin:0 auto; padding:0 16px 24px; }
@@ -106,6 +134,7 @@
         .follow-btn:hover { border-color:#4f5765; }
         .follow-btn.following { color:var(--brand); border-color:rgba(243,112,33,.44); }
         .comment-list { margin:0 14px 10px; display:grid; gap:8px; }
+        .comment-empty { background:#2d333e; border-radius:10px; padding:10px 12px; color:var(--muted); font-size:13px; font-weight:600; }
         .comment-item { background:#2d333e; border-radius:10px; padding:8px 10px; }
         .comment-meta { display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:4px; color:var(--muted); font-size:12px; }
         .comment-content { color:var(--text); font-size:14px; line-height:1.4; white-space:pre-wrap; }
@@ -114,6 +143,11 @@
         .comment-submit { height:38px; border:none; border-radius:10px; padding:0 14px; background:#3a414d; color:#fff; font-weight:700; cursor:pointer; }
         .error { padding:10px 12px; border:1px solid #8c2f2f; background:var(--danger); color:#ffd4d4; border-radius:12px; margin-bottom:12px; }
         .center { padding:24px 14px; text-align:center; color:var(--muted); font-weight:700; }
+        .shared-card { margin:10px 14px; border:1px solid #414856; border-radius:12px; background:#1f242d; overflow:hidden; }
+        .shared-head { display:flex; gap:10px; align-items:center; padding:10px 12px; border-bottom:1px solid #3a414e; }
+        .shared-head .avatar { width:32px; height:32px; }
+        .shared-body { padding:10px 12px 12px; display:grid; gap:8px; }
+        .shared-body .shared-content { font-size:14px; color:var(--text); white-space:pre-wrap; line-height:1.45; }
         .modal { position:fixed; inset:0; background:rgba(8,10,14,.72); display:flex; align-items:center; justify-content:center; z-index:3000; padding:12px; }
         .modal[hidden] { display:none; }
         .modal-card { width:min(560px,100%); background:#252a33; border:1px solid #414856; border-radius:16px; overflow:hidden; font-family:"Manrope","Segoe UI",sans-serif; }
@@ -141,16 +175,31 @@
         @@media (max-width:860px) { .topbar-center{display:none;} .search{width:190px;} .cover{height:210px;} .head{margin-top:-38px; flex-direction:column; align-items:flex-start;} .id{align-items:center;} .avatar-wrap,.avatar-xl{width:126px;height:126px;} .avatar-xl{font-size:60px;} .id h1{font-size:34px;} .modal-head{font-size:26px;} }
     </style>
 </head>
-<body>
+<body data-social-realtime
+      data-social-page="profile"
+      data-social-hub-url="@Model.SocialHubUrl"
+      data-realtime-token="@Model.RealtimeToken"
+      data-current-user-id="@Model.CurrentUserId"
+      data-viewed-user-id="@Model.ViewedUserId">
     <header class="topbar">
         <div class="row">
             <a class="logo" href="@Url.Action("Index", "Home")">F</a>
-            <div class="search"><i class="fa-solid fa-magnifying-glass"></i><input type="text" placeholder="Tìm kiếm trên FPT Social" /></div>
+            <div class="search" data-user-search><i class="fa-solid fa-magnifying-glass"></i><input type="text" placeholder="Tìm kiếm trên FPT Social" data-user-search-input /><div data-user-search-results hidden></div></div>
         </div>
         <div class="row"><a class="home-link" href="@Url.Action("Index", "Home")"><i class="fa-solid fa-house"></i></a></div>
         <div class="row">
             <a class="icon" href="@Url.Action("Index", "Conversation")"><i class="fa-solid fa-comment-dots"></i></a>
-            <button class="icon" type="button"><i class="fa-solid fa-bell"></i></button>
+            <div class="social-notification-wrap">
+                <button class="icon" id="socialNotificationToggle" type="button" aria-label="Thông báo" aria-haspopup="true" aria-expanded="false">
+                    <i class="fa-solid fa-bell"></i>
+                    <span class="social-notification-badge" id="socialNotificationBadge" hidden>0</span>
+                </button>
+                <div class="social-notification-dropdown" id="socialNotificationDropdown">
+                    <div class="social-notification-title">Thông báo</div>
+                    <div class="social-notification-empty" id="socialNotificationEmpty">Chưa có thông báo mới.</div>
+                    <div class="social-notification-list" id="socialNotificationList"></div>
+                </div>
+            </div>
             <div class="profile-dropdown-wrap">
                 <button class="icon" type="button" id="profilePageToggle" aria-label="Tài khoản" aria-haspopup="true" aria-expanded="false">
                     @if (!string.IsNullOrWhiteSpace(avatarUrl))
@@ -187,7 +236,10 @@
                     <span class="avatar-xl">
                         @if (!string.IsNullOrWhiteSpace(avatarUrl)) { <img src="@avatarUrl" alt="avatar" /> } else { <span>@firstLetter</span> }
                     </span>
-                    <button type="button" class="avatar-edit" data-open-avatar-picker><i class="fa-solid fa-camera"></i></button>
+                    @if (Model.IsOwnProfile)
+                    {
+                        <button type="button" class="avatar-edit" data-open-avatar-picker><i class="fa-solid fa-camera"></i></button>
+                    }
                 </div>
                 <div>
                     <h1>@displayName</h1>
@@ -195,7 +247,23 @@
                     <div class="meta">Hồ sơ cá nhân</div>
                 </div>
             </div>
-            <div><button class="btn" type="button" data-open-profile-modal><i class="fa-solid fa-pen"></i>Chỉnh sửa trang cá nhân</button></div>
+            <div style="display:flex; gap:10px; align-items:center;">
+                @if (!Model.IsOwnProfile)
+                {
+                    <form class="follow-form" asp-controller="Home" asp-action="ToggleFollow" method="post" style="margin:0;">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="targetUserId" value="@Model.ViewedUserId" />
+                        <input type="hidden" name="source" value="profile" />
+                        <button class="@(Model.IsFollowingViewedUser ? "follow-secondary" : "follow-primary")" type="submit">
+                            @(Model.IsFollowingViewedUser ? "Bỏ theo dõi" : "Theo dõi")
+                        </button>
+                    </form>
+                }
+                @if (Model.IsOwnProfile)
+                {
+                    <button class="btn" type="button" data-open-profile-modal><i class="fa-solid fa-pen"></i>Chỉnh sửa trang cá nhân</button>
+                }
+            </div>
         </section>
 
         <main class="layout">
@@ -233,33 +301,37 @@
                 </section>
             </aside>
 
-            <section>
+            <section data-post-feed="profile">
                 @if (!string.IsNullOrWhiteSpace(Model.PostError)) { <div class="error">@Model.PostError</div> }
-                <section class="card composer">
-                    <div class="composer-top">
-                        <span class="avatar">@if (!string.IsNullOrWhiteSpace(avatarUrl)) { <img src="@avatarUrl" alt="avatar" /> } else { <span>@firstLetter</span> }</span>
-                        <button type="button" class="composer-trigger" data-open-post-modal>@Model.ComposerPlaceholder</button>
-                    </div>
-                    <div class="composer-actions">
-                        <button type="button" class="composer-action" data-open-post-modal><i class="fa-solid fa-image"></i>Ảnh/video</button>
-                        <button type="button" class="composer-action" data-open-post-modal><i class="fa-solid fa-paper-plane"></i>Đăng bài</button>
-                    </div>
-                </section>
+                @if (Model.IsOwnProfile)
+                {
+                    <section class="card composer">
+                        <div class="composer-top">
+                            <span class="avatar">@if (!string.IsNullOrWhiteSpace(avatarUrl)) { <img src="@avatarUrl" alt="avatar" /> } else { <span>@firstLetter</span> }</span>
+                            <button type="button" class="composer-trigger" data-open-post-modal>@Model.ComposerPlaceholder</button>
+                        </div>
+                        <div class="composer-actions">
+                            <button type="button" class="composer-action" data-open-post-modal><i class="fa-solid fa-image"></i>Ảnh/video</button>
+                            <button type="button" class="composer-action" data-open-post-modal><i class="fa-solid fa-paper-plane"></i>Đăng bài</button>
+                        </div>
+                    </section>
+                }
 
                 <section class="card" style="margin-top:12px;"><div class="post-head">Bài viết</div></section>
-                @if (Model.Posts.Count == 0) { <div class="card center" style="margin-top:12px;">Bạn chưa có bài viết nào.</div> }
+                @if (Model.Posts.Count == 0) { <div class="card center" style="margin-top:12px;" data-empty-posts>Bạn chưa có bài viết nào.</div> }
                 else
                 {
                     @foreach (var post in Model.Posts)
                     {
                         var authorName = string.IsNullOrWhiteSpace(post.AuthorName) ? displayName : post.AuthorName;
                         var authorInitial = authorName.Substring(0, 1).ToUpperInvariant();
-                        <article class="card post">
+                        var authorProfileUrl = Url.Action("Profile", "Home", new { userId = post.UserId }) ?? $"/Home/Profile/{post.UserId}";
+                        <article class="card post" data-post-id="@post.Id">
                             <div class="post-top">
-                                <div class="post-author">
+                                <a class="post-author" href="@authorProfileUrl">
                                     <span class="avatar">@if (!string.IsNullOrWhiteSpace(post.AuthorAvatarUrl)) { <img src="@post.AuthorAvatarUrl" alt="avatar" /> } else { <span>@authorInitial</span> }</span>
                                     <div><strong>@authorName</strong><p>@ToTimeAgo(post.CreatedAt) · <i class="fa-solid fa-earth-asia"></i></p></div>
-                                </div>
+                                </a>
                                 <div style="display:flex; align-items:center; gap:8px;">
                                     @if (currentUserId > 0 && post.UserId != currentUserId)
                                     {
@@ -272,18 +344,50 @@
                                             </button>
                                         </form>
                                     }
-                                    <button class="icon" type="button"><i class="fa-solid fa-ellipsis"></i></button>
+                                    <div class="post-menu-wrap">
+                                        <button class="icon post-menu-toggle" type="button"><i class="fa-solid fa-ellipsis"></i></button>
+                                        @if (post.UserId == currentUserId)
+                                        {
+                                            <div class="post-menu">
+                                                <button class="post-menu-item" type="button" data-edit-post>Chỉnh sửa bài viết</button>
+                                                <form class="post-menu-form post-delete-form" asp-controller="Home" asp-action="DeletePost" method="post">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="postId" value="@post.Id" />
+                                                    <input type="hidden" name="source" value="profile" />
+                                                    <button class="post-menu-item danger" type="submit">Xóa bài viết</button>
+                                                </form>
+                                            </div>
+                                        }
+                                    </div>
                                 </div>
                             </div>
                             @if (!string.IsNullOrWhiteSpace(post.Content)) { <div class="post-content">@post.Content</div> }
-                            @if (!string.IsNullOrWhiteSpace(post.MediaUrl)) { <div class="post-image"><img src="@post.MediaUrl" alt="post image" /></div> }
-                            <div class="post-stats"><span>@post.LikeCount lượt thích</span><span>@post.CommentCount bình luận</span></div>
+
+                            @if (post.SourcePostId.HasValue)
+                            {
+                                var sourceProfileUrl = Url.Action("Profile", "Home", new { userId = post.SourceUserId ?? 0 }) ?? $"/Home/Profile/{post.SourceUserId}";
+                                var sourceInitial = (post.SourceAuthorName ?? "Người dùng").Substring(0,1).ToUpperInvariant();
+                                <div class="shared-card" data-source-post-id="@post.SourcePostId">
+                                    <div class="shared-head">
+                                        <span class="avatar">@if (!string.IsNullOrWhiteSpace(post.SourceAuthorAvatarUrl)) { <img src="@post.SourceAuthorAvatarUrl" alt="avatar" /> } else { <span>@sourceInitial</span> }</span>
+                                        <div><a href="@sourceProfileUrl"><strong>@(string.IsNullOrWhiteSpace(post.SourceAuthorName) ? "Người dùng" : post.SourceAuthorName)</strong></a><p style="color:var(--muted);font-size:12px;">@ToTimeAgo(post.SourceCreatedAt ?? post.CreatedAt)</p></div>
+                                    </div>
+                                    <div class="shared-body">
+                                        @if (post.SourcePostDeleted) { <div class="shared-content">Nội dung này không còn tồn tại.</div> }
+                                        else if (!string.IsNullOrWhiteSpace(post.SourceContent)) { <div class="shared-content">@post.SourceContent</div> }
+                                        @if (!post.SourcePostDeleted && !string.IsNullOrWhiteSpace(post.SourceMediaUrl)) { <div class="post-image"><img src="@post.SourceMediaUrl" alt="shared media" /></div> }
+                                    </div>
+                                </div>
+                            }
+
+                            @if (!post.SourcePostId.HasValue && !string.IsNullOrWhiteSpace(post.MediaUrl)) { <div class="post-image"><img src="@post.MediaUrl" alt="post image" /></div> }
+                            <div class="post-stats"><span data-like-count>@post.LikeCount lượt thích</span><span data-comment-count>@post.CommentCount bình luận</span></div>
                             <div class="post-actions">
                                 <form class="post-action-form" asp-controller="Home" asp-action="ToggleReaction" method="post">
                                     @Html.AntiForgeryToken()
                                     <input type="hidden" name="postId" value="@post.Id" />
                                     <input type="hidden" name="source" value="profile" />
-                                    <button class="post-action-btn @(post.IsLikedByCurrentUser ? "active" : string.Empty)" type="submit"><i class="fa-regular fa-thumbs-up"></i>Thích</button>
+                                    <button class="post-action-btn @(post.IsLikedByCurrentUser ? "active" : string.Empty)" type="submit"><i class="@(post.IsLikedByCurrentUser ? "fa-solid" : "fa-regular") fa-thumbs-up"></i><span data-like-label>@(post.IsLikedByCurrentUser ? "Bỏ thích" : "Thích")</span></button>
                                 </form>
                                 <button class="post-action-btn" type="button" data-focus-comment="comment-@post.Id"><i class="fa-regular fa-comment"></i>Bình luận</button>
                                 <form class="post-action-form" asp-controller="Home" asp-action="SharePost" method="post">
@@ -294,18 +398,23 @@
                                 </form>
                             </div>
 
-                            @if (post.RecentComments.Count > 0)
-                            {
-                                <div class="comment-list">
+                            <div class="comment-list" data-comment-list>
+                                @if (post.RecentComments.Count == 0)
+                                {
+                                    <div class="comment-empty" data-comment-empty>Chưa có bình luận nào.</div>
+                                }
+                                else
+                                {
                                     @foreach (var comment in post.RecentComments.OrderBy(c => c.CreatedAt))
                                     {
+                                        var commentAuthorProfileUrl = Url.Action("Profile", "Home", new { userId = comment.UserId }) ?? $"/Home/Profile/{comment.UserId}";
                                         <div class="comment-item">
-                                            <div class="comment-meta"><strong>@comment.AuthorName</strong><span>@ToTimeAgo(comment.CreatedAt)</span></div>
+                                            <div class="comment-meta"><a href="@commentAuthorProfileUrl"><strong>@comment.AuthorName</strong></a><span>@ToTimeAgo(comment.CreatedAt)</span></div>
                                             <div class="comment-content">@comment.Content</div>
                                         </div>
                                     }
-                                </div>
-                            }
+                                }
+                            </div>
 
                             <form class="comment-form" asp-controller="Home" asp-action="AddComment" method="post">
                                 @Html.AntiForgeryToken()
@@ -321,41 +430,70 @@
         </main>
     </div>
 
-    <form id="avatar-form" asp-controller="Home" asp-action="UpdateAvatar" method="post" enctype="multipart/form-data" hidden>
-        @Html.AntiForgeryToken()
-        <input id="avatar-file-input" type="file" name="AvatarImage" accept="image/*" />
-    </form>
+    @if (Model.IsOwnProfile)
+    {
+        <form id="avatar-form" asp-controller="Home" asp-action="UpdateAvatar" method="post" enctype="multipart/form-data" hidden>
+            @Html.AntiForgeryToken()
+            <input id="avatar-file-input" type="file" name="AvatarImage" accept="image/*" />
+        </form>
+    }
 
-    <div class="modal" id="post-modal" hidden>
-        <div class="modal-card">
-            <div class="modal-head">Tạo bài viết<button class="close" type="button" data-close-post-modal><i class="fa-solid fa-xmark"></i></button></div>
-            <form class="modal-body" asp-controller="Home" asp-action="CreatePost" method="post" enctype="multipart/form-data">
-                @Html.AntiForgeryToken()
-                <input type="hidden" name="Source" value="profile" />
-                <div class="author"><span class="avatar">@if (!string.IsNullOrWhiteSpace(avatarUrl)) { <img src="@avatarUrl" alt="avatar" /> } else { <span>@firstLetter</span> }</span><strong>@displayName</strong></div>
-                <textarea class="textarea" name="Content" maxlength="2000" placeholder="Bạn đang nghĩ gì?" autofocus></textarea>
-                <div class="preview" id="post-preview" hidden><img id="post-preview-image" alt="preview" /></div>
-                <div class="tools"><span>Thêm vào bài viết của bạn</span><label class="tool-btn" for="post-image-file"><i class="fa-solid fa-image"></i>Ảnh/video</label></div>
-                <input id="post-image-file" type="file" name="Image" accept="image/*" hidden />
-                <button class="submit" type="submit">Đăng</button>
-            </form>
+    @if (Model.IsOwnProfile)
+    {
+        <div class="modal" id="post-modal" hidden>
+            <div class="modal-card">
+                <div class="modal-head">Tạo bài viết<button class="close" type="button" data-close-post-modal><i class="fa-solid fa-xmark"></i></button></div>
+                <form class="modal-body" asp-controller="Home" asp-action="CreatePost" method="post" enctype="multipart/form-data">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="Source" value="profile" />
+                    <div class="author"><span class="avatar">@if (!string.IsNullOrWhiteSpace(avatarUrl)) { <img src="@avatarUrl" alt="avatar" /> } else { <span>@firstLetter</span> }</span><strong>@displayName</strong></div>
+                    <textarea class="textarea" name="Content" maxlength="2000" placeholder="Bạn đang nghĩ gì?" autofocus></textarea>
+                    <div class="preview" id="post-preview" hidden><img id="post-preview-image" alt="preview" /></div>
+                    <div class="tools"><span>Thêm vào bài viết của bạn</span><label class="tool-btn" for="post-image-file"><i class="fa-solid fa-image"></i>Ảnh/video</label></div>
+                    <input id="post-image-file" type="file" name="Image" accept="image/*" hidden />
+                    <button class="submit" type="submit">Đăng</button>
+                </form>
+            </div>
         </div>
-    </div>
+    }
 
-    <div class="modal profile-modal" id="profile-modal" hidden>
+    <div class="modal" id="edit-post-modal" hidden>
         <div class="modal-card">
-            <div class="modal-head">Chỉnh sửa trang cá nhân<button class="close" type="button" data-close-profile-modal><i class="fa-solid fa-xmark"></i></button></div>
-            <form class="modal-body" asp-controller="Home" asp-action="UpdateProfile" method="post">
+            <div class="modal-head">Chỉnh sửa bài viết<button class="close" type="button" data-close-edit-post-modal><i class="fa-solid fa-xmark"></i></button></div>
+            <form class="modal-body" id="edit-post-form" asp-controller="Home" asp-action="EditPost" method="post">
                 @Html.AntiForgeryToken()
-                <div class="field"><label for="name">Họ và tên</label><input id="name" type="text" name="FullName" value="@displayName" maxlength="100" required /></div>
-                <div class="field"><label for="bio">Tiểu sử</label><textarea id="bio" name="Bio" maxlength="300">@Model.Bio</textarea></div>
-                <div class="field"><label for="city">Thành phố</label><input id="city" type="text" name="City" value="@Model.City" maxlength="100" /></div>
-                <div class="field"><label for="school">Trường học</label><input id="school" type="text" name="School" value="@Model.School" maxlength="150" /></div>
+                <input id="edit-post-id" type="hidden" name="postId" />
+                <input id="edit-post-source" type="hidden" name="source" value="profile" />
+                <div class="author"><span class="avatar">@if (!string.IsNullOrWhiteSpace(avatarUrl)) { <img src="@avatarUrl" alt="avatar" /> } else { <span>@firstLetter</span> }</span><strong>@displayName</strong></div>
+                <textarea class="textarea" id="edit-post-textarea" name="content" maxlength="2000" placeholder="Bạn đang nghĩ gì?"></textarea>
                 <button class="submit" type="submit">Lưu thay đổi</button>
             </form>
         </div>
     </div>
 
+    @if (Model.IsOwnProfile)
+    {
+        <div class="modal profile-modal" id="profile-modal" hidden>
+            <div class="modal-card">
+                <div class="modal-head">Chỉnh sửa trang cá nhân<button class="close" type="button" data-close-profile-modal><i class="fa-solid fa-xmark"></i></button></div>
+                <form class="modal-body" asp-controller="Home" asp-action="UpdateProfile" method="post">
+                    @Html.AntiForgeryToken()
+                    <div class="field"><label for="name">Họ và tên</label><input id="name" type="text" name="FullName" value="@displayName" maxlength="100" required /></div>
+                    <div class="field"><label for="bio">Tiểu sử</label><textarea id="bio" name="Bio" maxlength="300">@Model.Bio</textarea></div>
+                    <div class="field"><label for="city">Thành phố</label><input id="city" type="text" name="City" value="@Model.City" maxlength="100" /></div>
+                    <div class="field"><label for="school">Trường học</label><input id="school" type="text" name="School" value="@Model.School" maxlength="150" /></div>
+                    <button class="submit" type="submit">Lưu thay đổi</button>
+                </form>
+            </div>
+        </div>
+    }
+
+    <div class="social-toast-host" id="socialToastHost"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/%40microsoft/signalr@8.0.7/dist/browser/signalr.min.js"></script>
+    <script src="~/js/social-realtime.js"></script>
+    <script src="~/js/social-search.js" asp-append-version="true"></script>
+    <script src="~/js/social-actions.js" asp-append-version="true"></script>
     <script>
         (() => {
             const postModal = document.getElementById("post-modal");
@@ -375,7 +513,13 @@
             const profileDropdown = document.getElementById("profilePageDropdown");
 
             const openModal = (modal) => { if (!modal) return; modal.hidden = false; document.body.style.overflow = "hidden"; };
-            const closeModal = (modal) => { if (!modal) return; modal.hidden = true; if (postModal.hidden && profileModal.hidden) document.body.style.overflow = ""; };
+            const closeModal = (modal) => {
+                if (!modal) return;
+                modal.hidden = true;
+                const isPostClosed = !postModal || postModal.hidden;
+                const isProfileClosed = !profileModal || profileModal.hidden;
+                if (isPostClosed && isProfileClosed) document.body.style.overflow = "";
+            };
 
             openPost.forEach(btn => btn.addEventListener("click", () => openModal(postModal)));
             closePost?.addEventListener("click", () => closeModal(postModal));
@@ -433,6 +577,7 @@
                     targetInput?.focus();
                 });
             });
+
         })();
     </script>
 </body>

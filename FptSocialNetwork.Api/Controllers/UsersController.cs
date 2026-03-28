@@ -36,6 +36,29 @@ namespace FptSocialNetwork.Api.Controllers
             return Ok(profile);
         }
 
+        [HttpGet("{userId:int}")]
+        public async Task<ActionResult<MyProfileDto>> GetById([FromRoute] int userId)
+        {
+            if (userId <= 0)
+            {
+                return BadRequest("User id is invalid.");
+            }
+
+            var currentUserId = ResolveCurrentUserId();
+            if (!currentUserId.HasValue)
+            {
+                return Unauthorized();
+            }
+
+            var profile = await _userService.GetProfileAsync(userId);
+            if (profile is null)
+            {
+                return NotFound();
+            }
+
+            return Ok(profile);
+        }
+
         [HttpPost("me/profile")]
         public async Task<ActionResult<MyProfileDto>> UpdateMe([FromBody] UpdateMyProfileRequest request)
         {
@@ -85,6 +108,32 @@ namespace FptSocialNetwork.Api.Controllers
 
             var followers = await _userService.GetFollowersAsync(userId.Value, take);
             return Ok(followers);
+        }
+
+        [HttpGet("{userId:int}/followers")]
+        public async Task<ActionResult<List<FollowUserDto>>> GetFollowers([FromRoute] int userId, [FromQuery] int take = 30)
+        {
+            var currentUserId = ResolveCurrentUserId();
+            if (!currentUserId.HasValue)
+            {
+                return Unauthorized();
+            }
+
+            var followers = await _userService.GetFollowersAsync(userId, take);
+            return Ok(followers);
+        }
+
+        [HttpGet("{userId:int}/follow-status")]
+        public async Task<ActionResult<bool>> GetFollowStatus([FromRoute] int userId)
+        {
+            var currentUserId = ResolveCurrentUserId();
+            if (!currentUserId.HasValue)
+            {
+                return Unauthorized();
+            }
+
+            var isFollowing = await _userService.IsFollowingAsync(currentUserId.Value, userId);
+            return Ok(isFollowing);
         }
 
         [HttpGet("me/following")]

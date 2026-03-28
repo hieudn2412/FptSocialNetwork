@@ -6041,23 +6041,23 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\admin\\.nuget\\packages\\": {},
+    "C:\\Users\\tuann\\.nuget\\packages\\": {},
     "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\FA26\\PRN232\\FptSocialNetwork\\FptSocialNetwork.Client\\FptSocialNetwork.Client.csproj",
+      "projectUniqueName": "D:\\CSharp\\PRN232\\moi\\FptSocialNetwork\\FptSocialNetwork.Client\\FptSocialNetwork.Client.csproj",
       "projectName": "FptSocialNetwork.Client",
-      "projectPath": "D:\\FA26\\PRN232\\FptSocialNetwork\\FptSocialNetwork.Client\\FptSocialNetwork.Client.csproj",
-      "packagesPath": "C:\\Users\\admin\\.nuget\\packages\\",
-      "outputPath": "D:\\FA26\\PRN232\\FptSocialNetwork\\FptSocialNetwork.Client\\obj\\",
+      "projectPath": "D:\\CSharp\\PRN232\\moi\\FptSocialNetwork\\FptSocialNetwork.Client\\FptSocialNetwork.Client.csproj",
+      "packagesPath": "C:\\Users\\tuann\\.nuget\\packages\\",
+      "outputPath": "D:\\CSharp\\PRN232\\moi\\FptSocialNetwork\\FptSocialNetwork.Client\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
       ],
       "configFilePaths": [
-        "C:\\Users\\admin\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\tuann\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
@@ -6072,8 +6072,8 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "projectReferences": {
-            "D:\\FA26\\PRN232\\FptSocialNetwork\\DataAccessLayer\\DataAccessLayer.csproj": {
-              "projectPath": "D:\\FA26\\PRN232\\FptSocialNetwork\\DataAccessLayer\\DataAccessLayer.csproj"
+            "D:\\CSharp\\PRN232\\moi\\FptSocialNetwork\\DataAccessLayer\\DataAccessLayer.csproj": {
+              "projectPath": "D:\\CSharp\\PRN232\\moi\\FptSocialNetwork\\DataAccessLayer\\DataAccessLayer.csproj"
             }
           }
         }
@@ -6088,7 +6088,7 @@
         "auditLevel": "low",
         "auditMode": "direct"
       },
-      "SdkAnalysisLevel": "9.0.300"
+      "SdkAnalysisLevel": "10.0.100"
     },
     "frameworks": {
       "net8.0": {
@@ -6110,6 +6110,24 @@
         ],
         "assetTargetFallback": true,
         "warn": true,
+        "downloadDependencies": [
+          {
+            "name": "Microsoft.AspNetCore.App.Ref",
+            "version": "[8.0.21, 8.0.21]"
+          },
+          {
+            "name": "Microsoft.NETCore.App.Host.win-x64",
+            "version": "[8.0.21, 8.0.21]"
+          },
+          {
+            "name": "Microsoft.NETCore.App.Ref",
+            "version": "[8.0.21, 8.0.21]"
+          },
+          {
+            "name": "Microsoft.WindowsDesktop.App.Ref",
+            "version": "[8.0.21, 8.0.21]"
+          }
+        ],
         "frameworkReferences": {
           "Microsoft.AspNetCore.App": {
             "privateAssets": "none"
@@ -6118,7 +6136,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.309/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.100-rc.2.25502.107/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

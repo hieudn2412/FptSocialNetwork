@@ -11,5 +11,7 @@ namespace DataAccessLayer.Services
         Task<ToggleReactionResultDto> ToggleReactionAsync(long postId, int userId);
         Task<PostCommentDto> AddCommentAsync(long postId, int userId, string content);
         Task<PostDto> SharePostAsync(long sourcePostId, int userId, string? content, int? postStatusId);
+        Task<PostDto> UpdatePostAsync(long postId, int userId, UpdatePostRequest request);
+        Task DeletePostAsync(long postId, int userId);
     }
 }

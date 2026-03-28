@@ -107,6 +107,12 @@ namespace DataAccess
                 .HasForeignKey(p => p.PostStatusId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            modelBuilder.Entity<Post>()
+                .HasOne(p => p.SharedFromPost)
+                .WithMany(p => p.SharedByPosts)
+                .HasForeignKey(p => p.SharedFromPostId)
+                .OnDelete(DeleteBehavior.Restrict);
+
             modelBuilder.Entity<Comment>()
                 .HasOne(c => c.Post)
                 .WithMany(p => p.Comments)

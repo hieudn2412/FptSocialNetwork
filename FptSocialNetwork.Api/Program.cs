@@ -65,7 +65,7 @@ namespace FptSocialNetwork.Api
                             var accessToken = context.Request.Query["access_token"];
                             var path = context.HttpContext.Request.Path;
                             if (!string.IsNullOrWhiteSpace(accessToken) &&
-                                path.StartsWithSegments("/hubs/chat"))
+                                (path.StartsWithSegments("/hubs/chat") || path.StartsWithSegments("/hubs/social")))
                             {
                                 context.Token = accessToken;
                             }
@@ -94,6 +94,7 @@ namespace FptSocialNetwork.Api
 
             app.MapControllers();
             app.MapHub<ChatHub>("/hubs/chat");
+            app.MapHub<SocialHub>("/hubs/social");
 
             app.Run();
         }

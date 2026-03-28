@@ -11,5 +11,7 @@ namespace FptSocialNetwork.Client.Services
         Task<ApiResponse<ToggleReactionResultDto>> ToggleReactionAsync(long postId);
         Task<ApiResponse<PostCommentDto>> AddCommentAsync(long postId, string content);
         Task<ApiResponse<PostDto>> SharePostAsync(long postId, string? content = null, int? postStatusId = null);
+        Task<ApiResponse<PostDto>> UpdatePostAsync(long postId, string content, int? postStatusId = null);
+        Task<ApiResponse<DeletePostResultDto>> DeletePostAsync(long postId);
     }
 }

@@ -35,6 +35,11 @@ namespace DataAccessLayer.Services
 
         public async Task<MyProfileDto?> GetMyProfileAsync(int userId)
         {
+            return await GetProfileAsync(userId);
+        }
+
+        public async Task<MyProfileDto?> GetProfileAsync(int userId)
+        {
             return await _context.Users
                 .Where(u => u.Id == userId)
                 .Select(u => new MyProfileDto
@@ -127,7 +132,7 @@ namespace DataAccessLayer.Services
 
             await _context.SaveChangesAsync();
 
-            var updated = await GetMyProfileAsync(userId);
+            var updated = await GetProfileAsync(userId);
             if (updated is null)
             {
                 throw new InvalidOperationException("Cannot load updated profile.");
@@ -211,6 +216,16 @@ namespace DataAccessLayer.Services
                 TargetUserId = targetUserId,
                 IsFollowing = isFollowing
             };
+        }
+
+        public async Task<bool> IsFollowingAsync(int currentUserId, int targetUserId)
+        {
+            if (currentUserId == targetUserId)
+            {
+                return false;
+            }
+
+            return await _context.Follows.AnyAsync(f => f.FollowerId == currentUserId && f.FollowingId == targetUserId);
         }
 
         private static int NormalizeTake(int take)

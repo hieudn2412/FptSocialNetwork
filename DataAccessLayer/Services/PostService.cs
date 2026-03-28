@@ -177,26 +177,9 @@ namespace DataAccessLayer.Services
             }
 
             var normalizedShareContent = content?.Trim() ?? string.Empty;
-            var sourceContent = sourcePost.Content?.Trim() ?? string.Empty;
-            var sourceLabel = $"Chia sẻ từ {sourcePost.User.FullName}";
-
-            var combinedContent = string.Empty;
-            if (string.IsNullOrWhiteSpace(normalizedShareContent) && string.IsNullOrWhiteSpace(sourceContent))
-            {
-                combinedContent = sourceLabel;
-            }
-            else if (string.IsNullOrWhiteSpace(normalizedShareContent))
-            {
-                combinedContent = $"{sourceLabel}\n{sourceContent}".Trim();
-            }
-            else if (string.IsNullOrWhiteSpace(sourceContent))
-            {
-                combinedContent = $"{normalizedShareContent}\n\n{sourceLabel}".Trim();
-            }
-            else
-            {
-                combinedContent = $"{normalizedShareContent}\n\n{sourceLabel}\n{sourceContent}".Trim();
-            }
+            var combinedContent = string.IsNullOrWhiteSpace(normalizedShareContent)
+                ? $"Đã chia sẻ bài viết của {sourcePost.User.FullName}."
+                : normalizedShareContent;
 
             var statusId = postStatusId ?? await ResolveDefaultStatusIdAsync();
             var statusExists = await _context.PostStatuses.AnyAsync(s => s.Id == statusId);
@@ -210,7 +193,10 @@ namespace DataAccessLayer.Services
                 UserId = userId,
                 PostStatusId = statusId,
                 Content = combinedContent,
-                MediaUrl = sourcePost.MediaUrl ?? string.Empty,
+                // Shared posts render the source content block separately, so we avoid
+                // duplicating the source media on the outer shared post.
+                MediaUrl = string.Empty,
+                SharedFromPostId = sourcePostId,
                 CreatedAt = DateTime.UtcNow,
                 IsDeleted = false
             };
@@ -219,6 +205,62 @@ namespace DataAccessLayer.Services
             await _context.SaveChangesAsync();
 
             return (await GetPostByIdAsync(sharedPost.Id, userId))!;
+        }
+
+        public async Task<PostDto> UpdatePostAsync(long postId, int userId, UpdatePostRequest request)
+        {
+            var post = await _context.Posts.FirstOrDefaultAsync(p => p.Id == postId && !p.IsDeleted);
+            if (post is null)
+            {
+                throw new InvalidOperationException("Post not found.");
+            }
+
+            if (post.UserId != userId)
+            {
+                throw new InvalidOperationException("Bạn không thể chỉnh sửa bài viết này.");
+            }
+
+            var normalizedContent = request.Content?.Trim() ?? string.Empty;
+            var hasExternalBody = !string.IsNullOrWhiteSpace(post.MediaUrl) || post.SharedFromPostId.HasValue;
+            if (string.IsNullOrWhiteSpace(normalizedContent) && !hasExternalBody)
+            {
+                throw new InvalidOperationException("Nội dung bài viết không được để trống.");
+            }
+
+            if (request.PostStatusId.HasValue)
+            {
+                var statusExists = await _context.PostStatuses.AnyAsync(s => s.Id == request.PostStatusId.Value);
+                if (!statusExists)
+                {
+                    throw new InvalidOperationException("Post status is invalid.");
+                }
+
+                post.PostStatusId = request.PostStatusId.Value;
+            }
+
+            post.Content = normalizedContent;
+            post.UpdatedAt = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+
+            return (await GetPostByIdAsync(post.Id, userId))!;
+        }
+
+        public async Task DeletePostAsync(long postId, int userId)
+        {
+            var post = await _context.Posts.FirstOrDefaultAsync(p => p.Id == postId && !p.IsDeleted);
+            if (post is null)
+            {
+                throw new InvalidOperationException("Post not found.");
+            }
+
+            if (post.UserId != userId)
+            {
+                throw new InvalidOperationException("Bạn không thể xóa bài viết này.");
+            }
+
+            post.IsDeleted = true;
+            post.UpdatedAt = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
         }
 
         private static void NormalizePaging(ref int page, ref int pageSize)
@@ -278,6 +320,14 @@ namespace DataAccessLayer.Services
                     CommentCount = p.Comments.Count(c => !c.IsDeleted),
                     IsLikedByCurrentUser = p.Likes.Any(l => l.UserId == currentUserId),
                     IsAuthorFollowedByCurrentUser = _context.Follows.Any(f => f.FollowerId == currentUserId && f.FollowingId == p.UserId),
+                    SourcePostId = p.SharedFromPostId,
+                    SourceUserId = p.SharedFromPost != null ? p.SharedFromPost.UserId : null,
+                    SourceAuthorName = p.SharedFromPost != null ? p.SharedFromPost.User.FullName : string.Empty,
+                    SourceAuthorAvatarUrl = p.SharedFromPost != null ? p.SharedFromPost.User.AvatarUrl : string.Empty,
+                    SourceContent = p.SharedFromPost != null ? p.SharedFromPost.Content : string.Empty,
+                    SourceMediaUrl = p.SharedFromPost != null ? p.SharedFromPost.MediaUrl : string.Empty,
+                    SourceCreatedAt = p.SharedFromPost != null ? p.SharedFromPost.CreatedAt : null,
+                    SourcePostDeleted = p.SharedFromPost != null && p.SharedFromPost.IsDeleted,
                     RecentComments = p.Comments
                         .Where(c => !c.IsDeleted)
                         .OrderByDescending(c => c.CreatedAt)

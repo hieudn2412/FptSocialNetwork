@@ -16,6 +16,11 @@ namespace FptSocialNetwork.Client.Services
             return await _apiClient.GetAsync<MyProfileDto>("api/users/me");
         }
 
+        public async Task<ApiResponse<MyProfileDto>> GetProfileAsync(int userId)
+        {
+            return await _apiClient.GetAsync<MyProfileDto>($"api/users/{userId}");
+        }
+
         public async Task<ApiResponse<MyProfileDto>> UpdateMyProfileAsync(UpdateMyProfileRequest request)
         {
             return await _apiClient.PostAsync<UpdateMyProfileRequest, MyProfileDto>("api/users/me/profile", request);
@@ -24,6 +29,11 @@ namespace FptSocialNetwork.Client.Services
         public async Task<ApiResponse<List<FollowUserDto>>> GetMyFollowersAsync(int take = 30)
         {
             return await _apiClient.GetAsync<List<FollowUserDto>>($"api/users/me/followers?take={take}");
+        }
+
+        public async Task<ApiResponse<List<FollowUserDto>>> GetFollowersAsync(int userId, int take = 30)
+        {
+            return await _apiClient.GetAsync<List<FollowUserDto>>($"api/users/{userId}/followers?take={take}");
         }
 
         public async Task<ApiResponse<List<FollowUserDto>>> GetMyFollowingAsync(int take = 30)
@@ -40,6 +50,11 @@ namespace FptSocialNetwork.Client.Services
         {
             return await _apiClient.GetAsync<List<UserSearchItemDto>>(
                 $"api/users/search?q={Uri.EscapeDataString(keyword)}");
+        }
+
+        public async Task<ApiResponse<bool>> GetFollowStatusAsync(int targetUserId)
+        {
+            return await _apiClient.GetAsync<bool>($"api/users/{targetUserId}/follow-status");
         }
     }
 }
