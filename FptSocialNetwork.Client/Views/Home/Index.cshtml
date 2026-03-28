@@ -7,6 +7,7 @@
     var avatarUrl = Model.CurrentUserAvatarUrl ?? string.Empty;
     var firstLetter = displayName.Substring(0, 1).ToUpperInvariant();
     var currentUserId = Model.CurrentUserId;
+    var profileUrl = Url.Action("Profile", "Home") ?? "/Home/Profile";
 }
 @functions {
     private static string ToTimeAgo(DateTime createdAt)
@@ -35,24 +36,24 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
     <style>
         :root {
-            --bg-page: #15171a;
-            --bg-topbar: #20242a;
-            --bg-card: #232831;
-            --bg-soft: #373d47;
-            --line: #3a414e;
-            --text-main: #edf0f4;
-            --text-muted: #b7bfcc;
+            --bg-page: #ffffff;
+            --bg-topbar: #ffffff;
+            --bg-card: #ffffff;
+            --bg-soft: #f0f2f5;
+            --line: #e4e6eb;
+            --text-main: #080809;
+            --text-muted: #65686c;
             --brand: #f37021;
             --brand-soft: rgba(243, 112, 33, 0.16);
             --success: #30a24d;
-            --danger-soft: #412427;
+            --danger-soft: #ffe8e6;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
             font-family: "Manrope", "Segoe UI", Arial, sans-serif;
-            background: radial-gradient(circle at 10% -20%, #2e241b 0%, var(--bg-page) 45%);
+            background: var(--bg-page);
             color: var(--text-main);
         }
 
@@ -99,7 +100,7 @@
             height: 40px;
             border-radius: 999px;
             border: 1px solid transparent;
-            background: #353b45;
+            background: #f0f2f5;
             color: var(--text-muted);
             display: flex;
             align-items: center;
@@ -145,13 +146,63 @@
             height: 40px;
             border-radius: 50%;
             border: none;
-            background: #373d48;
+            background: #e4e6eb;
             color: var(--text-main);
             display: inline-flex;
             align-items: center;
             justify-content: center;
             font-size: 17px;
             cursor: pointer;
+        }
+
+        .topbar-avatar-image {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .profile-dropdown-wrap {
+            position: relative;
+        }
+
+        .profile-dropdown-menu {
+            position: absolute;
+            top: 48px;
+            right: 0;
+            min-width: 210px;
+            background: #fff;
+            border: 1px solid #e4e6eb;
+            border-radius: 12px;
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.14);
+            padding: 6px;
+            display: none;
+            z-index: 1600;
+        }
+
+        .profile-dropdown-menu.open {
+            display: block;
+        }
+
+        .profile-menu-item {
+            width: 100%;
+            border: none;
+            background: transparent;
+            text-decoration: none;
+            color: #080809;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 700;
+            height: 40px;
+            padding: 0 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        .profile-menu-item:hover {
+            background: #f2f3f5;
         }
 
         .layout {
@@ -172,7 +223,7 @@
         }
 
         .panel::-webkit-scrollbar { width: 7px; }
-        .panel::-webkit-scrollbar-thumb { background: #505868; border-radius: 8px; }
+        .panel::-webkit-scrollbar-thumb { background: #c8ccd4; border-radius: 8px; }
 
         .card {
             background: var(--bg-card);
@@ -191,7 +242,7 @@
             font-weight: 600;
         }
 
-        .menu-item:hover { background: #323843; }
+        .menu-item:hover { background: #f2f3f5; }
 
         .avatar {
             width: 36px;
@@ -260,7 +311,7 @@
             background: transparent;
         }
 
-        .composer-action:hover { background: #353b46; color: #fff; }
+        .composer-action:hover { background: #f2f3f5; color: #1c1e21; }
         .composer-action .fa-video { color: #f3425f; }
         .composer-action .fa-image { color: #45bd62; }
         .composer-action .fa-paper-plane { color: #74b8ff; }
@@ -341,7 +392,7 @@
             cursor: pointer;
         }
 
-        .post-action-btn:hover { background: #343a45; color: #fff; }
+        .post-action-btn:hover { background: #f2f3f5; color: #1c1e21; }
         .post-action-btn.active { color: var(--brand); }
 
         .follow-form { margin: 0; }
@@ -350,7 +401,7 @@
             height: 32px;
             border-radius: 8px;
             border: 1px solid var(--line);
-            background: #323844;
+            background: #ffffff;
             color: var(--text-main);
             padding: 0 12px;
             font-size: 13px;
@@ -359,7 +410,7 @@
             font-family: inherit;
         }
 
-        .follow-btn:hover { border-color: #4f5765; }
+        .follow-btn:hover { border-color: #c6cbd3; }
         .follow-btn.following { color: var(--brand); border-color: rgba(243, 112, 33, 0.44); }
 
         .comment-list {
@@ -369,7 +420,7 @@
         }
 
         .comment-item {
-            background: #2d333e;
+            background: #f5f6f8;
             border-radius: 10px;
             padding: 8px 10px;
         }
@@ -402,7 +453,7 @@
             height: 38px;
             border-radius: 10px;
             border: 1px solid var(--line);
-            background: #323844;
+            background: #ffffff;
             color: var(--text-main);
             padding: 0 12px;
             outline: none;
@@ -414,7 +465,7 @@
             border: none;
             border-radius: 10px;
             padding: 0 14px;
-            background: #3a414d;
+            background: #1877f2;
             color: #fff;
             font-weight: 700;
             cursor: pointer;
@@ -437,7 +488,7 @@
             font-weight: 700;
         }
 
-        .contact-item:hover { background: #323844; }
+        .contact-item:hover { background: #f2f3f5; }
 
         .online-dot {
             position: relative;
@@ -459,7 +510,7 @@
             padding: 10px 12px;
             border-color: #8c2f2f;
             background: var(--danger-soft);
-            color: #ffd4d4;
+            color: #8a1f1f;
             margin-bottom: 12px;
         }
 
@@ -485,8 +536,8 @@
 
         .post-modal {
             width: min(560px, 100%);
-            background: #252a33;
-            border: 1px solid #414856;
+            background: #ffffff;
+            border: 1px solid #e4e6eb;
             border-radius: 16px;
             overflow: hidden;
         }
@@ -510,8 +561,8 @@
             height: 38px;
             border-radius: 50%;
             border: none;
-            background: #3b424e;
-            color: #e7ebf2;
+            background: #e4e6eb;
+            color: #4b5563;
             cursor: pointer;
             font-size: 18px;
         }
@@ -534,7 +585,7 @@
             outline: none;
             resize: vertical;
             border-radius: 12px;
-            background: #323844;
+            background: #f7f8fa;
             color: var(--text-main);
             padding: 12px;
             font-size: 18px;
@@ -637,9 +688,31 @@
             <button class="icon-btn" type="button" aria-label="Thông báo">
                 <i class="fa-solid fa-bell"></i>
             </button>
-            <a class="icon-btn" href="@Url.Action("Profile", "Home")" aria-label="Trang cá nhân">
-                <i class="fa-solid fa-user"></i>
-            </a>
+            <div class="profile-dropdown-wrap">
+                <button class="icon-btn" type="button" id="homeProfileToggle" aria-label="Tài khoản" aria-haspopup="true" aria-expanded="false">
+                    @if (!string.IsNullOrWhiteSpace(avatarUrl))
+                    {
+                        <img class="topbar-avatar-image" src="@avatarUrl" alt="avatar" />
+                    }
+                    else
+                    {
+                        <i class="fa-solid fa-user"></i>
+                    }
+                </button>
+                <div class="profile-dropdown-menu" id="homeProfileDropdown">
+                    <a class="profile-menu-item" href="@profileUrl">
+                        <i class="fa-solid fa-circle-user"></i>
+                        <span>Trang cá nhân</span>
+                    </a>
+                    <form asp-controller="Account" asp-action="Logout" method="post">
+                        @Html.AntiForgeryToken()
+                        <button class="profile-menu-item" type="submit">
+                            <i class="fa-solid fa-right-from-bracket"></i>
+                            <span>Đăng xuất</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
         </div>
     </header>
 
@@ -666,7 +739,7 @@
                     <span>Bảng tin</span>
                 </a>
                 <a class="menu-item" href="@Url.Action("Index", "Conversation")">
-                    <span class="avatar" style="background:#2b3a4f;color:#74b8ff;">
+                    <span class="avatar" style="background:#e7f3ff;color:#1877f2;">
                         <i class="fa-solid fa-comments"></i>
                     </span>
                     <span>Tin nhắn</span>
@@ -893,6 +966,8 @@
             const imagePreviewWrap = document.getElementById("post-image-preview-wrap");
             const imagePreview = document.getElementById("post-image-preview");
             const commentFocusButtons = document.querySelectorAll("[data-focus-comment]");
+            const profileToggle = document.getElementById("homeProfileToggle");
+            const profileDropdown = document.getElementById("homeProfileDropdown");
 
             const openPostModal = () => {
                 postModal.hidden = false;
@@ -917,6 +992,30 @@
                 if (event.key === "Escape" && !postModal.hidden) {
                     closePostModal();
                 }
+                if (event.key === "Escape" && profileDropdown) {
+                    profileDropdown.classList.remove("open");
+                    if (profileToggle) {
+                        profileToggle.setAttribute("aria-expanded", "false");
+                    }
+                }
+            });
+
+            profileToggle?.addEventListener("click", (event) => {
+                if (!profileDropdown) return;
+                event.stopPropagation();
+                const willOpen = !profileDropdown.classList.contains("open");
+                profileDropdown.classList.toggle("open", willOpen);
+                profileToggle.setAttribute("aria-expanded", willOpen ? "true" : "false");
+            });
+
+            document.addEventListener("click", (event) => {
+                if (!profileDropdown || !profileToggle) return;
+                if (profileDropdown.contains(event.target) || profileToggle.contains(event.target)) {
+                    return;
+                }
+
+                profileDropdown.classList.remove("open");
+                profileToggle.setAttribute("aria-expanded", "false");
             });
 
             imageInput?.addEventListener("change", () => {

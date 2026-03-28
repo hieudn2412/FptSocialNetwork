@@ -81,61 +81,17 @@
     @if (isAuthenticated)
     {
         <div class="fbn-profile-dropdown" id="fbnProfileDropdown">
-            <div class="fbn-dropdown-card">
-                <div class="fbn-dropdown-user">
-                    @if (!string.IsNullOrWhiteSpace(avatarUrl))
-                    {
-                        <img class="avatar" src="@avatarUrl" alt="Avatar" />
-                    }
-                    else
-                    {
-                        <span class="avatar avatar-fallback">@firstLetter</span>
-                    }
-                    <div class="name">@displayName</div>
-                </div>
-
-                <a class="fbn-see-profile-btn" href="@profileUrl">
-                    <i class="fa-solid fa-circle-user"></i>
-                    <span>Xem trang cá nhân</span>
-                </a>
-            </div>
-
             <div class="fbn-dropdown-menu">
-                <div class="fbn-dropdown-item">
+                <a class="fbn-dropdown-item" href="@profileUrl">
                     <div class="fbn-dropdown-item-left">
                         <div class="fbn-dropdown-icon">
-                            <i class="fa-solid fa-gear"></i>
+                            <i class="fa-solid fa-circle-user"></i>
                         </div>
                         <div class="fbn-dropdown-text">
-                            <div class="title">Cài đặt và quyền riêng tư</div>
+                            <div class="title">Trang cá nhân</div>
                         </div>
                     </div>
-                    <i class="fa-solid fa-chevron-right arrow"></i>
-                </div>
-
-                <div class="fbn-dropdown-item">
-                    <div class="fbn-dropdown-item-left">
-                        <div class="fbn-dropdown-icon">
-                            <i class="fa-solid fa-circle-question"></i>
-                        </div>
-                        <div class="fbn-dropdown-text">
-                            <div class="title">Trợ giúp và hỗ trợ</div>
-                        </div>
-                    </div>
-                    <i class="fa-solid fa-chevron-right arrow"></i>
-                </div>
-
-                <div class="fbn-dropdown-item">
-                    <div class="fbn-dropdown-item-left">
-                        <div class="fbn-dropdown-icon">
-                            <i class="fa-solid fa-comment-dots"></i>
-                        </div>
-                        <div class="fbn-dropdown-text">
-                            <div class="title">Đóng góp ý kiến</div>
-                            <div class="sub">CTRL B</div>
-                        </div>
-                    </div>
-                </div>
+                </a>
 
                 <form asp-controller="Account" asp-action="Logout" method="post" class="fbn-dropdown-form">
                     @Html.AntiForgeryToken()
@@ -150,10 +106,6 @@
                         </div>
                     </button>
                 </form>
-            </div>
-
-            <div class="fbn-dropdown-footer">
-                Quyền riêng tư · Điều khoản · Quảng cáo · Lựa chọn quảng cáo · Cookie · Xem thêm
             </div>
         </div>
     }

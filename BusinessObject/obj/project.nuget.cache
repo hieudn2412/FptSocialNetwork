@@ -1,12 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "8KKoYPCfHDQ=",
+  "dgSpecHash": "+InXjFDL5Z8=",
   "success": true,
-  "projectFilePath": "D:\\CSharp\\PRN232\\FptSocialNetwork\\BusinessObject\\BusinessObjects.csproj",
-  "expectedPackageFiles": [
-    "C:\\Users\\tuann\\.nuget\\packages\\microsoft.netcore.app.ref\\8.0.21\\microsoft.netcore.app.ref.8.0.21.nupkg.sha512",
-    "C:\\Users\\tuann\\.nuget\\packages\\microsoft.windowsdesktop.app.ref\\8.0.21\\microsoft.windowsdesktop.app.ref.8.0.21.nupkg.sha512",
-    "C:\\Users\\tuann\\.nuget\\packages\\microsoft.aspnetcore.app.ref\\8.0.21\\microsoft.aspnetcore.app.ref.8.0.21.nupkg.sha512"
-  ],
+  "projectFilePath": "D:\\FA26\\PRN232\\FptSocialNetwork\\BusinessObject\\BusinessObjects.csproj",
+  "expectedPackageFiles": [],
   "logs": []
 }

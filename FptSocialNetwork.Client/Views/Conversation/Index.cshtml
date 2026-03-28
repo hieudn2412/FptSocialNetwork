@@ -766,6 +766,20 @@
             display: block;
         }
 
+        .bubble.attachment-bubble {
+            background: transparent;
+            padding: 0;
+            border-radius: 14px;
+            overflow: hidden;
+        }
+
+        .bubble:has(.attachment-image) {
+            background: transparent;
+            padding: 0;
+            border-radius: 14px;
+            overflow: hidden;
+        }
+
         .message-row.own {
             justify-content: flex-end;
         }
@@ -786,6 +800,16 @@
         .message-row.own .bubble {
             background: #1877f2;
             color: #fff;
+        }
+
+        .message-row.own .bubble.attachment-bubble {
+            background: transparent;
+            color: inherit;
+        }
+
+        .message-row.own .bubble:has(.attachment-image) {
+            background: transparent;
+            color: inherit;
         }
 
         .message-row.own .bubble a {
@@ -1424,7 +1448,7 @@
             background: rgba(0, 0, 0, 0.12);
             align-items: flex-start;
             justify-content: center;
-            padding-top: 0;
+            padding-top: 60px;
             z-index: 40;
         }
 
@@ -2092,12 +2116,27 @@
                                 {
                                     <div class="sender-name">@message.SenderName</div>
                                 }
-                                <div class="bubble">@message.Content</div>
+                                @if (!string.IsNullOrWhiteSpace(message.Content))
+                                {
+                                    <div class="bubble">@message.Content</div>
+                                }
                                 @foreach (var attachment in message.Attachments)
                                 {
-                                    <div class="bubble">
-                                        <a href="@attachment.FileUrl" target="_blank" rel="noopener noreferrer">@attachment.FileName</a>
-                                    </div>
+                                    var isImageAttachment = string.Equals(attachment.AttachmentType, "image", StringComparison.OrdinalIgnoreCase);
+                                    if (isImageAttachment)
+                                    {
+                                        <div class="bubble attachment-bubble">
+                                            <a href="@attachment.FileUrl" target="_blank" rel="noopener noreferrer">
+                                                <img src="@attachment.FileUrl" alt="@attachment.FileName" class="attachment-image" />
+                                            </a>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="bubble">
+                                            <a href="@attachment.FileUrl" target="_blank" rel="noopener noreferrer">@attachment.FileName</a>
+                                        </div>
+                                    }
                                 }
                             </div>
                         </div>
@@ -4346,6 +4385,31 @@
                     return;
                 }
 
+                var latestSeenMessageId = "";
+                var latestSeenMembers = [];
+                for (var seenIndex = allMessages.length - 1; seenIndex >= 0; seenIndex--) {
+                    var candidateMessage = allMessages[seenIndex];
+                    if (Number(candidateMessage.senderId || 0) !== currentUserId) continue;
+
+                    var candidateSeenBy = Array.isArray(candidateMessage.seenBy) ? candidateMessage.seenBy : [];
+                    var seenUserLookupForMessage = {};
+                    var filteredSeenBy = [];
+
+                    candidateSeenBy.forEach(function (member) {
+                        var seenUserId = Number(member.userId || member.UserId || 0);
+                        if (!seenUserId || seenUserId === currentUserId) return;
+                        if (seenUserLookupForMessage[seenUserId]) return;
+
+                        seenUserLookupForMessage[seenUserId] = true;
+                        filteredSeenBy.push(member);
+                    });
+
+                    if (filteredSeenBy.length === 0) continue;
+                    latestSeenMessageId = String(candidateMessage.id || "");
+                    latestSeenMembers = filteredSeenBy;
+                    break;
+                }
+
                 var html = "";
                 allMessages.forEach(function (message) {
                     var isMine = message.senderId === currentUserId;
@@ -4354,12 +4418,14 @@
                     var timeLabel = timeText + (message.editedAt ? " (đã sửa)" : "");
                     var avatar = escapeHtml(message.senderAvatarUrl || "https://via.placeholder.com/32");
                     var content = escapeHtml(message.content || "");
+                    var hasTextContent = String(message.content || "").trim().length > 0;
                     var replyTo = message.replyTo || null;
                     var attachments = Array.isArray(message.attachments) ? message.attachments : [];
                     var reactions = Array.isArray(message.reactions) ? message.reactions : [];
                     var seenBy = Array.isArray(message.seenBy) ? message.seenBy : [];
                     var isDeleted = Boolean(message.isDeletedForEveryone);
                     var messageId = Number(message.id || 0);
+                    var messageIdKey = String(message.id || "");
                     var isPinned = isMessagePinned(messageId);
                     var replyHtml = "";
                     if (replyTo) {
@@ -4372,7 +4438,7 @@
                         var fileName = escapeHtml(attachment.fileName);
                         var fileUrl = escapeHtml(attachment.fileUrl);
                         if (isImageAttachment(attachment)) {
-                            return '<div class="bubble"><a href="' + fileUrl + '" target="_blank" rel="noopener noreferrer"><img src="' + fileUrl + '" alt="' + fileName + '" class="attachment-image" /></a></div>';
+                            return '<div class="bubble attachment-bubble"><a href="' + fileUrl + '" target="_blank" rel="noopener noreferrer"><img src="' + fileUrl + '" alt="' + fileName + '" class="attachment-image" /></a></div>';
                         }
 
                         return '<div class="bubble"><a href="' + fileUrl + '" target="_blank" rel="noopener noreferrer">' + fileName + "</a></div>";
@@ -4396,12 +4462,15 @@
                     actionsHtml += "</div></div></div>";
 
                     var seenHtml = "";
-                    if (isMine && seenBy.length > 0) {
-                        var seenAvatars = seenBy.slice(0, 4).map(function (member) {
+                    if (isMine && latestSeenMessageId && messageIdKey === latestSeenMessageId && latestSeenMembers.length > 0) {
+                        var seenAvatars = latestSeenMembers.slice(0, 4).map(function (member) {
                             var seenAvatar = escapeHtml(member.avatarUrl || "https://via.placeholder.com/18");
                             return '<img src="' + seenAvatar + '" alt="seen" />';
                         }).join("");
-                        seenHtml = '<div class="seen-icons">' + seenAvatars + "</div>";
+
+                        if (seenAvatars) {
+                            seenHtml = '<div class="seen-icons">' + seenAvatars + "</div>";
+                        }
                     }
 
                     html += '<div class="message-row ' + (isMine ? "own" : "") + '" data-message-id="' + messageId + '">';
@@ -4414,7 +4483,9 @@
                         html += '<div class="sender-name">' + sender + "</div>";
                     }
                     html += replyHtml;
-                    html += '<div class="bubble">' + content + "</div>";
+                    if (hasTextContent) {
+                        html += '<div class="bubble">' + content + "</div>";
+                    }
                     html += attachmentsHtml;
                     if (isPinned) {
                         html += '<div class="message-pin"><i class="fa-solid fa-thumbtack"></i><span>Đã ghim</span></div>';

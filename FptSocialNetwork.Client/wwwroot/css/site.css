@@ -1,3 +1,9 @@
+:root {
+    --app-bg: #ffffff;
+    --app-text: #080809;
+    color-scheme: light;
+}
+
 html {
     font-size: 14px;
 }
@@ -9,16 +15,21 @@ html {
 }
 
 body[data-theme="dark"] {
-    --app-bg: #15171a;
-    --app-text: #edf0f4;
+    --app-bg: #ffffff;
+    --app-text: #080809;
+}
+
+body[data-theme="light"] {
+    --app-bg: #ffffff;
+    --app-text: #080809;
 }
 
 body {
     margin: 0;
     min-height: 100vh;
     margin-bottom: 0;
-    background: var(--app-bg, #15171a);
-    color: var(--app-text, #edf0f4);
+    background: var(--app-bg, #ffffff);
+    color: var(--app-text, #080809);
     font-family: "Manrope", "Segoe UI", Arial, sans-serif;
 }
 

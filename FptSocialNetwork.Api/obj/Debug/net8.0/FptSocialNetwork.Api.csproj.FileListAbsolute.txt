@@ -358,3 +358,4 @@ d:\CSharp\PRN232\FptSocialNetwork\.tmp_build\api\FptSocialNetwork.Api.runtimecon
 d:\CSharp\PRN232\FptSocialNetwork\.tmp_build\api\FptSocialNetwork.Api.dll
 d:\CSharp\PRN232\FptSocialNetwork\.tmp_build\api\FptSocialNetwork.Api.pdb
 D:\CSharp\PRN232\FptSocialNetwork\FptSocialNetwork.Api\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
+D:\FA26\PRN232\FptSocialNetwork\FptSocialNetwork.Api\bin\Debug\net8.0\CloudinaryDotNet.dll

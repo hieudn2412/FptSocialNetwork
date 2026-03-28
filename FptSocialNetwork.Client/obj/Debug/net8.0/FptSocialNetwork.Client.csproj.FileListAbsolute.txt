@@ -147,7 +147,6 @@ D:\FA26\PRN232\FptSocialNetwork\_verify\client_modal_resize\FptSocialNetwork.Cli
 D:\FA26\PRN232\FptSocialNetwork\_verify\client_modal_resize\FptSocialNetwork.Client.runtimeconfig.json
 D:\FA26\PRN232\FptSocialNetwork\_verify\client_modal_resize\FptSocialNetwork.Client.dll
 D:\FA26\PRN232\FptSocialNetwork\_verify\client_modal_resize\FptSocialNetwork.Client.pdb
-D:\FA26\PRN232\FptSocialNetwork\FptSocialNetwork.Client\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
 D:\CSharp\PRN232\FptSocialNetwork\FptSocialNetwork.Client\bin\Debug\net8.0\appsettings.Development.json
 D:\CSharp\PRN232\FptSocialNetwork\FptSocialNetwork.Client\bin\Debug\net8.0\appsettings.json
 D:\CSharp\PRN232\FptSocialNetwork\FptSocialNetwork.Client\bin\Debug\net8.0\_verify\obj\FptSocialNetwork.Client.csproj.nuget.dgspec.json
@@ -254,3 +253,4 @@ d:\CSharp\PRN232\FptSocialNetwork\.tmp_build\client\FptSocialNetwork.Client.runt
 d:\CSharp\PRN232\FptSocialNetwork\.tmp_build\client\FptSocialNetwork.Client.dll
 d:\CSharp\PRN232\FptSocialNetwork\.tmp_build\client\FptSocialNetwork.Client.pdb
 D:\CSharp\PRN232\FptSocialNetwork\FptSocialNetwork.Client\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
+D:\FA26\PRN232\FptSocialNetwork\FptSocialNetwork.Client\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt

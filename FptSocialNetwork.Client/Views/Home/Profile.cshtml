@@ -8,6 +8,7 @@
     var firstLetter = displayName.Substring(0, 1).ToUpperInvariant();
     var followerCount = Model.FollowerCount;
     var currentUserId = Model.CurrentUserId;
+    var profileUrl = Url.Action("Profile", "Home") ?? "/Home/Profile";
 }
 @functions {
     private static string ToTimeAgo(DateTime createdAt)
@@ -45,6 +46,12 @@
         .search { width:320px; height:40px; border-radius:999px; background:#353b45; display:flex; align-items:center; gap:10px; padding:0 14px; color:var(--muted); }
         .search input { width:100%; border:none; background:transparent; color:var(--text); outline:none; }
         .home-link,.icon { width:40px; height:40px; border-radius:50%; background:#373d48; border:none; color:var(--text); display:inline-flex; align-items:center; justify-content:center; cursor:pointer; }
+        .topbar-avatar-image { width:100%; height:100%; border-radius:50%; object-fit:cover; }
+        .profile-dropdown-wrap { position:relative; }
+        .profile-dropdown-menu { position:absolute; top:48px; right:0; min-width:210px; background:#252a33; border:1px solid #414856; border-radius:12px; box-shadow:0 12px 24px rgba(0,0,0,.24); padding:6px; display:none; z-index:1600; }
+        .profile-dropdown-menu.open { display:block; }
+        .profile-menu-item { width:100%; border:none; background:transparent; text-decoration:none; color:var(--text); border-radius:8px; font-size:14px; font-weight:700; height:40px; padding:0 10px; display:flex; align-items:center; gap:10px; cursor:pointer; font-family:inherit; }
+        .profile-menu-item:hover { background:#343a45; }
         .home-link { width:86px; height:46px; border-radius:10px; color:var(--brand); background:rgba(243,112,33,.16); position:relative; font-size:21px; }
         .home-link::after { content:""; position:absolute; left:18px; right:18px; bottom:-5px; height:3px; border-radius:20px; background:var(--brand); }
         .page { max-width:1120px; margin:0 auto; padding:0 16px 24px; }
@@ -141,7 +148,35 @@
             <div class="search"><i class="fa-solid fa-magnifying-glass"></i><input type="text" placeholder="Tìm kiếm trên FPT Social" /></div>
         </div>
         <div class="row"><a class="home-link" href="@Url.Action("Index", "Home")"><i class="fa-solid fa-house"></i></a></div>
-        <div class="row"><a class="icon" href="@Url.Action("Index", "Conversation")"><i class="fa-solid fa-comment-dots"></i></a><button class="icon" type="button"><i class="fa-solid fa-bell"></i></button><a class="icon" href="@Url.Action("Profile", "Home")"><i class="fa-solid fa-user"></i></a></div>
+        <div class="row">
+            <a class="icon" href="@Url.Action("Index", "Conversation")"><i class="fa-solid fa-comment-dots"></i></a>
+            <button class="icon" type="button"><i class="fa-solid fa-bell"></i></button>
+            <div class="profile-dropdown-wrap">
+                <button class="icon" type="button" id="profilePageToggle" aria-label="Tài khoản" aria-haspopup="true" aria-expanded="false">
+                    @if (!string.IsNullOrWhiteSpace(avatarUrl))
+                    {
+                        <img class="topbar-avatar-image" src="@avatarUrl" alt="avatar" />
+                    }
+                    else
+                    {
+                        <i class="fa-solid fa-user"></i>
+                    }
+                </button>
+                <div class="profile-dropdown-menu" id="profilePageDropdown">
+                    <a class="profile-menu-item" href="@profileUrl">
+                        <i class="fa-solid fa-circle-user"></i>
+                        <span>Trang cá nhân</span>
+                    </a>
+                    <form asp-controller="Account" asp-action="Logout" method="post">
+                        @Html.AntiForgeryToken()
+                        <button class="profile-menu-item" type="submit">
+                            <i class="fa-solid fa-right-from-bracket"></i>
+                            <span>Đăng xuất</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
     </header>
 
     <div class="page">
@@ -336,6 +371,8 @@
             const avatarInput = document.getElementById("avatar-file-input");
             const avatarForm = document.getElementById("avatar-form");
             const commentFocusButtons = document.querySelectorAll("[data-focus-comment]");
+            const profileToggle = document.getElementById("profilePageToggle");
+            const profileDropdown = document.getElementById("profilePageDropdown");
 
             const openModal = (modal) => { if (!modal) return; modal.hidden = false; document.body.style.overflow = "hidden"; };
             const closeModal = (modal) => { if (!modal) return; modal.hidden = true; if (postModal.hidden && profileModal.hidden) document.body.style.overflow = ""; };
@@ -346,7 +383,36 @@
             closeProfile?.addEventListener("click", () => closeModal(profileModal));
 
             [postModal, profileModal].forEach(modal => modal?.addEventListener("click", (event) => { if (event.target === modal) closeModal(modal); }));
-            document.addEventListener("keydown", (event) => { if (event.key === "Escape") { closeModal(postModal); closeModal(profileModal); } });
+            document.addEventListener("keydown", (event) => {
+                if (event.key === "Escape") {
+                    closeModal(postModal);
+                    closeModal(profileModal);
+                    if (profileDropdown) {
+                        profileDropdown.classList.remove("open");
+                    }
+                    if (profileToggle) {
+                        profileToggle.setAttribute("aria-expanded", "false");
+                    }
+                }
+            });
+
+            profileToggle?.addEventListener("click", (event) => {
+                if (!profileDropdown) return;
+                event.stopPropagation();
+                const willOpen = !profileDropdown.classList.contains("open");
+                profileDropdown.classList.toggle("open", willOpen);
+                profileToggle.setAttribute("aria-expanded", willOpen ? "true" : "false");
+            });
+
+            document.addEventListener("click", (event) => {
+                if (!profileDropdown || !profileToggle) return;
+                if (profileDropdown.contains(event.target) || profileToggle.contains(event.target)) {
+                    return;
+                }
+
+                profileDropdown.classList.remove("open");
+                profileToggle.setAttribute("aria-expanded", "false");
+            });
 
             imageInput?.addEventListener("change", () => {
                 const file = imageInput.files && imageInput.files[0];

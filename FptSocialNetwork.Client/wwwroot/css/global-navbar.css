@@ -222,11 +222,11 @@
     position: absolute;
     top: 62px;
     right: 10px;
-    width: min(420px, calc(100vw - 20px));
+    width: min(280px, calc(100vw - 20px));
     background: var(--dropdown-bg);
     border-radius: 16px;
     box-shadow: 0 16px 28px rgba(0, 0, 0, 0.26);
-    padding: 12px;
+    padding: 8px;
     display: none;
     z-index: 1200;
     border: 1px solid var(--dropdown-line);
@@ -307,6 +307,7 @@
     width: 100%;
     border: none;
     background: transparent;
+    text-decoration: none;
     display: flex;
     align-items: center;
     justify-content: space-between;

@@ -1,16 +1,16 @@
 (function () {
-    function applyDarkTheme() {
+    function applyLightTheme() {
         if (document.documentElement) {
-            document.documentElement.setAttribute("data-theme", "dark");
+            document.documentElement.setAttribute("data-theme", "light");
         }
 
         if (document.body) {
-            document.body.setAttribute("data-theme", "dark");
+            document.body.setAttribute("data-theme", "light");
         }
     }
 
     function initTheme() {
-        applyDarkTheme();
+        applyLightTheme();
     }
 
     if (document.readyState === "loading") {
@@ -20,7 +20,7 @@
     }
 
     window.fptTheme = {
-        current: function () { return "dark"; },
-        set: applyDarkTheme
+        current: function () { return "light"; },
+        set: applyLightTheme
     };
 })();
